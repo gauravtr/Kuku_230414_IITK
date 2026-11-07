@@ -14,6 +14,7 @@ except Exception:
     pass
 
 from nyay.engine import NyaySaathi, new_state  # noqa: E402
+from nyay.guard import MARKER_RE  # noqa: E402
 from nyay.llm import LLM, _safe  # noqa: E402
 
 st.set_page_config(page_title="Nyay Saathi · Free legal help for India", page_icon="⚖️", layout="wide",
@@ -100,6 +101,11 @@ if not available:
     st.error("The AI service isn't configured yet. The owner needs to add a free GEMINI_API_KEY in Settings → Secrets.")
 
 
+def clean(x) -> str:
+    """Case-file text for display: drop internal law-card tags like [GEN-LIMIT]."""
+    return MARKER_RE.sub("", str(x)).replace("  ", " ").strip()
+
+
 def friendly_error(e: Exception) -> str:
     print("Nyay Saathi model error:", type(e).__name__, _safe(e), flush=True)   # shows in the app logs
     return ("Sorry, the AI service is busy or unavailable right now. Please try again in a minute. "
@@ -165,23 +171,23 @@ with tab_case:
     if not case:
         st.info("Your case file builds up automatically as you talk: facts, timeline, proof and deadlines.")
     else:
-        st.subheader(case.get("summary", "Your case"))
+        st.subheader(clean(case.get("summary", "Your case")))
         m1, m2, m3 = st.columns(3)
         m1.metric("Problem type", (state.get("issue") or "-").title())
         m2.metric("Amount at stake", case.get("amount_at_stake") or "-")
         m3.metric("Place", case.get("place") or "-")
         for d in case.get("deadlines", []):
-            st.warning(f"⏰ {d}")
+            st.warning(f"⏰ {clean(d)}")
         if case.get("timeline"):
             st.markdown("**Timeline**")
             st.dataframe(case["timeline"], width="stretch", hide_index=True)
         c3, c4 = st.columns(2)
         with c3:
             st.markdown("**✅ Proof you have**")
-            st.markdown("\n".join(f"- {p}" for p in case.get("proof_have", [])) or "_Nothing yet_")
+            st.markdown("\n".join(f"- {clean(p)}" for p in case.get("proof_have", [])) or "_Nothing yet_")
         with c4:
             st.markdown("**📌 Proof to collect**")
-            st.markdown("\n".join(f"- {p}" for p in case.get("proof_missing", [])) or "_Nothing pending_")
+            st.markdown("\n".join(f"- {clean(p)}" for p in case.get("proof_missing", [])) or "_Nothing pending_")
         st.download_button("⬇️ Download case file", json.dumps(case, ensure_ascii=False, indent=2), "nyay_saathi_case.json")
 
 # --------------------------------------------------------------------- draft
