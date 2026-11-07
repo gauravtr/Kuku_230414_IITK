@@ -135,7 +135,9 @@ class NyaySaathi:
                                                 language=lang, card_ids=", ".join(c["id"] for c in cards))
         msgs = practise_history + [{"role": "user", "content": user_text}]
         raw = self.llm.chat(system, msgs, temperature=0.7, max_tokens=2048)
+        for c in cards:   # coach tips may cite a bare card ID; bracket it so it becomes a numbered, linked source
+            raw = re.sub(rf"(?<!\[){re.escape(c['id'])}(?!\])", f"[{c['id']}]", raw)
         g = check(raw, self.kb)
-        shown = g.text + (f"\n\n{footer(g)}" if g.flags else "")
+        shown = g.text + (f"\n\n{footer(g)}" if g.flags or g.sources else "")
         practise_history += [{"role": "user", "content": user_text}, {"role": "assistant", "content": shown}]
         return {"reply": shown, "guard_flags": g.flags, "model": self.llm.name, "raw": raw}
