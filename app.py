@@ -171,11 +171,11 @@ with tab_case:
     if not case:
         st.info("Your case file builds up automatically as you talk: facts, timeline, proof and deadlines.")
     else:
-        st.subheader(clean(case.get("summary", "Your case")))
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Problem type", (state.get("issue") or "-").title())
-        m2.metric("Amount at stake", case.get("amount_at_stake") or "-")
-        m3.metric("Place", case.get("place") or "-")
+        st.markdown(f"#### {clean(case.get('summary', 'Your case'))}")
+        facts = [("Problem type", (state.get("issue") or "").title()), ("Amount at stake", case.get("amount_at_stake")),
+                 ("Place", case.get("place"))]
+        st.markdown(" \u00b7 ".join(f"**{k}:** {clean(v)}" for k, v in facts
+                                    if v and str(v).strip().lower() not in ("unknown", "-", "none", "n/a")))
         for d in case.get("deadlines", []):
             st.warning(f"⏰ {clean(d)}")
         if case.get("timeline"):
