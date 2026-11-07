@@ -27,6 +27,8 @@ CASES = [
     ("Section 45 lets you claim.", True),                                               # no act, no card cited
     ("Section 45 lets you claim [COW-45].", False),                                     # act inferred from cited card
     ("You paid Rs. 18,999 for the phone.", False),                                      # 'Rs.' must not look like 's.'
+    ("Claim within 3 years [COW-45, GEN-LIMIT].", False),                               # two cards in one bracket (live-app bug)
+    ("Claim within 3 years [COW-45, FAKE-2].", True),                                   # ...and an invented one in the pair
 ]
 
 def run():
