@@ -56,7 +56,12 @@ def _find_act(kb: KB, window: str, nearest_end: bool = False):
     return best, (len(w) - best_pos if nearest_end else best_pos)
 
 
+MULTI_MARKER_RE = re.compile(r"\[([A-Z]{2,6}-[A-Z0-9]{1,12}(?:\s*[,;]\s*[A-Z]{2,6}-[A-Z0-9]{1,12})+)\]")
+
+
 def check(text: str, kb: KB) -> GuardResult:
+    # "[COW-45, GEN-LIMIT]" -> "[COW-45][GEN-LIMIT]" so each card becomes its own numbered source
+    text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{x.strip()}]" for x in re.split(r"[,;]", m.group(1))), text)
     flags, marks = [], []  # marks: (end_index, label)
     allowed = kb.allowed_sections()
 
