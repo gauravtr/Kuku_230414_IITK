@@ -1,0 +1,330 @@
+{
+ "_about": "One playbook per problem type: what facts to collect, what proof matters, the escalation ladder, and when to hand over to a real lawyer. Keywords are used by code (not the model) to pick which law cards go into the prompt.",
+ "issues": {
+  "deposit": {
+   "label": "Security deposit not returned by landlord",
+   "keywords": [
+    "deposit",
+    "landlord",
+    "owner",
+    "rent",
+    "tenant",
+    "flat",
+    "pg",
+    "vacate",
+    "vacated",
+    "advance",
+    "किराय",
+    "मकान मालिक",
+    "जमा",
+    "सिक्योरिटी",
+    "डिपॉजिट",
+    "kiraya",
+    "makan malik",
+    "வாடகை",
+    "முன்பணம்",
+    "வீட்டு உரிமையாளர்"
+   ],
+   "facts_to_collect": [
+    "city and state",
+    "rent and deposit amount",
+    "date you moved in and date you vacated / handed over keys",
+    "is there a written rent agreement, and what does it say about deposit and deductions",
+    "what the landlord says the deductions are for",
+    "how the deposit was paid (bank/UPI/cash)"
+   ],
+   "proof": [
+    "rent agreement",
+    "deposit payment proof (bank/UPI statement, receipt)",
+    "move-in and move-out photos/videos",
+    "key handover proof",
+    "chats/emails asking for the refund"
+   ],
+   "ladder": [
+    "Ask in writing (WhatsApp/email) for the refund with a deadline of 7-15 days and ask for an itemised list of deductions",
+    "Send a legal notice (Nyay Saathi can draft it) by Speed Post/Registered Post AD and keep the receipt",
+    "Try free settlement through the DLSA / Lok Adalat",
+    "File for recovery before the Rent Authority (if your state has one) or the civil court"
+   ],
+   "drafts": [
+    "legal_notice"
+   ],
+   "lawyer_when": [
+    "landlord claims large damages or files a counter-claim",
+    "amount is large (over ~Rs 5 lakh)",
+    "you need to file the civil suit itself"
+   ]
+  },
+  "consumer": {
+   "label": "Refund / defective product / bad service (consumer)",
+   "keywords": [
+    "refund",
+    "return",
+    "order",
+    "delivery",
+    "defective",
+    "product",
+    "warranty",
+    "service",
+    "replacement",
+    "customer care",
+    "online",
+    "seller",
+    "app",
+    "booking",
+    "flight",
+    "रिफंड",
+    "वापस",
+    "सामान",
+    "ऑर्डर",
+    "खराब",
+    "kharab",
+    "paisa wapas",
+    "return nahi",
+    "பணம் திரும்ப",
+    "பொருள்"
+   ],
+   "facts_to_collect": [
+    "what was bought, from whom (platform + seller), price and date",
+    "what went wrong and when",
+    "what the company said (complaint/ticket numbers)",
+    "what you want: refund, replacement or compensation"
+   ],
+   "proof": [
+    "invoice/order confirmation",
+    "payment proof",
+    "photos/videos of the defect",
+    "complaint ticket numbers, emails, chats",
+    "warranty card"
+   ],
+   "ladder": [
+    "Complain to the company's grievance officer in writing and note the ticket number",
+    "Register on the National Consumer Helpline (1915 / consumerhelpline.gov.in)",
+    "Optional: send a legal notice (helps, but not legally required for a consumer complaint)",
+    "File a consumer complaint on e-Jagriti (free up to Rs 5 lakh paid)"
+   ],
+   "drafts": [
+    "consumer_complaint",
+    "legal_notice"
+   ],
+   "lawyer_when": [
+    "the claim involves injury, medical negligence or a builder/real-estate matter",
+    "the company has already filed something against you",
+    "value paid above Rs 50 lakh"
+   ]
+  },
+  "salary": {
+   "label": "Salary / wages not paid",
+   "keywords": [
+    "salary",
+    "wages",
+    "wage",
+    "pay",
+    "employer",
+    "company",
+    "job",
+    "resigned",
+    "fired",
+    "terminated",
+    "full and final",
+    "f&f",
+    "payslip",
+    "hr",
+    "तनख्वाह",
+    "वेतन",
+    "सैलरी",
+    "मजदूरी",
+    "नौकरी",
+    "कंपनी",
+    "tankhwah",
+    "salary nahi",
+    "சம்பளம்",
+    "ஊதியம்",
+    "முதலாளி",
+    "வேலை"
+   ],
+   "facts_to_collect": [
+    "employer name and city",
+    "your role and monthly salary",
+    "which months are unpaid and total amount",
+    "are you still working, or did you resign / get removed (date)",
+    "offer letter / appointment letter, payslips, bank statements",
+    "how many co-workers are in the same situation"
+   ],
+   "proof": [
+    "offer/appointment letter",
+    "payslips",
+    "bank statements showing salary stopped",
+    "attendance records, ID card",
+    "emails/chats about salary",
+    "resignation/relieving letter"
+   ],
+   "ladder": [
+    "Write to HR/employer by email asking for payment by a date",
+    "Send a legal notice",
+    "File a wage claim with the Labour Department authority under the Code on Wages (s.45) - can be a joint claim with co-workers",
+    "Civil suit (mainly for senior managerial roles - take a lawyer's advice)"
+   ],
+   "drafts": [
+    "legal_notice"
+   ],
+   "lawyer_when": [
+    "you are in a senior managerial role",
+    "the employer has threatened or filed a case against you",
+    "the company is shutting down / insolvency"
+   ]
+  },
+  "cheque": {
+   "label": "Cheque bounce (giving or receiving a notice)",
+   "keywords": [
+    "cheque",
+    "check bounce",
+    "bounced",
+    "138",
+    "dishonour",
+    "चेक",
+    "बाउंस",
+    "செக்",
+    "காசோலை"
+   ],
+   "facts_to_collect": [
+    "are you the person who GAVE the cheque or who RECEIVED it",
+    "cheque amount and date",
+    "date the bank returned it and the reason on the return memo",
+    "date the notice was sent / received",
+    "what the money was for"
+   ],
+   "proof": [
+    "copy of the cheque",
+    "bank return memo",
+    "notice and postal receipts / tracking",
+    "proof of the underlying debt (agreement, chats, invoices)"
+   ],
+   "ladder": [
+    "If you RECEIVED a bounced cheque: send the demand notice within 30 days of the return memo",
+    "Wait 15 days from when the notice is received",
+    "File the complaint within the next one month",
+    "If you GAVE the cheque and got a notice: the 15-day window matters - paying within it avoids the offence; get legal advice immediately"
+   ],
+   "drafts": [
+    "legal_notice"
+   ],
+   "lawyer_when": [
+    "you received a court summons",
+    "you dispute that you owe the money",
+    "the 15-day or one-month deadline is close or has passed"
+   ]
+  },
+  "other": {
+   "label": "Something else",
+   "keywords": [],
+   "facts_to_collect": [
+    "what happened, when, who is involved, what you want"
+   ],
+   "proof": [
+    "any documents, messages, receipts"
+   ],
+   "ladder": [
+    "Nyay Saathi only covers 4 problem types in depth. For anything else, contact free legal aid (15100 / DLSA)."
+   ],
+   "drafts": [],
+   "lawyer_when": [
+    "always for problems outside the 4 covered types"
+   ]
+  }
+ },
+ "red_flags": [
+  {
+   "id": "police",
+   "keywords": [
+    "arrest",
+    "arrested",
+    "police",
+    "fir",
+    "bail",
+    "custody",
+    "summons",
+    "warrant",
+    "गिरफ्तार",
+    "पुलिस",
+    "एफआईआर",
+    "जमानत",
+    "समन",
+    "thana",
+    "थाना",
+    "காவல்",
+    "கைது"
+   ],
+   "message": "This involves the police or a court. Please speak to a lawyer today. Free lawyer: NALSA 15100 or your District Legal Services Authority. Emergency: 112."
+  },
+  {
+   "id": "violence",
+   "keywords": [
+    "beat",
+    "beaten",
+    "hit me",
+    "violence",
+    "threat",
+    "threatening",
+    "dowry",
+    "domestic",
+    "harass",
+    "मारपीट",
+    "धमकी",
+    "दहेज",
+    "घरेलू हिंसा",
+    "அடித்தார்",
+    "மிரட்டல்",
+    "வரதட்சணை"
+   ],
+   "message": "If you are in danger, call 112 now. Women's helpline: 181. Free legal aid: 15100. Your safety comes first - this needs a real lawyer or protection officer, not just an app."
+  },
+  {
+   "id": "self_harm",
+   "keywords": [
+    "suicide",
+    "kill myself",
+    "end my life",
+    "आत्महत्या",
+    "जान दे",
+    "தற்கொலை"
+   ],
+   "message": "I'm really sorry you're going through this. Please talk to someone now: Tele-MANAS 14416 (free, 24x7) or 112 in an emergency."
+  },
+  {
+   "id": "fraud",
+   "keywords": [
+    "otp",
+    "scam",
+    "fraud",
+    "cyber",
+    "hacked",
+    "upi fraud",
+    "ठगी",
+    "धोखाधड़ी",
+    "மோசடி"
+   ],
+   "message": "If money was taken through online fraud, call 1930 or report at cybercrime.gov.in immediately - acting within hours improves the chance of freezing the money."
+  },
+  {
+   "id": "family_property",
+   "keywords": [
+    "divorce",
+    "custody",
+    "maintenance",
+    "property dispute",
+    "land",
+    "inheritance",
+    "तलाक",
+    "जमीन",
+    "बंटवारा",
+    "विरासत",
+    "விவாகரத்து",
+    "நிலம்",
+    "will deed",
+    "वसीयत"
+   ],
+   "message": "Family and property disputes are outside what I cover reliably. Please consult a lawyer - free legal aid is available via 15100 / DLSA."
+  }
+ ]
+}

@@ -1,0 +1,429 @@
+{
+ "_about": "Verified law cards. The model may ONLY cite these, by ID. Every card was checked against the linked source on the 'verified' date. Add a card = add a law the bot is allowed to talk about.",
+ "acts": {
+  "CPA": {
+   "name": "Consumer Protection Act, 2019",
+   "aliases": [
+    "consumer protection act",
+    "cpa",
+    "उपभोक्ता संरक्षण",
+    "நுகர்வோர் பாதுகாப்பு"
+   ]
+  },
+  "ECOM": {
+   "name": "Consumer Protection (E-Commerce) Rules, 2020",
+   "aliases": [
+    "e-commerce rules",
+    "ecommerce rules"
+   ]
+  },
+  "COW": {
+   "name": "Code on Wages, 2019",
+   "aliases": [
+    "code on wages",
+    "wage code",
+    "wages code",
+    "वेतन संहिता",
+    "मजदूरी संहिता",
+    "ஊதியக் குறியீடு",
+    "ஊதிய சட்ட",
+    "payment of wages act",
+    "minimum wages act",
+    "payment of bonus act",
+    "equal remuneration act"
+   ]
+  },
+  "NI": {
+   "name": "Negotiable Instruments Act, 1881",
+   "aliases": [
+    "negotiable instruments",
+    "ni act",
+    "n.i. act",
+    "परक्राम्य लिखत"
+   ]
+  },
+  "TPA": {
+   "name": "Transfer of Property Act, 1882",
+   "aliases": [
+    "transfer of property",
+    "tpa",
+    "संपत्ति अंतरण"
+   ]
+  },
+  "ICA": {
+   "name": "Indian Contract Act, 1872",
+   "aliases": [
+    "contract act",
+    "संविदा अधिनियम"
+   ]
+  },
+  "MTA": {
+   "name": "Model Tenancy Act, 2021",
+   "aliases": [
+    "model tenancy",
+    "आदर्श किरायेदारी"
+   ]
+  },
+  "LSA": {
+   "name": "Legal Services Authorities Act, 1987",
+   "aliases": [
+    "legal services authorities",
+    "विधिक सेवा प्राधिकरण"
+   ]
+  },
+  "LIM": {
+   "name": "Limitation Act, 1963",
+   "aliases": [
+    "limitation act",
+    "परिसीमा अधिनियम"
+   ]
+  },
+  "CPC": {
+   "name": "Code of Civil Procedure, 1908",
+   "aliases": [
+    "civil procedure",
+    "cpc",
+    "सिविल प्रक्रिया"
+   ]
+  },
+  "BNS": {
+   "name": "Bharatiya Nyaya Sanhita, 2023",
+   "aliases": [
+    "bharatiya nyaya sanhita",
+    "bns",
+    "भारतीय न्याय संहिता"
+   ]
+  },
+  "IPC": {
+   "name": "Indian Penal Code, 1860 (repealed for offences from 1 July 2024)",
+   "aliases": [
+    "indian penal code",
+    "ipc",
+    "भारतीय दंड संहिता"
+   ],
+   "outdated": true
+  },
+  "CRPC": {
+   "name": "Code of Criminal Procedure, 1973 (replaced by BNSS from 1 July 2024)",
+   "aliases": [
+    "crpc",
+    "cr.p.c",
+    "criminal procedure",
+    "दंड प्रक्रिया संहिता"
+   ],
+   "outdated": true
+  },
+  "BNSS": {
+   "name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+   "aliases": [
+    "bharatiya nagarik suraksha sanhita",
+    "bnss",
+    "भारतीय नागरिक सुरक्षा संहिता"
+   ]
+  },
+  "BSA": {
+   "name": "Bharatiya Sakshya Adhiniyam, 2023",
+   "aliases": [
+    "bharatiya sakshya adhiniyam",
+    "bsa"
+   ]
+  },
+  "IEA": {
+   "name": "Indian Evidence Act, 1872 (replaced by BSA from 1 July 2024)",
+   "aliases": [
+    "indian evidence act",
+    "evidence act"
+   ],
+   "outdated": true
+  }
+ },
+ "cards": [
+  {
+   "id": "GEN-LEGALAID",
+   "act": "LSA",
+   "sections": [
+    "12",
+    "13"
+   ],
+   "issues": [
+    "*"
+   ],
+   "title": "Free legal aid (Legal Services Authorities Act, 1987, s.12)",
+   "text": "Free legal services (a lawyer, advice, drafting) are available to: women and children, members of Scheduled Castes/Scheduled Tribes, industrial workmen, persons with disability, victims of trafficking or disaster, people in custody, and anyone whose income is below the limit set by their state. Apply at the District Legal Services Authority (DLSA) at the district court, online at nalsa.gov.in, or call the NALSA helpline 15100 (toll-free).",
+   "source": "https://nalsa.gov.in/",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "GEN-LOKADALAT",
+   "act": "LSA",
+   "sections": [
+    "19"
+   ],
+   "issues": [
+    "*"
+   ],
+   "title": "Lok Adalat / pre-litigation settlement (Legal Services Authorities Act, s.19)",
+   "text": "Legal Services Authorities organise Lok Adalats where a dispute can be settled by agreement, even before a case is filed. There is no court fee. Ask at the DLSA or call 15100.",
+   "source": "https://nalsa.gov.in/",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "GEN-LIMIT",
+   "act": "LIM",
+   "sections": [],
+   "issues": [
+    "deposit",
+    "salary",
+    "other"
+   ],
+   "title": "Time limit for civil money-recovery cases (Limitation Act, 1963)",
+   "text": "Most civil suits to recover money must be filed within 3 years. When the 3 years start depends on the facts (for example, when the money became due or was refused). If you are close to 3 years, talk to a lawyer quickly.",
+   "source": "https://www.indiacode.nic.in/ (search: Limitation Act, 1963)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "GEN-NEWCRIMLAW",
+   "act": "BNS",
+   "sections": [],
+   "issues": [
+    "*"
+   ],
+   "title": "New criminal laws from 1 July 2024",
+   "text": "From 1 July 2024 the Indian Penal Code was replaced by the Bharatiya Nyaya Sanhita (BNS), the CrPC by the Bharatiya Nagarik Suraksha Sanhita (BNSS) and the Evidence Act by the Bharatiya Sakshya Adhiniyam (BSA). Old IPC/CrPC section numbers do not apply to new incidents. Criminal matters need a lawyer.",
+   "source": "https://www.mha.gov.in/",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "TEN-MTA",
+   "act": "MTA",
+   "sections": [
+    "11"
+   ],
+   "issues": [
+    "deposit"
+   ],
+   "title": "Security deposit under the Model Tenancy Act, 2021 (s.11)",
+   "text": "The Model Tenancy Act caps the security deposit at 2 months' rent for homes (6 months for non-residential) and says it is to be refunded when the landlord takes back vacant possession, after lawful deductions. It is a MODEL law: it applies only where a state has adopted it or passed a similar law (a few states, e.g. Tamil Nadu, Uttar Pradesh, Andhra Pradesh, Assam have tenancy laws on these lines). Elsewhere your rent agreement and the state's rent law decide.",
+   "source": "https://mohua.gov.in/ (Model Tenancy Act, 2021)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "TEN-WEAR",
+   "act": "TPA",
+   "sections": [
+    "108"
+   ],
+   "issues": [
+    "deposit"
+   ],
+   "title": "Normal wear and tear (Transfer of Property Act, s.108(m))",
+   "text": "A tenant must return the property in the condition they received it, EXCEPT for reasonable wear and tear. So routine repainting, faded walls or normal ageing usually cannot be charged to the tenant unless the agreement clearly says otherwise; real damage can be.",
+   "source": "https://www.indiacode.nic.in/ (search: Transfer of Property Act, 1882)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "TEN-CONTRACT",
+   "act": "ICA",
+   "sections": [
+    "73"
+   ],
+   "issues": [
+    "deposit",
+    "other"
+   ],
+   "title": "Compensation for breach of contract (Indian Contract Act, s.73)",
+   "text": "If someone breaks a contract (like a rent agreement that promises the deposit back), the other side can claim compensation for the loss that naturally follows from the breach.",
+   "source": "https://www.indiacode.nic.in/ (search: Indian Contract Act, 1872)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "TEN-FORUM",
+   "act": "CPC",
+   "sections": [],
+   "issues": [
+    "deposit"
+   ],
+   "title": "Where to file for a deposit not returned",
+   "text": "Usual path: written demand -> legal notice -> case. If your state has a Rent Authority / Rent Court under its tenancy law, go there. Otherwise file a civil suit for recovery of money in the civil court (Small Causes Court in some cities). Where there is a written agreement for a fixed sum, a lawyer may use the faster summary-suit procedure under Order XXXVII of the Code of Civil Procedure. Court fees and the right court depend on the state and the amount - a lawyer or the DLSA can confirm.",
+   "source": "https://www.indiacode.nic.in/ (search: Code of Civil Procedure, 1908)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-DEF",
+   "act": "CPA",
+   "sections": [
+    "2"
+   ],
+   "issues": [
+    "consumer"
+   ],
+   "title": "Who is a consumer; defect and deficiency (Consumer Protection Act, 2019, s.2)",
+   "text": "You are a 'consumer' if you bought goods or hired a service for your own use (not for resale/commercial purpose), including online purchases. A faulty product is a 'defect'; poor or incomplete service (like a refund promised but not paid) is a 'deficiency'. Both can be taken to a Consumer Commission.",
+   "source": "https://www.indiacode.nic.in/ (search: Consumer Protection Act, 2019)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-FORUM",
+   "act": "CPA",
+   "sections": [
+    "34",
+    "35"
+   ],
+   "issues": [
+    "consumer"
+   ],
+   "title": "Which Consumer Commission and where (s.34, s.35 + 2021 Jurisdiction Rules)",
+   "text": "District Commission: value paid up to Rs 50 lakh. State Commission: above Rs 50 lakh up to Rs 2 crore. National Commission: above Rs 2 crore. The value is what you PAID, not what you claim. You can file in the district where you live or work, and you can file it yourself without a lawyer.",
+   "source": "https://pib.gov.in/PressReleasePage.aspx?PRID=1847881",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-EFILE",
+   "act": "CPA",
+   "sections": [
+    "35"
+   ],
+   "issues": [
+    "consumer"
+   ],
+   "title": "Online filing on e-Jagriti and fees",
+   "text": "Consumer complaints can be filed online at https://e-jagriti.gov.in (it replaced e-Daakhil in January 2025). For the District Commission there is no fee when the value paid is up to Rs 5 lakh; small fees apply above that.",
+   "source": "https://e-jagriti.gov.in/",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-LIMIT",
+   "act": "CPA",
+   "sections": [
+    "69"
+   ],
+   "issues": [
+    "consumer"
+   ],
+   "title": "2-year time limit for consumer complaints (s.69)",
+   "text": "A consumer complaint must be filed within 2 years from the date the problem (cause of action) arose. A late complaint is accepted only if the Commission is satisfied there was sufficient cause for the delay and records its reasons.",
+   "source": "https://www.advocatekhoj.com/library/bareacts/consumerprotection2019/69.php",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-RELIEF",
+   "act": "CPA",
+   "sections": [
+    "39"
+   ],
+   "issues": [
+    "consumer"
+   ],
+   "title": "What the Commission can order (s.39)",
+   "text": "The Commission can order the seller/service provider to repair or replace the product, refund the price, pay compensation for loss or harassment, stop an unfair practice, and pay litigation costs.",
+   "source": "https://www.indiacode.nic.in/ (search: Consumer Protection Act, 2019)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "CPA-NCH",
+   "act": "CPA",
+   "sections": [],
+   "issues": [
+    "consumer"
+   ],
+   "title": "National Consumer Helpline 1915 (free, before going to court)",
+   "text": "Call 1915 or file at consumerhelpline.gov.in. The helpline takes up your grievance with the company for free. It cannot pass binding orders, but many refunds get resolved here. Keep the docket number as evidence.",
+   "source": "https://consumerhelpline.gov.in/",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "ECOM-GRIEV",
+   "act": "ECOM",
+   "sections": [],
+   "issues": [
+    "consumer"
+   ],
+   "title": "E-commerce grievance officer (E-Commerce Rules, 2020)",
+   "text": "Online marketplaces and sellers must have a grievance officer whose contact is shown on the platform. The officer must acknowledge your complaint within 48 hours and resolve it within one month.",
+   "source": "https://consumeraffairs.nic.in/ (Consumer Protection (E-Commerce) Rules, 2020)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "COW-INFORCE",
+   "act": "COW",
+   "sections": [],
+   "issues": [
+    "salary"
+   ],
+   "title": "Code on Wages, 2019 is now the law on wages",
+   "text": "The Code on Wages, 2019 came into force on 21 November 2025. It replaced the Payment of Wages Act, 1936, the Minimum Wages Act, 1948, the Payment of Bonus Act, 1965 and the Equal Remuneration Act, 1976. It applies to employees of all establishments.",
+   "source": "https://www.taxmann.com/post/blog/govt-enforces-key-wage-bonus-minimum-wage-provisions-under-wages-code",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "COW-17",
+   "act": "COW",
+   "sections": [
+    "17"
+   ],
+   "issues": [
+    "salary"
+   ],
+   "title": "Deadline to pay wages (Code on Wages, s.17)",
+   "text": "Monthly wages must be paid before the 7th day of the next month (weekly: last working day of the week; daily: end of shift). If an employee resigns, is removed, dismissed or retrenched, or the establishment closes, wages due must be paid within 2 working days.",
+   "source": "https://www.advocatekhoj.com/library/bareacts/codeonwages/17.php",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "COW-45",
+   "act": "COW",
+   "sections": [
+    "45"
+   ],
+   "issues": [
+    "salary"
+   ],
+   "title": "Filing a wage claim (Code on Wages, s.45)",
+   "text": "An employee (or their registered trade union, or the Inspector-cum-Facilitator) can file a claim for unpaid or short-paid wages before the authority appointed by the government (usually through the state Labour Department). The claim should be filed within 3 years of the date it arose; later claims are allowed only for sufficient cause. Several workers can file one joint claim. Note: people in senior managerial roles should confirm with a lawyer whether this route or a civil suit fits them.",
+   "source": "https://lawgist.in/payment-of-wages-act/45",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "NI-138",
+   "act": "NI",
+   "sections": [
+    "138"
+   ],
+   "issues": [
+    "cheque"
+   ],
+   "title": "Cheque bounce is an offence (NI Act, s.138)",
+   "text": "If a cheque given to pay a legally owed debt bounces for insufficient funds, the payee must send a written demand notice within 30 days of getting the bank's return memo. If the drawer pays within 15 days of receiving the notice, no offence is made out. If not, it is an offence punishable with up to 2 years' jail, or a fine up to twice the cheque amount, or both.",
+   "source": "https://www.indiacode.nic.in/ (search: Negotiable Instruments Act, 1881)",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "NI-142",
+   "act": "NI",
+   "sections": [
+    "142"
+   ],
+   "issues": [
+    "cheque"
+   ],
+   "title": "Deadline to file the cheque bounce complaint (NI Act, s.142)",
+   "text": "The complaint must be filed before the Magistrate within one month after the 15-day payment period ends. Courts can accept a late complaint only if sufficient cause for delay is shown; the Supreme Court has treated this limit as strict.",
+   "source": "https://law.drishtiias.com/current-affairs/138-of-nia",
+   "verified": "2026-11-07"
+  },
+  {
+   "id": "NI-143A",
+   "act": "NI",
+   "sections": [
+    "143A"
+   ],
+   "issues": [
+    "cheque"
+   ],
+   "title": "Interim compensation (NI Act, s.143A)",
+   "text": "During a cheque bounce trial the court may order the drawer to pay interim compensation of up to 20% of the cheque amount to the complainant.",
+   "source": "https://www.indiacode.nic.in/ (search: Negotiable Instruments Act, 1881)",
+   "verified": "2026-11-07"
+  }
+ ]
+}
