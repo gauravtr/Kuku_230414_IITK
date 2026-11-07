@@ -28,7 +28,7 @@ OPENAI_COMPATIBLE = {
 }
 DEFAULTS = {"gemini": "gemini-flash-latest", "anthropic": "claude-sonnet-5-5", "manual": "manual"}
 # Google retires model names often; on a 404 we try these in order (first one that answers wins).
-GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-2.5-flash"]
+GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 
@@ -47,7 +47,7 @@ class PendingResponse(Exception):
 
 class LLM:
     def __init__(self, provider: str | None = None, model: str | None = None,
-                 cache_dir: str | None = None, timeout: int = 90):
+                 cache_dir: str | None = None, timeout: int = 50):
         self.provider = (provider or os.getenv("NYAY_PROVIDER") or "gemini").lower()
         default = OPENAI_COMPATIBLE.get(self.provider, (None, None, DEFAULTS.get(self.provider)))[2]
         self.model = model or os.getenv("NYAY_MODEL") or default
@@ -77,8 +77,8 @@ class LLM:
                 break
             except requests.HTTPError as e:  # rate limits on free tiers -> back off
                 code = e.response.status_code if e.response is not None else None
-                if code in (429, 500, 503) and attempt < 2:
-                    time.sleep(8 * (attempt + 1))
+                if code in (429, 500, 503) and attempt < 1:
+                    time.sleep(3 * (attempt + 1))
                     continue
                 raise ModelError(f"model call failed ({code}): {_safe(e)}") from None
             except requests.RequestException as e:
@@ -143,19 +143,30 @@ class LLM:
     def _gemini_post(self, body: dict) -> str:
         """Key goes in a header (never in the URL). On 404 (model retired), walk the fallback list."""
         headers = {"x-goog-api-key": os.environ["GEMINI_API_KEY"]}
-        tried = []
+        tried, last_err, start = [], None, time.monotonic()
         for m in [self.model] + [f for f in GEMINI_FALLBACKS if f != self.model]:
+            if last_err is not None and time.monotonic() - start > 70:
+                break                       # keep the user's total wait bounded
             tried.append(m)
             fast = {**body, "generationConfig": {**body.get("generationConfig", {}), "thinkingConfig": {"thinkingLevel": "low"}}}
-            r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=fast, timeout=self.timeout)
-            if r.status_code == 400:  # model without thinking levels: retry with the plain request
-                r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
+            try:
+                r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=fast, timeout=self.timeout)
+                if r.status_code == 400:  # model without thinking levels: retry with the plain request
+                    r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
+            except requests.Timeout as e:   # slow model -> try the next (faster) one instead of waiting again
+                last_err = e
+                continue
             if r.status_code == 404:
                 continue
+            if r.status_code in (429, 500, 503):
+                last_err = requests.HTTPError(f"{r.status_code} from {m}", response=r)
+                continue                    # overloaded / quota for this model -> next model
             r.raise_for_status()
             if m != self.model:
                 self.model = m          # remember the working model for the rest of the session
             return _gemini_text(r.json())
+        if last_err is not None:
+            raise last_err
         raise ModelError(f"none of these Gemini models is available to this key: {', '.join(tried)}")
 
     def _key(self, system, messages, json_mode) -> str:
