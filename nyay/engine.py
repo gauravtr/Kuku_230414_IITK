@@ -109,7 +109,9 @@ class NyaySaathi:
     def draft(self, state: dict, doc_type: str = "legal_notice") -> dict:
         t = prompts.TEMPLATES[doc_type]
         cards = self.kb.cards_for([state["issue"] or "other"])
-        lang = "the user's language" if state["language"] == "auto" else state["language"]
+        last_user = next((m["content"] for m in reversed(state["history"]) if m["role"] == "user"), "")
+        lang = (f'the same language and script as this message from the user: "{last_user[:200]}"'
+                if state["language"] == "auto" else state["language"])
         system = prompts.DRAFT_SYSTEM.format(
             doc_label=t["label"], language=lang, today=today(), template=t["structure"],
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),
