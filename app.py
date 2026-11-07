@@ -14,7 +14,7 @@ except Exception:
     pass
 
 from nyay.engine import NyaySaathi, new_state  # noqa: E402
-from nyay.llm import LLM  # noqa: E402
+from nyay.llm import LLM, _safe  # noqa: E402
 
 st.set_page_config(page_title="Nyay Saathi · Free legal help for India", page_icon="⚖️", layout="wide",
                    menu_items={"About": "Nyay Saathi: free, multilingual help with everyday legal problems in India. "
@@ -101,8 +101,10 @@ if not available:
 
 
 def friendly_error(e: Exception) -> str:
+    print("Nyay Saathi model error:", type(e).__name__, _safe(e), flush=True)   # shows in the app logs
     return ("Sorry, the AI service is busy or unavailable right now. Please try again in a minute. "
-            "If it's urgent, call the free legal aid helpline **15100**.")
+            "If it's urgent, call the free legal aid helpline **15100**.\n\n"
+            f"`Technical detail: {type(e).__name__}: {_safe(e)[:160]}`")
 
 
 tab_talk, tab_case, tab_draft, tab_practise = st.tabs(["💬 Talk", "📁 My case file", "📝 Prepare a document", "🥊 Practise"])
