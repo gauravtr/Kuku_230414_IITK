@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import time
 
 import requests
@@ -25,7 +26,19 @@ OPENAI_COMPATIBLE = {
     "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY", "meta-llama/llama-3.3-70b-instruct:free"),
     "ollama": ("http://localhost:11434/v1", None, "llama3.1"),
 }
-DEFAULTS = {"gemini": "gemini-2.5-flash", "anthropic": "claude-sonnet-5-5", "manual": "manual"}
+DEFAULTS = {"gemini": "gemini-flash-latest", "anthropic": "claude-sonnet-5-5", "manual": "manual"}
+# Google retires model names often; on a 404 we try these in order (first one that answers wins).
+GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-2.5-flash"]
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+
+class ModelError(RuntimeError):
+    """Error safe to show to users: never contains URLs or API keys."""
+
+
+def _safe(e: Exception) -> str:
+    msg = re.sub(r"https?://\S+", "[url]", str(e))
+    return re.sub(r"(key=|Bearer\s+)[\w\-.]+", r"\1[hidden]", msg)[:300]
 
 
 class PendingResponse(Exception):
@@ -49,7 +62,7 @@ class LLM:
 
     # ------------------------------------------------------------------ public
     def chat(self, system: str, messages: list[dict], json_mode: bool = False,
-             temperature: float = 0.2, max_tokens: int = 2000) -> str:
+             temperature: float = 0.2, max_tokens: int = 8192) -> str:
         """messages: [{'role': 'user'|'assistant', 'content': str}, ...]"""
         key = self._key(system, messages, json_mode)
         cached = self._cache_get(key)
@@ -63,24 +76,26 @@ class LLM:
                 out = self._call(system, messages, json_mode, temperature, max_tokens)
                 break
             except requests.HTTPError as e:  # rate limits on free tiers -> back off
-                if e.response is not None and e.response.status_code in (429, 500, 503) and attempt < 2:
+                code = e.response.status_code if e.response is not None else None
+                if code in (429, 500, 503) and attempt < 2:
                     time.sleep(8 * (attempt + 1))
                     continue
-                raise
+                raise ModelError(f"model call failed ({code}): {_safe(e)}") from None
+            except requests.RequestException as e:
+                raise ModelError(f"could not reach the model: {_safe(e)}") from None
         self._cache_put(key, out, system, messages)
         return out
 
     def transcribe(self, audio: bytes, mime: str = "audio/wav") -> str:
         """Voice input. Free options: Gemini (audio understanding) or Groq Whisper."""
         if self.provider == "gemini" or os.getenv("GEMINI_API_KEY"):
-            url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
-                   f"{self.model if self.provider == 'gemini' else DEFAULTS['gemini']}:generateContent")
             body = {"contents": [{"role": "user", "parts": [
                 {"inline_data": {"mime_type": mime, "data": base64.b64encode(audio).decode()}},
                 {"text": "Transcribe this audio exactly, in the language and script it is spoken in. Output only the transcript."}]}]}
-            r = requests.post(url, params={"key": os.environ["GEMINI_API_KEY"]}, json=body, timeout=self.timeout)
-            r.raise_for_status()
-            return _gemini_text(r.json())
+            try:
+                return self._gemini_post(body)
+            except requests.RequestException as e:
+                raise ModelError(f"voice transcription failed: {_safe(e)}") from None
         if os.getenv("GROQ_API_KEY"):
             r = requests.post("https://api.groq.com/openai/v1/audio/transcriptions",
                               headers={"Authorization": f"Bearer {os.environ['GROQ_API_KEY']}"},
@@ -93,7 +108,6 @@ class LLM:
     # ----------------------------------------------------------------- private
     def _call(self, system, messages, json_mode, temperature, max_tokens) -> str:
         if self.provider == "gemini":
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
             body = {
                 "system_instruction": {"parts": [{"text": system}]},
                 "contents": [{"role": "model" if m["role"] == "assistant" else "user",
@@ -101,9 +115,7 @@ class LLM:
                 "generationConfig": {"temperature": temperature, "maxOutputTokens": max_tokens,
                                      **({"responseMimeType": "application/json"} if json_mode else {})},
             }
-            r = requests.post(url, params={"key": os.environ["GEMINI_API_KEY"]}, json=body, timeout=self.timeout)
-            r.raise_for_status()
-            return _gemini_text(r.json())
+            return self._gemini_post(body)
 
         if self.provider == "anthropic":
             r = requests.post("https://api.anthropic.com/v1/messages", timeout=self.timeout,
@@ -127,6 +139,21 @@ class LLM:
             return r.json()["choices"][0]["message"]["content"]
 
         raise ValueError(f"Unknown provider '{self.provider}'")
+
+    def _gemini_post(self, body: dict) -> str:
+        """Key goes in a header (never in the URL). On 404 (model retired), walk the fallback list."""
+        headers = {"x-goog-api-key": os.environ["GEMINI_API_KEY"]}
+        tried = []
+        for m in [self.model] + [f for f in GEMINI_FALLBACKS if f != self.model]:
+            tried.append(m)
+            r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
+            if r.status_code == 404:
+                continue
+            r.raise_for_status()
+            if m != self.model:
+                self.model = m          # remember the working model for the rest of the session
+            return _gemini_text(r.json())
+        raise ModelError(f"none of these Gemini models is available to this key: {', '.join(tried)}")
 
     def _key(self, system, messages, json_mode) -> str:
         blob = json.dumps({"s": system, "m": messages, "j": json_mode}, ensure_ascii=False, sort_keys=True)
@@ -153,6 +180,6 @@ class LLM:
 
 def _gemini_text(data: dict) -> str:
     try:
-        return "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"])
+        return "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"] if not p.get("thought"))
     except (KeyError, IndexError):
         raise RuntimeError(f"Gemini returned no text: {json.dumps(data)[:400]}")

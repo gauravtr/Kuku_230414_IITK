@@ -116,7 +116,7 @@ class NyaySaathi:
             case_file=json.dumps(state["case"], ensure_ascii=False))
         convo = "\n".join(f"{m['role']}: {m['content']}" for m in state["history"][-8:])
         raw = self.llm.chat(system, [{"role": "user", "content": f"Conversation so far:\n{convo}\n\nDraft the {t['label']} now."}],
-                            json_mode=True, max_tokens=3000)
+                            json_mode=True, max_tokens=8192)
         out = parse_json(raw) or {"document": raw, "blanks": [], "user_note": ""}
         g = check(out.get("document", ""), self.kb)
         blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.\-]{2,60}\]", g.text)))
@@ -132,7 +132,7 @@ class NyaySaathi:
         system = prompts.PRACTISE_SYSTEM.format(opponent=opponent, case_file=json.dumps(state["case"], ensure_ascii=False),
                                                 language=lang, card_ids=", ".join(c["id"] for c in cards))
         msgs = practise_history + [{"role": "user", "content": user_text}]
-        raw = self.llm.chat(system, msgs, temperature=0.7, max_tokens=500)
+        raw = self.llm.chat(system, msgs, temperature=0.7, max_tokens=2048)
         g = check(raw, self.kb)
         shown = g.text + (f"\n\n{footer(g)}" if g.flags else "")
         practise_history += [{"role": "user", "content": user_text}, {"role": "assistant", "content": shown}]
