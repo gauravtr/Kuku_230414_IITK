@@ -111,9 +111,9 @@ tab_talk, tab_case, tab_draft, tab_practise = st.tabs(["💬 Talk", "📁 My cas
 with tab_talk:
     if not st.session_state.chat:
         st.markdown("##### What's the problem? Type or speak in your own words, or try an example:")
-        cols = st.columns(len(EXAMPLES))
-        for col, (label, text) in zip(cols, EXAMPLES):
-            if col.button(label, width="stretch"):
+        cols = st.columns(2)
+        for i, (label, text) in enumerate(EXAMPLES):
+            if cols[i % 2].button(label, width="stretch"):
                 st.session_state.pending = text
         st.caption("🔒 Don't share Aadhaar, bank or card numbers. Nyay Saathi is not a lawyer and does not replace one.")
     for m in st.session_state.chat:
