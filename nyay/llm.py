@@ -146,7 +146,10 @@ class LLM:
         tried = []
         for m in [self.model] + [f for f in GEMINI_FALLBACKS if f != self.model]:
             tried.append(m)
-            r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
+            fast = {**body, "generationConfig": {**body.get("generationConfig", {}), "thinkingConfig": {"thinkingLevel": "low"}}}
+            r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=fast, timeout=self.timeout)
+            if r.status_code == 400:  # model without thinking levels: retry with the plain request
+                r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
             if r.status_code == 404:
                 continue
             r.raise_for_status()
