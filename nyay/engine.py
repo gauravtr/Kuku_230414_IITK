@@ -26,6 +26,21 @@ def today() -> str:
     return os.getenv("NYAY_TODAY") or dt.date.today().isoformat()
 
 
+SCRIPTS = [("\u0900", "\u097f", None), ("\u0b80", "\u0bff", "Tamil"), ("\u0980", "\u09ff", "Bengali"),
+           ("\u0c00", "\u0c7f", "Telugu"), ("\u0c80", "\u0cff", "Kannada"), ("\u0a80", "\u0aff", "Gujarati"),
+           ("\u0d00", "\u0d7f", "Malayalam"), ("\u0a00", "\u0a7f", "Punjabi in Gurmukhi script")]
+HINGLISH = re.compile(r"\b(hai|hain|nahi|nahin|kya|kaise|kyun|mera|meri|mujhe|maine|paisa|wapas|karo|kar|diya|liya|"
+                      r"raha|rahi|tha|thi|aur|lekin|abhi|bhi|ka|ki|ke)\b", re.I)
+
+
+def detect_language(text: str) -> str:
+    """The user's language, decided in code from their own words, so drafts never drift into another language."""
+    for lo, hi, name in SCRIPTS:
+        if any(lo <= ch <= hi for ch in text):
+            return name or f'the same language as this message, in Devanagari script: "{text[:150]}"'
+    return "Hinglish (Hindi in Latin script)" if len(HINGLISH.findall(text)) >= 3 else "English"
+
+
 def new_state(language: str = "auto") -> dict:
     return {"history": [], "case": {}, "issue": None, "language": language, "red_flags": [], "log": [],
             "assessment": {}, "escalation": {"level": "none", "reasons": []}, "plan": [], "open_questions": []}
@@ -180,8 +195,7 @@ class NyaySaathi:
         t = prompts.TEMPLATES[doc_type]
         cards = self.kb.cards_for([state["issue"] or "other"])
         last_user = next((m["content"] for m in reversed(state["history"]) if m["role"] == "user"), "")
-        lang = (f'the same language and script as this message from the user: "{last_user[:200]}"'
-                if state["language"] == "auto" else state["language"])
+        lang = detect_language(last_user) if state["language"] == "auto" else state["language"]
         system = prompts.DRAFT_SYSTEM.format(
             doc_label=t["label"], language=lang, today=today(), template=t["structure"],
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),

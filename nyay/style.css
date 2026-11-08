@@ -87,7 +87,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .matter .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .matter h2 { font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.3; margin: 4px 0 8px; padding: 0; color: var(--ink); }
 .meta { display: flex; flex-wrap: wrap; gap: 6px; }
-.meta span { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--ink-2); background: var(--paper);
+.meta > span { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--ink-2); background: var(--paper);
   border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px 3px 8px; }
 .meta .ms { font-size: 15px; vertical-align: 0; color: var(--muted); }
 .stepper { display: flex; list-style: none; margin: 14px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--line); gap: 0; }
@@ -207,8 +207,8 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
 .docline b { flex: 1; } .docline span.ok { color: var(--green); font-weight: 600; font-size: 12.5px; }
 
 .section-h { display: flex; align-items: baseline; justify-content: space-between; margin: 34px 0 10px; gap: 12px; }
-.section-h h3 { font-family: var(--serif); font-weight: 600; font-size: 24px; margin: 0; padding: 0; color: var(--ink); letter-spacing: -.01em; }
-.section-h span { font-size: 13.5px; color: var(--muted); }
+.section-h .sh { font-family: var(--serif); font-weight: 600; font-size: 24px; margin: 0; padding: 0; color: var(--ink); letter-spacing: -.01em; }
+.section-h > span { font-size: 13.5px; color: var(--muted); }
 
 /* example cards: the whole card is the button (stretched-link pattern) */
 [class*="st-key-ex_"] { position: relative; }
@@ -339,6 +339,25 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
 .foot .b .mark { width: 20px; height: 20px; }
 .foot p { margin: 0; max-width: 46em; }
 .foot.slim { margin-top: 28px; padding-top: 12px; text-align: center; justify-content: center; }
+
+/* ---------- layout guards ---------- */
+/* Streamlit pulls every markdown block up by 1rem; our HTML blocks must not overlap what follows */
+[data-testid="stMarkdownContainer"]:has(> div:first-child, > details:first-child) { margin-bottom: 0 !important; }
+.st-key-nav [data-testid="stElementContainer"], .st-key-nav .stButtonGroup { width: 100% !important; max-width: none !important; }
+.st-key-nav [data-testid="stButtonGroup"] button { padding: 0 8px !important; min-width: 0; }
+.st-key-nav [data-testid="stButtonGroup"] button p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[class*="st-key-card_plan"] [data-testid="stElementContainer"]:has(.stCheckbox), [class*="st-key-card_plan"] .stCheckbox { width: 100% !important; }
+.stApp .note { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+.stApp p.empty-line { font-size: 13.5px; color: var(--faint); }
+.st-key-card_doctype [data-testid="stRadio"] { margin-top: 2px; }
+.brand .name { white-space: nowrap; }
+/* while a reply is being written, drop the previous screen's leftovers instead of greying them out */
+.stApp:has(.thinking) [data-stale="true"], .stApp:has(.paper-empty.loading) [data-stale="true"] { display: none !important; }
+@media (max-width: 760px) {
+  .st-key-topbar [data-testid="stPopover"] button, .st-key-topbar .stButton button { padding: 0 10px !important; min-height: 38px; }
+  .st-key-topbar button p { font-size: 14px !important; }
+  .meta > span { font-size: 12px; }
+}
 
 /* ---------- small screens ---------- */
 @media (max-width: 760px) {
