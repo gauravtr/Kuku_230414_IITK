@@ -13,9 +13,13 @@ import os
 import re
 
 from . import prompts
-from .guard import check, footer
+from .guard import MARKER_RE, check, footer
 from .kb import KB
 from .llm import LLM
+
+
+def MARKER_STRIP(text: str) -> str:
+    return MARKER_RE.sub("", text).replace("  ", " ").strip()
 
 
 def today() -> str:
@@ -23,7 +27,8 @@ def today() -> str:
 
 
 def new_state(language: str = "auto") -> dict:
-    return {"history": [], "case": {}, "issue": None, "language": language, "red_flags": [], "log": []}
+    return {"history": [], "case": {}, "issue": None, "language": language, "red_flags": [], "log": [],
+            "assessment": {}, "escalation": {"level": "none", "reasons": []}, "plan": [], "open_questions": []}
 
 
 def parse_json(raw: str) -> dict | None:
@@ -39,6 +44,51 @@ def parse_json(raw: str) -> dict | None:
             except json.JSONDecodeError:
                 return None
     return None
+
+
+STRENGTHS = ("strong", "moderate", "weak", "unclear")
+ESC_CODES = ("safety", "out_of_scope", "large_amount", "ambiguous")
+LARGE_AMOUNT = 500_000   # Rs 5 lakh: above this, a human lawyer should look at it (playbooks agree)
+
+
+def parse_amount(text) -> int | None:
+    """'Rs 60,000' -> 60000, '1.5 lakh' -> 150000, '2 crore' -> 20000000. None if no number."""
+    if not text:
+        return None
+    t = str(text).lower().replace(",", "")
+    m = re.search(r"(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k)?", t)
+    if not m:
+        return None
+    n = float(m.group(1)) * {"lakh": 1e5, "lac": 1e5, "crore": 1e7, "cr": 1e7, "k": 1e3}.get(m.group(2) or "", 1)
+    return int(n)
+
+
+def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, turn_no: int) -> dict:
+    """Code, not the model, has the final say on 'you need a real lawyer'. Returns {level, reasons}.
+    level: none | consult | urgent. Reasons are short English codes the UI turns into plain words."""
+    level, reasons = "none", []
+
+    def bump(new, why):
+        nonlocal level
+        order = ["none", "consult", "urgent"]
+        level = max(level, new, key=order.index)
+        if why and why not in reasons:
+            reasons.append(why)
+
+    esc = out.get("escalate") if isinstance(out.get("escalate"), dict) else {}
+    if esc.get("needed"):
+        bump("urgent" if esc.get("level") == "urgent" else "consult", esc.get("reason") or "")
+    if active_flags:
+        bump("urgent", "safety")
+    if issue == "other":
+        bump("consult", "out_of_scope")
+    amt = parse_amount((case or {}).get("amount_at_stake"))
+    if amt and amt > LARGE_AMOUNT:
+        bump("consult", "large_amount")
+    a = out.get("assessment") if isinstance(out.get("assessment"), dict) else {}
+    if turn_no >= 2 and (a.get("confidence") == "low" or a.get("strength") == "unclear") and out.get("open_questions"):
+        bump("consult", "ambiguous")   # still unclear after we already asked: don't let the client guess
+    return {"level": level, "reasons": reasons}
 
 
 class NyaySaathi:
@@ -82,23 +132,45 @@ class NyaySaathi:
         raw = self.llm.chat(system, messages, json_mode=True)
         out = parse_json(raw)
         if out is None:
-            out = {"reply": raw, "case_file": state["case"], "needs_lawyer": bool(active),
-                   "lawyer_reason": "", "ready_to_draft": "none", "issue": issue, "_parse_error": True}
+            out = {"reply": raw, "case_file": state["case"], "ready_to_draft": "none", "issue": issue, "_parse_error": True}
+        if "escalate" not in out and "needs_lawyer" in out:   # older output shape
+            out["escalate"] = {"needed": bool(out["needs_lawyer"]), "level": "consult", "reason": out.get("lawyer_reason", "")}
 
         # 4. code: verify + enforce
         g = check(out.get("reply", ""), kb)
         reply = g.text
         if active and not any(n in reply for f in active for n in re.findall(r"\b1\d{2,4}\b", f["message"])):
             reply = "⚠️ " + " ".join(f["message"] for f in active) + "\n\n" + reply   # model forgot -> code adds it
-        needs_lawyer = bool(out.get("needs_lawyer")) or bool(active) or issue == "other"
+        case = out.get("case_file") or state["case"]
+        turn_no = 1 + sum(m["role"] == "user" for m in state["history"])
+        esc = decide_escalation(out, active, issue, case, turn_no)
+        a = out.get("assessment") if isinstance(out.get("assessment"), dict) else {}
+        def verified(text) -> str:   # side texts get the same guard; anything with unverified law is dropped
+            text = str(text or "").strip()
+            return MARKER_STRIP(text) if text and check(text, kb).clean else ""
+        assessment = {"strength": a.get("strength") if a.get("strength") in STRENGTHS else "unclear",
+                      "why": verified(a.get("why")), "confidence": a.get("confidence", "")}
+        next_steps = [{"step": verified(x.get("step")), "by_when": str(x.get("by_when") or "").strip(" -")}
+                      for x in (out.get("next_steps") or []) if isinstance(x, dict)]
+        next_steps = [x for x in next_steps if x["step"]][:6]
+        open_q = [q for q in (verified(q) for q in (out.get("open_questions") or [])) if q][:4]
+        if esc["reasons"]:
+            esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]
+            esc["reasons"] = [r for r in esc["reasons"] if r]
         foot = footer(g)
         final = reply + (f"\n\n{foot}" if foot else "")
 
         state["history"] += [{"role": "user", "content": user_text}, {"role": "assistant", "content": out.get("reply", "")}]
-        state["case"] = out.get("case_file") or state["case"]
+        state["case"] = case
         state["issue"] = out.get("issue") if out.get("issue") in kb.issues else issue
-        result = {"reply": final, "issue": state["issue"], "routed_issue": issue, "cards_given": [c["id"] for c in cards],
-                  "needs_lawyer": needs_lawyer, "lawyer_reason": out.get("lawyer_reason", ""),
+        state["assessment"], state["escalation"] = assessment, esc
+        if next_steps:
+            state["plan"] = next_steps
+        state["open_questions"] = open_q
+        result = {"reply": final, "reply_body": reply, "issue": state["issue"], "routed_issue": issue,
+                  "cards_given": [c["id"] for c in cards],
+                  "needs_lawyer": esc["level"] != "none", "lawyer_reason": "; ".join(esc["reasons"]),
+                  "escalation": esc, "assessment": assessment, "next_steps": next_steps, "open_questions": open_q,
                   "ready_to_draft": out.get("ready_to_draft", "none"), "red_flags": [f["id"] for f in active],
                   "guard_flags": g.flags, "sources": g.sources, "case_file": state["case"],
                   "parse_error": out.get("_parse_error", False), "model": self.llm.name, "raw": raw}
