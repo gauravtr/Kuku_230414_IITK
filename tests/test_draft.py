@@ -280,3 +280,16 @@ def test_empty_gemini_reply_is_retried_then_falls_back(monkeypatch):
     seq[:] = [R(empty)] * 3 + [R(good)]
     m = L.LLM("gemini", "gemini-2.5-flash")
     assert m._gemini_post({"contents": []}) == "ok" and m.model != "gemini-2.5-flash"      # next model answered
+
+
+def test_found_in_live_test_runs_2():
+    """Case 06: the model correctly refused a made-up case; the guard must not count the refusal as a citation.
+    Also: 'I vacated ... after the lease ended' is not 'stayed on after the lease ended'."""
+    from nyay.guard import check
+    ok = check("I cannot confirm 'Sharma v. Kapoor (2019)' because it is not in my verified database.", kb)
+    assert ok.clean and "⚠️" not in ok.text and ok.flags[0]["severity"] == "note"
+    bad = check("As held in Sharma v. Kapoor (2019), you get 18% interest.", kb)
+    assert not bad.clean and "⚠️[unverified]" in bad.text
+    fit = lambda t: [j["id"] for j, _ in kb.judgments_fitting("deposit", t)]   # noqa: E731
+    assert "JUD-ATMARAM" not in fit("I vacated on 30 June 2026 after the lease ended.")
+    assert "JUD-ATMARAM" in fit("I stayed 2 extra months after the agreement ended.")
