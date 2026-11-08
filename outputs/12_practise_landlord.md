@@ -11,7 +11,7 @@ _After the consultation the client rehearses the phone call (the AI plays the la
 | Code checks on the draft | all 10 passed |
 | Citation guard | nothing had to be marked unverified |
 
-**Unedited.** Every AI reply, card and document below is exactly what the app showed. The client's messages are the test input; where the AI asked something the script did not cover, the client answered in character from the case facts.
+**Unedited**, apart from one formatting clean-up: in the rehearsal, stray characters around the coach notes' source marks (a leading "[1] -" and backticks) were removed; the app now formats them this way itself. Every AI reply, card and document below is otherwise exactly what the app showed. The client's messages are the test input; where the AI asked something the script did not cover, the client answered in character from the case facts.
 
 ---
 

@@ -1,6 +1,6 @@
 # Test outputs: 14 full consultations on the live app
 
-Recorded on 8 November 2026 from https://nyay-saathi-kuku.streamlit.app with its default model (Gemini `gemini-flash-latest`), through the normal chat and Documents screens. Each case is a full consultation: the client's story, the AI lawyer's questions, the answers, the opinion and plan on every turn, the Supreme Court rulings that fit, and the drafts with their code checks. Nothing in the transcripts is edited.
+Recorded on 8 November 2026 from https://nyay-saathi-kuku.streamlit.app with its default model (Gemini `gemini-flash-latest`), through the normal chat and Documents screens. Each case is a full consultation: the client's story, the AI lawyer's questions, the answers, the opinion and plan on every turn, the Supreme Court rulings that fit, and the drafts with their code checks. Nothing in the transcripts is edited, apart from one formatting clean-up in the case 12 rehearsal that [`REVIEW.md`](REVIEW.md) describes.
 
 What to look at first: **06** (refuses a made-up judgment, offers the real ones), **07** (the citation guard catches a wrong section the model wrote), **09** (refuses to forge receipts), **10** (starts with almost nothing), **12** (rehearsal with a coach), **13** (two drafts, one through an advocate). [`REVIEW.md`](REVIEW.md) is a line-by-line human review, including what is still wrong.
 
