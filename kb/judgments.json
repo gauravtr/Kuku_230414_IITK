@@ -306,7 +306,7 @@
    "caution": "Matters only if you stayed beyond the end of the tenancy or the notice period.",
    "url": "https://www.livelaw.in/amp/top-stories/landlord-entitled-to-mesne-profits-from-tenant-when-execution-of-decree-of-eviction-is-stayed-supreme-court-203186",
    "when": "the tenant stayed on after the tenancy or notice period ended",
-   "match": "overstay|stayed (?:on|beyond|after|extra)|after (?:the )?(?:agreement|lease|tenancy|rent agreement) (?:ended|expired)|extra (?:month|months|days)|holding over|vacated late|late (?:in )?vacat|did(?:n'?t| not) vacate"
+   "match": "overstay|stayed (?:on|beyond|extra)|(?:stayed|remained|continued (?:to stay|living)|lived)\\s+(?:on\\s+|there\\s+)?(?:for\\s+)?(?:\\w+\\s+){0,3}after (?:the )?(?:agreement|lease|tenancy|rent agreement|notice period) (?:ended|expired|was over)|holding over|vacated late|late (?:in )?vacat|did(?:n'?t| not) vacate"
   },
   {
    "id": "JUD-SBATRA",
