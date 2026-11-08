@@ -232,6 +232,39 @@ if "llm" not in ss or ss.get("llm_cfg") != (provider, model):
     ss.llm_cfg = (provider, model)
 bot = NyaySaathi(ss.llm)
 
+# ---------------------------------------------------------------------- test runner (owner only)
+# ?run=<case id>&k=<key> plays one scripted case from tests/cases.json end to end on THIS deployment's model,
+# with the same code as run_tests.py, and shows the transcript that goes into outputs/. Only the key's hash is
+# in the code; without the key the page does nothing. Completed model calls are cached, so a rate-limited run
+# resumes where it stopped.
+RUN_KEY_SHA = "1c864c03ec4e33a37751d5264394f3702005be0dfe9c48aca00969b0f11c26ed"
+if st.query_params.get("run"):
+    if hashlib.sha256(str(st.query_params.get("k", "")).encode()).hexdigest() != RUN_KEY_SHA:
+        st.stop()
+    import time
+    import run_tests
+    from nyay.engine import today
+    case = {c["id"]: c for c in json.loads(Path("tests/cases.json").read_text())}.get(st.query_params["run"])
+    if not case:
+        st.error("Unknown case id.")
+        st.stop()
+    st.markdown(f"**Running `{case['id']}` on `{provider}:{model or 'default'}`…**")
+    rbot = NyaySaathi(LLM(provider, model or None, cache_dir="/tmp/nyay_run_cache"))
+    for attempt in range(8):
+        try:
+            md, row = run_tests.run_one(rbot, case, when=f"run on {today()}")
+            break
+        except Exception as e:   # free-tier rate limit or a dropped call: wait, then resume from the cache
+            st.caption(f"Attempt {attempt + 1} stopped: {_safe(e)[:200]}")
+            if attempt == 7:
+                st.error("RUN-FAILED")
+                st.stop()
+            time.sleep(45)
+    st.markdown("RUN-DONE")
+    st.text_area("summary", json.dumps(row, ensure_ascii=False), key="run_row")
+    st.text_area("transcript", md, height=400, key="run_md")
+    st.stop()
+
 if not available:
     st.error("The AI service isn't configured yet. The owner needs to add a free GEMINI_API_KEY in Settings → Secrets.")
 
