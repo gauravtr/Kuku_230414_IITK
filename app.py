@@ -107,6 +107,8 @@ def docs_for(issue) -> list[str]:
 STRENGTH = {"strong": ("Strong case", 3), "moderate": ("Moderate case", 2), "weak": ("Weak case", 1),
             "unclear": ("Needs a few more facts", 0)}
 REASONS = {"safety": "This may involve your safety or liberty.",
+           "liberty": "An arrest, a summons or a case against you: your liberty may be at stake.",
+           "court_matter": "This kind of matter is usually settled in court, where you'll need a lawyer to file.",
            "out_of_scope": "This is outside the areas where I have verified Indian law.",
            "large_amount": "A large amount is at stake (over about ₹5 lakh).",
            "ambiguous": "Key facts are still unclear, and they change the legal answer."}
@@ -197,7 +199,7 @@ has_case = bool(ss.chat or ss.get("queued"))
 with st.container(key="topbar"):
     cols = st.columns([6, 1, 1, 1] if has_case else [6, 1, 1], vertical_alignment="center")
     cols[0].markdown(f'<div class="brand">{MARK}<div><div class="name">Nyay Saathi</div>'
-                     f'<div class="sub">न्याय साथी · <b>your AI lawyer</b> for everyday India</div></div>'
+                     f'<div class="sub">न्याय साथी · <b>your AI lawyer</b></div></div>'
                      f'<span class="chip-verified">{ic("verified", "fill")}Verified Indian law</span></div>',
                      unsafe_allow_html=True)
     short = ss.lang.split(" · ")[0] if ss.lang != "Auto-detect" else "Auto"
@@ -250,16 +252,35 @@ def badge_html(a: dict) -> str:
     return f'<span class="badge b-{s}"><span class="meter">{meter}</span>{label}</span>'
 
 
+SAFETY_LINES = {"violence": ("Your safety comes first", "If you are in danger now, call 112. Women Helpline 181 (free, 24x7) "
+                             "connects you to the One Stop Centre: medical help, police help, a lawyer and shelter.",
+                             [("181", "181 Women Helpline"), ("112", "112 Emergency")]),
+                "self_harm": ("You don't have to go through this alone", "Please talk to someone now, it's free and confidential.",
+                              [("14416", "14416 Tele-MANAS"), ("112", "112 Emergency")])}
+
+
+def safety_html(ids: list) -> str:
+    out = ""
+    for i in ids or []:
+        if i not in SAFETY_LINES:
+            continue
+        title, text, calls = SAFETY_LINES[i]
+        cta = " · ".join(f'<a href="tel:{n}">{html.escape(lbl)}</a>' for n, lbl in calls)
+        out += (f'<div class="esc esc-urgent"><div class="ic">{ic("health_and_safety", "fill")}</div><div>'
+                f'<b>{title}</b><p>{html.escape(text)}</p><div class="cta">{cta}</div></div></div>')
+    return out
+
+
 def esc_html(e: dict) -> str:
     level = (e or {}).get("level")
     if level not in ("consult", "urgent"):
-        return ""
+        return safety_html((e or {}).get("safety"))
     reasons = " ".join(html.escape(REASONS.get(r, clean(r))) for r in e.get("reasons", []))
     if level == "urgent":
-        return (f'<div class="esc esc-urgent"><div class="ic">{ic("emergency_home", "fill")}</div><div>'
+        return safety_html(e.get("safety")) + (f'<div class="esc esc-urgent"><div class="ic">{ic("emergency_home", "fill")}</div><div>'
                 f'<b>Speak to a human lawyer now</b><p>{reasons}</p><div class="cta">Free legal aid: '
                 f'<a href="tel:15100">call 15100</a> (NALSA) · Emergency: <a href="tel:112">112</a></div></div></div>')
-    return (f'<div class="esc esc-consult"><div class="ic">{ic("gavel")}</div><div>'
+    return safety_html(e.get("safety")) + (f'<div class="esc esc-consult"><div class="ic">{ic("gavel")}</div><div>'
             f'<b>I recommend a human lawyer for this</b><p>{reasons}</p><div class="cta">Free legal aid: '
             f'<a href="tel:15100">call 15100</a> (NALSA) · Your <b style="display:inline;font-size:inherit">case brief</b> '
             f'for them is ready in the Case file.</div></div></div>')
@@ -391,8 +412,8 @@ if not has_case:
     html_block(f'<div class="trust"><h3>Built to be <em>trusted</em> with something that matters.</h3>'
                f'<div>{ic("verified", "ic")}<b>Only verified law</b><p>Every legal point comes from a checked set of '
                f'Indian laws and links to its source. Anything unverified is flagged, never passed off.</p></div>'
-               f'<div>{ic("gavel", "ic")}<b>Knows when to step back</b><p>High stakes, unclear facts or a safety risk? '
-               f'It tells you plainly to see a human lawyer — a rule enforced in code.</p></div>'
+               f'<div>{ic("gavel", "ic")}<b>Asks before it refers</b><p>It asks the questions a lawyer would, then advises. A human lawyer is '
+               f'suggested only for a clear reason, like an arrest or a court case — a rule enforced in code.</p></div>'
                f'<div>{ic("lock", "ic")}<b>Your case stays yours</b><p>No sign-up. Nothing is kept after you close the '
                f'tab. Never share Aadhaar, bank or card numbers.</p></div></div>')
     html_block('<div class="helplines"><span>Free help, any time:</span>' + "".join(
