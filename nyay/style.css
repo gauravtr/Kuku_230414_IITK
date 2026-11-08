@@ -430,3 +430,54 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
 .checks li { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; padding: 3px 0; color: var(--ink-2); }
 .checks li .ms { font-size: 18px; flex: none; }
 .checks li.ok .ms { color: var(--green); } .checks li.no .ms { color: var(--amber); }
+
+/* ---------- the answer as a written opinion: bottom line -> reasoning -> plan -> deadlines -> proof -> authorities -> law ---------- */
+.op-head { background: linear-gradient(180deg, #FBF7EE 0%, #FFFFFF 100%); border: 1px solid #EADFC8; border-radius: 12px;
+  padding: 12px 16px 12px; margin: 2px 0 10px; }
+.op-eye { display: flex; align-items: center; gap: 6px; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+  font-weight: 700; color: var(--brass); }
+.op-eye .ms { font-size: 16px; vertical-align: 0; }
+.op-eye-2 { color: var(--muted); margin: 4px 0 -2px; }
+.op-line { font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.4; color: var(--ink); margin: 6px 0 0 !important; }
+.op-str { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding-top: 9px; border-top: 1px dashed #E7DCC6; }
+.op-str .lbl { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.op-str .val { font-weight: 700; font-size: 14.5px; }
+.op-head p.why { margin: 4px 0 0 !important; font-size: 14px !important; line-height: 1.55; color: var(--ink-2) !important; }
+
+.op-sec { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 10px 14px 12px; margin: 10px 0 4px; }
+.op-h { display: flex; align-items: center; gap: 7px; font-weight: 650; font-size: 14px; color: var(--ink); margin-bottom: 8px; }
+.op-h .ms { color: var(--brass); font-size: 19px; vertical-align: 0; }
+ol.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: none; }
+ol.plan li { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--paper-2); }
+ol.plan li:first-child { border-top: none; padding-top: 2px; }
+ol.plan .n { width: 24px; height: 24px; border-radius: 50%; background: var(--paper-2); color: var(--ink); font-size: 12px; font-weight: 700;
+  display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+ol.plan li:first-child .n { background: var(--ink); color: #fff; }
+ol.plan .t { font-size: 14.5px; line-height: 1.5; color: var(--ink); padding-top: 2px; }
+ol.plan .first { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--green);
+  background: var(--green-soft); border-radius: 6px; padding: 1px 6px; margin-left: 4px; vertical-align: 1px; }
+ol.plan .when { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px 2px 7px; white-space: nowrap; margin-top: 1px; }
+ol.plan .when .ms { font-size: 14px; vertical-align: 0; color: var(--muted); }
+.op-dl { background: #FFFBF2; border-color: #F0DDB4; }
+.op-dl .op-h .ms { color: var(--amber); }
+.op-dl ul { margin: 0; padding-left: 20px; } .op-dl li { font-size: 14.2px; line-height: 1.55; color: var(--ink); margin: 2px 0; }
+.proof { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.proof .pc { border-radius: 10px; padding: 8px 12px 6px; }
+.proof .have { background: var(--green-soft); } .proof .need { background: var(--amber-soft); }
+.proof .ph { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.proof .have .ph { color: var(--green); } .proof .need .ph { color: var(--amber); }
+.proof .ph .ms { font-size: 16px; vertical-align: 0; }
+.proof ul { margin: 0; padding-left: 18px; } .proof li { font-size: 13.8px; line-height: 1.5; color: var(--ink); margin: 2px 0; }
+@media (max-width: 640px) { .proof { grid-template-columns: 1fr; } ol.plan li { grid-template-columns: 26px 1fr; } ol.plan .when { grid-column: 2; justify-self: start; } }
+
+/* rulings: why each one fits, in the client's own words */
+.jg .fit { display: flex; gap: 7px; align-items: flex-start; background: var(--brass-soft); border-radius: 8px; padding: 7px 10px; margin: 0 0 7px;
+  font-size: 13.2px; line-height: 1.5; color: var(--ink); }
+.jg .fit .ms { font-size: 16px; color: var(--brass); margin-top: 1px; }
+.jg .fit b { font-weight: 650; } .jg .fit .w { color: var(--ink-2); }
+.jg .fit q { font-style: italic; color: var(--ink); quotes: "“" "”"; }
+.jg li p b.hl { font-weight: 650; color: var(--ink); }
+.j-none { display: flex; gap: 10px; align-items: flex-start; border: 1px dashed var(--line-2); border-radius: 12px; padding: 10px 14px; margin: 8px 0 4px; background: var(--surface); }
+.j-none > .ms { color: var(--brass); font-size: 20px; margin-top: 1px; }
+.j-none b { font-size: 14px; } .j-none p { margin: 3px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }

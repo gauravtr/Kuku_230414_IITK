@@ -118,26 +118,54 @@ def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, tur
     return {"level": level, "reasons": reasons, "safety": safety}
 
 
-def pick_judgments(kb, issue: str, side, notes, verify) -> dict | None:
-    """Split the verified judgment cards for this issue into 'for you' / 'against you' from the client's
-    side. The model's picks come first; code tops each group up so the client always sees at least two
-    rulings against them (what the other side will argue) whenever the cards exist. Max 3 per group."""
+def client_words(state: dict, user_text: str = "") -> str:
+    """Everything the client has said, in their own words: what a ruling must fit."""
+    return "\n".join([m["content"] for m in state.get("history", []) if m["role"] == "user"] + [user_text])
+
+
+def case_text(case: dict | None) -> str:
+    """The FACTS in the case file (summary, timeline, proof the client has, what they want), one per line - not the AI's
+    own advice (deadlines, proof to collect), so a ruling is never matched to words the AI wrote itself."""
+    c = case if isinstance(case, dict) else {}
+    out = [c.get("summary"), c.get("what_user_wants"), c.get("place")]
+    for t in c.get("timeline") or []:
+        if isinstance(t, dict):
+            out.append(" - ".join(str(t.get(k) or "") for k in ("event", "channel", "amount", "evidence") if t.get(k)))
+    out += [x for x in (c.get("proof_have") or []) if isinstance(x, str)]
+    for v in (c.get("parties") or {}).values() if isinstance(c.get("parties"), dict) else []:
+        out.append(v)
+    return "\n".join(str(x) for x in out if x)
+
+
+def pick_judgments(kb, issue: str, side, notes, verify, words: str = "", case: str = "", asked: bool = False) -> dict | None:
+    """Supreme Court rulings that FIT this client's facts, split into 'for you' / 'against you'.
+
+    1. Code: a ruling is a candidate only if its fact pattern appears in what the client said (kb.judgments_fitting).
+       No padding: if one ruling fits, one is shown; if none fits, none is shown.
+    2. Model: once it has weighed the facts (notes given), a favourable ruling it didn't pick is dropped. A ruling
+       against the client that fits is always kept: a lawyer never hides the authority the other side will cite.
+    Each ruling carries the client's own words that make it fit, so the reason is visible, not asserted. Max 3 per group."""
     sides = kb.sides.get(issue) or {}
     if not sides:
         return None
     side = side if side in sides else next(iter(sides))
     notes = notes if isinstance(notes, dict) else {}
-    cards = sorted(kb.judgments_for(issue), key=lambda c: c["date"], reverse=True)   # latest first
-    picked = [c for c in cards if c["id"] in notes]
+    weighed = any(k in notes for k in kb.judgments)
     groups = {"for": [], "against": []}
-    for c in picked + [c for c in cards if c not in picked]:
+    fit = sorted(kb.judgments_fitting(issue, words, case), key=lambda x: x[0]["date"], reverse=True)   # latest first
+    for c, quote in fit:
         g = "for" if c["favours"] == side else "against"
-        if len(groups[g]) < (3 if c in picked else 2):
-            groups[g].append({k: c[k] for k in ("id", "name", "date", "citation", "holding", "applies", "caution", "url")}
-                             | {"why": verify(notes.get(c["id"]))})
-    for g in groups.values():
-        g.sort(key=lambda c: c["date"], reverse=True)
-    return {"side": side, "side_label": sides[side], **groups} if groups["for"] or groups["against"] else None
+        if g == "for" and weighed and c["id"] not in notes:
+            continue
+        if len(groups[g]) < 3:
+            groups[g].append({k: c.get(k, "") for k in ("id", "name", "date", "citation", "holding", "applies", "caution", "url", "when")}
+                             | {"why": verify(notes.get(c["id"])), "quote": quote})
+    if groups["for"] or groups["against"]:
+        return {"side": side, "side_label": sides[side], **groups}
+    if asked:   # the client asked for case law and none fits: say so honestly instead of stretching one
+        return {"side": side, "side_label": sides[side], "for": [], "against": [], "none_fit": True,
+                "considered": len(kb.judgments_for(issue))}
+    return None
 
 
 class NyaySaathi:
@@ -164,6 +192,9 @@ class NyaySaathi:
                 state["red_flags"].append(f["id"])
         active = [f for f in kb.red_flags if f["id"] in state["red_flags"]]
         redflag_rule = "".join(prompts.REDFLAG_RULE[f.get("escalate", "urgent")].format(message=f["message"]) for f in active)
+        # the model only ever sees rulings whose fact pattern appears in what the client has said
+        words = client_words(state, user_text)
+        fitting = [c for c, _ in kb.judgments_fitting(issue, words, case_text(state["case"]))]
 
         system = prompts.TURN_SYSTEM.format(
             today=today(),
@@ -172,9 +203,9 @@ class NyaySaathi:
             issue_label=kb.issues[issue]["label"],
             playbook=json.dumps({k: v for k, v in kb.issues[issue].items() if k != "keywords"}, ensure_ascii=False),
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),
-            judgments="\n".join(f"[{j['id']}] {j['name']} ({j['date'][:4]}, {j['citation']}) - favours {j['favours']}: {j['holding']}"
-                                + (f" Caution: {j['caution']}" if j.get("caution") else "")
-                                for j in kb.judgments_for(issue)) or "(none for this problem type)",
+            judgments="\n".join(f"[{j['id']}] {j['name']} ({j['date'][:4]}, {j['citation']}) - favours {j['favours']}; "
+                                f"fits when {j['when']}: {j['holding']}" + (f" Caution: {j['caution']}" if j.get("caution") else "")
+                                for j in fitting) or "(none fits these facts yet - mention no judgment)",
             sides=", ".join(f"{k} = {v}" for k, v in kb.sides.get(issue, {}).items()) or "-",
             case_file=json.dumps(state["case"], ensure_ascii=False) if state["case"] else "{} (empty - first message)",
         )
@@ -207,6 +238,7 @@ class NyaySaathi:
         next_steps = [{"step": verified(x.get("step")), "by_when": str(x.get("by_when") or "").strip(" -")}
                       for x in (out.get("next_steps") or []) if isinstance(x, dict)]
         next_steps = [x for x in next_steps if x["step"]][:6]
+        headline = verified(out.get("headline"))
         def question(q):   # {"q": text, "options": [..]} or a bare string -> verified dict, or None
             text, opts = (q.get("q") or q.get("question"), q.get("options")) if isinstance(q, dict) else (q, [])
             text = verified(text)
@@ -219,9 +251,10 @@ class NyaySaathi:
         asked = bool(re.search(r"judg|case ?law|precedent|ruling|supreme court|फैसल|निर्णय|नज़ीर|नजीर", user_text, re.I))
         jout = out.get("judgments") if isinstance(out.get("judgments"), dict) else {}
         judgments = None
-        model_ready = isinstance(jout.get("notes"), dict) and len(jout["notes"]) >= 2   # model judged the facts sufficient
+        model_ready = bool(fitting) and isinstance(jout.get("notes"), dict) and len(jout["notes"]) >= min(2, len(fitting))   # model judged the facts sufficient
         if kb.judgments_for(issue) and (model_ready or not open_q or turn_no >= INTAKE_TURNS or asked):
-            judgments = pick_judgments(kb, issue, jout.get("client_side"), jout.get("notes"), verified)
+            judgments = pick_judgments(kb, issue, jout.get("client_side"), jout.get("notes"), verified,
+                                       words, case_text(case), asked)
         if esc["reasons"]:
             esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]
             esc["reasons"] = [r for r in esc["reasons"] if r]
@@ -235,9 +268,14 @@ class NyaySaathi:
         if next_steps:
             state["plan"] = next_steps
         state["open_questions"] = open_q
-        if judgments:
+        if judgments and not judgments.get("none_fit"):
             state["judgments"] = judgments
-        result = {"reply": final, "reply_body": reply, "issue": state["issue"], "routed_issue": issue,
+        cf = case if isinstance(case, dict) else {}
+        def plain_list(xs):   # case-file lists shown as cards: guard-checked, card IDs removed, unverified law dropped
+            return [v for v in (verified(x) for x in (xs if isinstance(xs, list) else []) if isinstance(x, (str, int, float))) if v][:6]
+        result = {"reply": final, "reply_body": reply, "headline": headline, "issue": state["issue"], "routed_issue": issue,
+                  "deadlines": plain_list(cf.get("deadlines")), "proof_have": plain_list(cf.get("proof_have")),
+                  "proof_missing": plain_list(cf.get("proof_missing")),
                   "cards_given": [c["id"] for c in cards],
                   "needs_lawyer": esc["level"] != "none", "lawyer_reason": "; ".join(esc["reasons"]),
                   "escalation": esc, "assessment": assessment, "next_steps": next_steps, "open_questions": open_q,
@@ -260,7 +298,8 @@ class NyaySaathi:
         details.pop("sender", None)
         last_user = next((m["content"] for m in reversed(state["history"]) if m["role"] == "user"), "")
         lang = detect_language(last_user) if state["language"] == "auto" else state["language"]
-        j = state.get("judgments") or pick_judgments(kb, issue, None, {}, lambda x: str(x or ""))
+        j = state.get("judgments") or pick_judgments(kb, issue, None, {}, lambda x: str(x or ""),
+                                                     client_words(state), case_text(state.get("case")))
         jfor, jagainst = (j or {}).get("for", []), (j or {}).get("against", [])
         def jline(c):
             return (f"[{c['id']}] {c['name']} ({c['date'][:4]}), {c['citation']}: {c['holding']}"
