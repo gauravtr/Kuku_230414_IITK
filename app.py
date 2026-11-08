@@ -74,10 +74,13 @@ LANGS = {"Auto-detect": "auto", "English": "English", "हिंदी · Hindi"
          "मराठी · Marathi": "Marathi", "తెలుగు · Telugu": "Telugu", "ಕನ್ನಡ · Kannada": "Kannada",
          "ગુજરાતી · Gujarati": "Gujarati", "മലയാളം · Malayalam": "Malayalam"}
 ISSUES = {"deposit": "Security deposit", "consumer": "Consumer · refund", "salary": "Unpaid salary",
-          "cheque": "Cheque bounce", "domestic": "Domestic violence", "other": "General matter"}
+          "cheque": "Cheque bounce", "domestic": "Domestic violence", "threats": "Threats · blackmail",
+          "other": "General matter"}
 OPPONENTS = {"deposit": ("the landlord", "Landlord"), "consumer": ("the company's customer-care manager", "Customer care"),
              "salary": ("the employer's HR manager", "HR manager"), "cheque": ("the person who gave the cheque", "Cheque issuer"),
              "domestic": ("the duty officer at the police station, who is reluctant to register your FIR", "Police officer"),
+             "threats": ("the duty officer at the police station, who calls it a 'personal matter' and is reluctant to "
+                         "register your FIR", "Police officer"),
              "other": ("the other side", "Other side")}
 EXAMPLES = [
     ("home", "Deposit not returned", "Landlord holding back your security deposit", "English",
@@ -98,12 +101,14 @@ DOCS = {"legal_notice": ("Legal notice", "A formal written demand to the other s
         "consumer_complaint": ("Consumer complaint", "For the District Consumer Commission, if a notice didn't work."),
         "dv_application": ("DV Act application", "Asks the Magistrate for urgent protection, the right to stay in the home, "
                            "maintenance, medical costs and compensation."),
-        "police_complaint": ("Police complaint (FIR)", "A written complaint to the police station. If they refuse, the same "
+        "police_complaint": ("Police complaint (FIR)", "A written complaint to any police station, asking for an FIR. If they refuse, the same "
                              "copy goes to the Superintendent of Police.")}
 
 
 def docs_for(issue) -> list[str]:
-    return ["dv_application", "police_complaint"] if issue == "domestic" else ["legal_notice", "consumer_complaint"]
+    """Documents that fit this problem type, from its playbook (e.g. threats: legal notice + police complaint)."""
+    kinds = [k for k in (bot.kb.issues.get(issue or "other", {}).get("drafts") or []) if k in DOCS]
+    return kinds or ["legal_notice"]
 STRENGTH = {"strong": ("Strong case", 3), "moderate": ("Moderate case", 2), "weak": ("Weak case", 1),
             "unclear": ("Needs a few more facts", 0)}
 REASONS = {"safety": "This may involve your safety or liberty.",
@@ -661,6 +666,24 @@ elif view == "docs":
                 kind = st.radio("Document", kinds, key="doc_kind", format_func=lambda k: DOCS[k][0],
                                 label_visibility="collapsed")
                 html_block(f'<div class="note">{DOCS[kind][1]}</div>')
+                details = {}
+                if kind == "legal_notice":
+                    sender = st.radio("Who is sending it?", ["self", "advocate"], key="notice_sender", horizontal=True,
+                                      format_func=lambda k: {"self": "I'll send it myself", "advocate": "Through an advocate"}[k])
+                    details["sender"] = sender
+                    with st.expander("Names and addresses (optional, fills the notice)"):
+                        nd = ss.setdefault("notice_details", {})
+                        fields = [("sender_name", "Your full name"), ("sender_address", "Your full postal address"),
+                                  ("reply_email_phone", "Email / phone for their reply"),
+                                  ("recipient_name", "Their full name"), ("recipient_address", "Their full postal address"),
+                                  ("recipient_contact", "Their email / WhatsApp number, if known")]
+                        if sender == "advocate":
+                            fields += [("advocate_name", "Advocate's name"),
+                                       ("advocate_enrolment", "Enrolment no. and Bar Council (e.g. D/1234/2019, Delhi)"),
+                                       ("advocate_address", "Advocate's chamber address, phone, email")]
+                        for fk, label in fields:
+                            nd[fk] = st.text_input(label, value=nd.get(fk, ""), key=f"nd_{fk}")
+                        details |= {k: v for k, v in nd.items() if v.strip() and (sender == "advocate" or not k.startswith("advocate"))}
                 again = d and d.get("kind") == kind
                 go_draft = st.button((":material/refresh: Redraft " if again else ":material/edit: Draft my ")
                                      + DOCS[kind][0].lower(), type="secondary" if again else "primary", width="stretch")
@@ -678,10 +701,15 @@ elif view == "docs":
             if d:
                 with st.container(key="card_send"):
                     if d.get("kind") == "legal_notice":
-                        steps = ["Read it once, fill any gaps, then print and sign it.",
-                                 "Send it by <b>Registered Post AD</b> or <b>Speed Post</b>. Keep the receipt.",
-                                 "Also send a scan by email or WhatsApp, if you have their contact.",
-                                 "Note the date. If there's no reply by the deadline in the notice, come back for next steps."]
+                        steps = ["Fill every blank on the left, check each fact and date, then print and sign it.",
+                                 "Send it by <b>Speed Post</b> or <b>Registered Post AD</b>; also email or WhatsApp a scan if "
+                                 "you have their contact. Remove the <b>Service record</b> part from the copy you send.",
+                                 "On your office copy, fill the service record: article number, booking date, delivery status "
+                                 "(print the tracking page). Keep the receipt and the AD card.",
+                                 "Mark the deadline in your calendar. If there's no reply by then, come back for next steps."]
+                        if state.get("issue") == "threats":
+                            steps.insert(0, "A notice is optional. If you feel unsafe or the threats continue, file the "
+                                         "<b>police complaint</b> (or report on <b>cybercrime.gov.in</b>) first or alongside.")
                     elif d.get("kind") == "dv_application":
                         steps = ["Call <b>181</b> or <b>15100</b> and ask for the district <b>Protection Officer</b> or a free "
                                  "DLSA lawyer. Women get free legal aid, whatever their income.",
@@ -689,6 +717,13 @@ elif view == "docs":
                                  "Magistrate along with your affidavit.",
                                  "Ask for an <b>urgent ex parte protection order</b> on the first day if you are at risk.",
                                  "Keep copies of everything, and the case number, for every hearing."]
+                    elif d.get("kind") == "police_complaint" and state.get("issue") != "domestic":
+                        steps = ["Print two copies and sign both. Go to <b>any</b> police station, or file an e-FIR / report on "
+                                 "<b>cybercrime.gov.in</b>. Carry your phone with the original chats and recordings.",
+                                 "Get the second copy stamped as received (date and stamp), or note the online acknowledgement number.",
+                                 "Ask for your <b>free copy of the FIR</b>. If money was paid online, also call <b>1930</b> at once.",
+                                 "If they refuse, send the stamped copy to the <b>Superintendent of Police</b> by Registered Post "
+                                 "the same day, and keep the receipt."]
                     elif d.get("kind") == "police_complaint":
                         steps = ["Print two copies and sign both. Go to <b>any</b> police station; it doesn't have to be where it "
                                  "happened. Take someone you trust if you can.",
@@ -703,6 +738,12 @@ elif view == "docs":
                                  "Keep your complaint number safe for hearings and follow-ups."]
                     html_block(f'<div class="card-t">{ic("local_post_office")}How to send it</div><ol class="steps-n">'
                                + "".join(f"<li><span>{s}</span></li>" for s in steps) + "</ol>")
+                if d.get("checks"):
+                    with st.container(key="card_checks"):
+                        html_block(f'<div class="card-t">{ic("fact_check")}Checked before you see it</div><ul class="checks">'
+                                   + "".join(f'<li class="{"ok" if ok else "no"}">{ic("check_circle" if ok else "error")}'
+                                             f'<span>{html.escape(lbl)}</span></li>' for lbl, ok in d["checks"]) + "</ul>"
+                                   + ("".join(f'<p class="note">Review: {html.escape(x)}</p>' for x in d.get("problems", [])[:4])))
         with right:
             slot = st.empty()
             if go_draft:
@@ -712,7 +753,7 @@ elif view == "docs":
                               '</div>' + "".join(f'<div class="ln" style="width:{w}%"></div>' for w in (96, 88, 92, 70, 84)) +
                               "</div>", unsafe_allow_html=True)
                 try:
-                    ss.draft = dict(bot.draft(state, kind), kind=kind)
+                    ss.draft = dict(bot.draft(state, kind, details), kind=kind)
                 except Exception as e:
                     ss.draft_error = friendly_error(e)
                 st.rerun()
@@ -748,8 +789,17 @@ elif view == "docs":
                     from docx.shared import Pt
                     doc = Document()
                     doc.styles["Normal"].font.name, doc.styles["Normal"].font.size = "Georgia", Pt(11.5)
-                    for para in text.split("\n"):
-                        doc.add_paragraph(para)
+                    from docx.enum.text import WD_ALIGN_PARAGRAPH
+                    lines = text.split("\n")
+                    head = next((n for n, ln in enumerate(lines) if ln.strip().lower().startswith("ref")), 0)
+                    for n, para in enumerate(lines):
+                        par = doc.add_paragraph()
+                        run = par.add_run(para)
+                        bare = re.sub(r"[^A-Za-z]", "", para)
+                        if bare and bare.isupper() and len(bare) > 3 and not para.strip().startswith("["):
+                            run.bold = True
+                        if d.get("sender") == "advocate" and n < head and para.strip():
+                            par.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     buf = io.BytesIO()
                     doc.save(buf)
                     b1.download_button(":material/download: Word (.docx)", buf.getvalue(), f"nyay_{d.get('kind', 'document')}.docx",
