@@ -113,3 +113,22 @@ def test_draft_repairs_once_and_keeps_better_version():
     sys = llm.calls[0]
     assert "Balaji Traders" in sys and "Musumba" in sys          # judgments for and against are both given
     assert "BNS-EXTORT" in sys and "BSA-EVID" in sys and "Riya Sharma" in sys
+
+
+def test_found_in_live_review():
+    """Defects found by reviewing a live draft (8 Nov 2026)."""
+    from nyay.guard import check
+    # an act named in the heading covers sections on the next lines; an act in the NEXT sentence does not
+    t = ("4.3. Information Technology Act, 2000 - Section 66E and Section 67:\n"
+         "  (a) Ingredients: private images (Section 66E); obscene material (Section 67).\n"
+         "FIR under Section 173 of the Bharatiya Nagarik Suraksha Sanhita, 2024. Section 999 of the Information Technology Act, 2000.")
+    g = check(t, kb)
+    assert [f["mention"] for f in g.flags if f["severity"] == "block"] == ["Section 999"]
+    assert "Suraksha Sanhita, 2023" in g.text and "2024" not in g.text          # wrong year corrected in code
+    assert "Consumer Protection Act, 1986" in check("the Consumer Protection Act, 1986 (old law)", kb).text
+    # '7 (seven) days ... considered reply' is a stated period with its basis
+    ok = GOOD.replace("7 days is a reasonable period for a considered written reply",
+                      "You are given 7 (seven) days to send a considered written reply")
+    assert lint_draft(ok, "legal_notice", "self", kb) == []
+    bad = GOOD.replace("I, Riya Sharma, resident of", "Under instructions from myself, Riya Sharma, resident of")
+    assert any("under instructions" in p for p in lint_draft(bad, "legal_notice", "self", kb))
