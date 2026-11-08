@@ -291,7 +291,7 @@ def question_form(i: int, qs: list):
     a text box otherwise. Answers go back as the client's next message."""
     with st.container(key=f"qform_{i}"):
         html_block(f'<div class="card-t">{ic("edit_note")}Answer here so I can advise you precisely</div>')
-        with st.form(key=f"qf_{i}", border=False, clear_on_submit=False):
+        with st.form(key=f"qf_{i}", border=False, clear_on_submit=True):
             answers = []
             for j, x in enumerate(qs):
                 label = f"{j + 1}. {clean(x['q'])}"
@@ -512,6 +512,11 @@ if view == "consult":
                            + "".join(f"<li>{esc(x['q'])}</li>" for x in qs) + "</ol></div>")
 
     q = ss.pop("queued", None)
+    # Guard against double-submit: if the last message in chat is already this user text, skip
+    last_role = ss.chat[-1]["role"] if ss.chat else None
+    last_content = ss.chat[-1].get("content", "") if ss.chat else ""
+    if q and last_role == "user" and last_content == q:
+        q = None  # already appended (e.g. form double-submit), don't process again
     if q:
         ss.chat.append({"role": "user", "content": q})
         html_block(f'<div class="u-row"><div class="u-bubble">{html.escape(q).replace(chr(10), "<br>")}</div></div>')
