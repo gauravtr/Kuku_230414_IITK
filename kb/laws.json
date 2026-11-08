@@ -155,6 +155,24 @@
     "sakhi",
     "mission shakti"
    ]
+  },
+  "IT": {
+   "name": "Information Technology Act, 2000",
+   "aliases": [
+    "information technology act",
+    "it act",
+    "i.t. act",
+    "आईटी एक्ट",
+    "सूचना प्रौद्योगिकी"
+   ]
+  },
+  "ITR": {
+   "name": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021",
+   "aliases": [
+    "it rules",
+    "intermediary guidelines",
+    "intermediary rules"
+   ]
   }
  },
  "cards": [
@@ -552,7 +570,7 @@
     "*"
    ],
    "title": "Filing an FIR: any police station, e-FIR, free copy, if police refuse (BNSS s.173)",
-   "text": "An FIR for a cognizable offence can be filed at ANY police station, even if the incident happened elsewhere (Zero FIR); it is then transferred. Information can also be given electronically (e-FIR) and must be signed at the station within 3 days. She gets a free copy of the FIR. If the police refuse to register it, she can send the complaint in writing to the Superintendent of Police (s.173(4)).",
+   "text": "An FIR for a cognizable offence can be filed at ANY police station, even if the incident happened elsewhere (Zero FIR); it is then transferred. Information can also be given electronically (e-FIR) and must be signed at the station within 3 days. The complainant gets a free copy of the FIR. For offences punishable with 3 to 7 years, the police may, with a senior officer's permission, first hold a preliminary enquiry of up to 14 days (s.173(3)). If the police refuse to register the FIR, the complaint can be sent in writing to the Superintendent of Police (s.173(4)).",
    "source": "https://www.mha.gov.in/ (Bharatiya Nagarik Suraksha Sanhita, 2023)",
    "verified": "2026-11-08"
   },
@@ -580,6 +598,122 @@
    "title": "One Stop Centre (Sakhi) and Women Helpline 181",
    "text": "Women Helpline 181 is free and 24x7 and connects her to the district One Stop Centre (Sakhi), which gives under one roof, free: medical help and medico-legal examination, help with the police and FIR, free legal aid through the Legal Services Authority, counselling, and temporary shelter (usually up to 5 days). For immediate danger, 112.",
    "source": "https://wcd.gov.in/ (Mission Shakti - Sambal)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-EXTORT",
+   "act": "BNS",
+   "sections": [
+    "308",
+    "2"
+   ],
+   "issues": [
+    "threats"
+   ],
+   "title": "Extortion, and threats made in order to extort (BNS s.308)",
+   "text": "Extortion (s.308(1)) has three ingredients: (1) the accused intentionally puts a person in fear of any injury to that person or to someone else; (2) thereby dishonestly induces the person; (3) to deliver property, money or a valuable security. 'Injury' means any harm illegally caused to a person in body, mind, reputation or property (s.2(14)), so a threat to publish private photos or damaging material counts. Illustration (a) to s.308: threatening to publish a defamatory libel unless paid money is extortion. Punishment: completed extortion - up to 7 years, or fine, or both (s.308(2)). Where nothing has yet been handed over, putting or attempting to put a person in fear of injury in order to commit extortion is itself punishable - up to 2 years, or fine, or both (s.308(3)); if the fear is of death or grievous hurt, up to 7 years and fine (s.308(4)). Extortion is a cognizable offence. These replace IPC ss.383-389 for acts from 1 July 2024.",
+   "source": "https://www.indiacode.nic.in/ (Bharatiya Nyaya Sanhita, 2023, s.308); bare text: https://devgan.in/bns/section/308/",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-INTIM",
+   "act": "BNS",
+   "sections": [
+    "351"
+   ],
+   "issues": [
+    "threats",
+    "domestic"
+   ],
+   "title": "Criminal intimidation (BNS s.351)",
+   "text": "Criminal intimidation (s.351(1)): threatening another by any means (including messages and calls) with injury to their person, reputation or property, or to someone they care about, with intent to cause them alarm, or to make them do something they are not legally bound to do, or stop doing something they are entitled to do. The intent must appear from the material (the words used, the context, any demand). Punishment: up to 2 years, or fine, or both (s.351(2)). If the threat is to cause death or grievous hurt, to destroy property by fire, to cause an offence punishable with 7 years or more, or to impute unchastity to a woman: up to 7 years, or fine, or both (s.351(3)). If done by anonymous communication or while hiding identity: up to 2 more years (s.351(4)). Simple criminal intimidation is non-cognizable and bailable. Replaces IPC ss.503, 506, 507.",
+   "source": "https://www.indiacode.nic.in/ (Bharatiya Nyaya Sanhita, 2023, s.351); bare text: https://devgan.in/bns/section/351/",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-DEFAME",
+   "act": "BNS",
+   "sections": [
+    "356"
+   ],
+   "issues": [
+    "threats"
+   ],
+   "title": "Defamation (BNS s.356)",
+   "text": "Defamation (s.356(1)): making or publishing an imputation about a person, by words, signs or visible representations, intending to harm or knowing it will likely harm their reputation, subject to exceptions such as true statements made for the public good. Punishment: simple imprisonment up to 2 years, or fine, or both, or community service (s.356(2)). It is taken up on a complaint by the person defamed to a Magistrate, not by the police on their own. A civil suit for damages and an injunction is a separate remedy.",
+   "source": "https://www.indiacode.nic.in/ (Bharatiya Nyaya Sanhita, 2023, s.356); https://devgan.in/bns/chapter_19.php",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-PRIVACY",
+   "act": "BNS",
+   "sections": [
+    "77",
+    "78"
+   ],
+   "issues": [
+    "threats",
+    "domestic"
+   ],
+   "title": "Voyeurism and stalking, where the victim is a woman (BNS s.77, s.78)",
+   "text": "Voyeurism (s.77): watching or capturing the image of a woman engaged in a private act where she would expect not to be observed, or disseminating such an image. If she consented to the image being taken but not to its being shared, sharing it is still an offence (Explanation 2). Punishment: first conviction 1 to 3 years and fine; later conviction 3 to 7 years and fine. Stalking (s.78): a man who repeatedly follows or contacts a woman to foster personal interaction despite her clear disinterest, or who monitors her use of the internet, email or other electronic communication. Punishment: first conviction up to 3 years and fine; later conviction up to 5 years and fine. Replace IPC ss.354C and 354D.",
+   "source": "https://www.indiacode.nic.in/ (Bharatiya Nyaya Sanhita, 2023, ss.77-78); https://devgan.in/bns/section/78/",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "IT-PRIVACY",
+   "act": "IT",
+   "sections": [
+    "66E",
+    "67",
+    "67A"
+   ],
+   "issues": [
+    "threats"
+   ],
+   "title": "Private and sexual images online (IT Act, s.66E, s.67, s.67A)",
+   "text": "Intentionally or knowingly capturing, publishing or transmitting an image of a private area of any person without their consent: up to 3 years, or fine up to Rs 2 lakh, or both (s.66E). Publishing or transmitting obscene material in electronic form: first conviction up to 3 years and fine up to Rs 5 lakh (s.67). Publishing or transmitting material containing a sexually explicit act: first conviction up to 5 years and fine up to Rs 10 lakh (s.67A). These apply whatever the victim's gender, and cover sending to even one person by WhatsApp, email or social media.",
+   "source": "https://www.indiacode.nic.in/ (Information Technology Act, 2000, ss.66E, 67, 67A)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "ITR-24H",
+   "act": "ITR",
+   "sections": [],
+   "issues": [
+    "threats"
+   ],
+   "title": "Platforms must take down intimate or morphed images within 24 hours of a complaint (IT Rules, 2021, rule 3(2)(b))",
+   "text": "Under rule 3(2)(b) of the IT Rules, 2021, a platform (WhatsApp, Instagram, X, a website host, etc.) must, within 24 hours of a complaint by the person or someone on their behalf, take all reasonable steps to remove or disable content that prima facie exposes their private area, shows them in full or partial nudity or in a sexual act, or impersonates them, including artificially morphed images. Complain through the platform's grievance officer / reporting form and keep the acknowledgement; a 2025 government SOP also routes such complaints through cybercrime.gov.in and One Stop Centres.",
+   "source": "https://www.meity.gov.in/ (IT Rules, 2021); https://www.scconline.com/blog/post/2021/05/26/information-technology-intermediary-guidelines-and-digital-media-ethics-code-rules-2021-2/",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BSA-EVID",
+   "act": "BSA",
+   "sections": [
+    "61",
+    "63"
+   ],
+   "issues": [
+    "threats",
+    "*"
+   ],
+   "title": "WhatsApp chats, screenshots and recordings as evidence (BSA s.61, s.63)",
+   "text": "An electronic record cannot be refused as evidence merely because it is electronic (s.61). The original device on which a chat or recording is stored (your phone) is primary evidence. A copy - printout, screenshot, pen drive, CD - is admissible when it comes with a certificate in the form in the Schedule (s.63(4)): Part A signed by the person producing it, giving the device details and the hash value of the record, and Part B signed by an expert. The Supreme Court upheld this requirement in May 2026 and said Part B can be signed by any person with expertise in computer science or cyber forensics. So: keep the original phone, don't delete or edit the chat, export the full chat with media, and note numbers, handles, dates and URLs.",
+   "source": "https://www.indiacode.nic.in/ (Bharatiya Sakshya Adhiniyam, 2023, ss.61, 63 and Schedule); https://www.livelaw.in/top-stories/supreme-court-rejects-challenge-to-s634-bsa-mandating-hash-value-disclosure-for-electronic-evidence-535950",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "GEN-CYBER",
+   "act": "IT",
+   "sections": [],
+   "issues": [
+    "threats"
+   ],
+   "title": "Reporting online threats: cybercrime.gov.in and helpline 1930",
+   "text": "Online threats, blackmail and the sharing of private images can be reported on the National Cyber Crime Reporting Portal, cybercrime.gov.in (crimes against women and children can be reported there anonymously). If money was paid or taken online, call 1930 at once: quick reporting improves the chance of freezing it. A complaint at a police station or an e-FIR is a separate route and can be used at the same time.",
+   "source": "https://cybercrime.gov.in/",
    "verified": "2026-11-08"
   }
  ]

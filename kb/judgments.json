@@ -21,6 +21,10 @@
   "domestic": {
    "woman": "Woman facing violence",
    "respondent": "Husband / in-laws accused"
+  },
+  "threats": {
+   "victim": "Person being threatened or blackmailed",
+   "accused": "Person accused of threatening"
   }
  },
  "judgments": [
@@ -275,6 +279,66 @@
    "applies": "principle",
    "caution": "An agreement-to-sell case; it helps a landlord only if your rent agreement has a clear forfeiture clause (for example for breaking a lock-in) and you broke it.",
    "url": "https://www.lawweb.in/2014/07/when-earnest-money-can-be-forfeited.html"
+  },
+  {
+   "id": "JUD-BALAJI",
+   "issue": "threats",
+   "favours": "victim",
+   "name": "M/s Balaji Traders v. State of U.P.",
+   "date": "2025-06-05",
+   "citation": "2025 INSC 806; Criminal Appeal No. 2899 of 2025",
+   "holding": "Putting a person in fear of death or grievous hurt in order to commit extortion (s.387 IPC, now BNS s.308(4)) is an offence even if no money or property is ever handed over. The Supreme Court restored a criminal case that the High Court had quashed only because nothing was paid.",
+   "applies": "direct",
+   "caution": "The case was about the aggravated form (fear of death or grievous hurt). For threats to reputation, such as leaking photos, the matching provision is BNS s.308(3); the same reasoning supports it, but this case did not decide that point.",
+   "url": "https://www.scobserver.in/supreme-court-observer-law-reports-scolr/extortion-m-s-balaji-traders-v-the-state-of-u-p-threat-of-life-or-injury-for-extortion-does-not-need-transfer-of-property-section-387-indian-penal-code-1860/"
+  },
+  {
+   "id": "JUD-LALITA",
+   "issue": "threats",
+   "favours": "victim",
+   "name": "Lalita Kumari v. Government of Uttar Pradesh",
+   "date": "2013-11-12",
+   "citation": "(2014) 2 SCC 1; AIR 2014 SC 187 (5 judges)",
+   "holding": "When a complaint discloses a cognizable offence, the police must register an FIR; they cannot refuse it or sit on it, and officers who fail to register can face action. Registering an FIR does not mean the accused must be arrested.",
+   "applies": "direct",
+   "caution": "Under the new BNSS s.173(3), for offences punishable with 3 to 7 years the police may first hold a preliminary enquiry of up to 14 days, with a senior officer's permission.",
+   "url": "https://www.livelaw.in/fir-registration-is-mandatory-action-will-be-taken-if-fir-is-not-registered"
+  },
+  {
+   "id": "JUD-KHOTKAR",
+   "issue": "threats",
+   "favours": "victim",
+   "name": "Arjun Panditrao Khotkar v. Kailash Kushanrao Gorantyal",
+   "date": "2020-07-14",
+   "citation": "(2020) 7 SCC 1; [2020] 7 SCR 180 (3 judges)",
+   "holding": "Copies of electronic records (printouts, CDs, pen drives) are admissible only with the certificate the law requires; oral evidence cannot replace it. But no certificate is needed when the original device itself is produced and its owner proves it. If the person in control of the device refuses to give the certificate, the court can be asked to summon it.",
+   "applies": "principle",
+   "caution": "Decided under s.65B of the old Evidence Act. The BSA s.63 certificate now also needs hash values and an expert's Part B.",
+   "url": "https://www.mondaq.com/india/trials-amp-appeals-amp-compensation/968812/on-admissibility-of-electronic-"
+  },
+  {
+   "id": "JUD-MUSUMBA",
+   "issue": "threats",
+   "favours": "accused",
+   "name": "Isaac Isanga Musumba v. State of Maharashtra",
+   "date": "2013",
+   "citation": "(2014) 15 SCC 357",
+   "holding": "Completed extortion (then ss.383-384 IPC, now BNS s.308(1)-(2)) needs actual delivery of property or money by the person threatened. Where the complaint did not say anything was handed over, the FIR for extortion was quashed.",
+   "applies": "direct",
+   "caution": "A threat made in order to extort, with nothing yet paid, can still be an offence under BNS s.308(3) or s.308(4) (see Balaji Traders, 2025).",
+   "url": "https://livelaw.in/high-court/bombay-high-court/bombay-high-court-section-383-ipc-extortion-pressurising-someone-to-give-up-demand-for-repayment-of-money-231430"
+  },
+  {
+   "id": "JUD-TANEJA",
+   "issue": "threats",
+   "favours": "accused",
+   "name": "Manik Taneja v. State of Karnataka",
+   "date": "2015-01-20",
+   "citation": "(2015) 7 SCC 423; [2015] 1 SCR 156",
+   "holding": "Criminal intimidation needs an intention to cause alarm, or to make the person do or stop doing something. Mere words, without material showing that intent, are not enough; the case over Facebook comments about the traffic police was quashed.",
+   "applies": "direct",
+   "caution": "Decided under IPC ss.503 and 506; BNS s.351 uses the same test.",
+   "url": "https://www.lawweb.in/2015/08/when-offence-of-criminal-intimidation.html"
   }
  ]
 }
