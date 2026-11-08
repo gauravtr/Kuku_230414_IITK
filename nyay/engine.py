@@ -249,24 +249,59 @@ class NyaySaathi:
         return result
 
     # --------------------------------------------------------------- drafting
-    def draft(self, state: dict, doc_type: str = "legal_notice") -> dict:
-        t = prompts.TEMPLATES[doc_type]
-        cards = self.kb.cards_for([state["issue"] or "other"])
+    def draft(self, state: dict, doc_type: str = "legal_notice", details: dict | None = None) -> dict:
+        """Draft a document from the case file. Code picks the law and the judgments the model may use, then
+        checks the draft (lint_draft) and, if it falls short, asks the model once to fix exactly those points."""
+        kb, t = self.kb, prompts.TEMPLATES[doc_type]
+        issue = state.get("issue") or "other"
+        cards = kb.cards_for([issue])
+        details = {k: str(v).strip() for k, v in (details or {}).items() if str(v or "").strip()}
+        sender = details.pop("sender", "self") if details.get("sender") in ("self", "advocate") else "self"
+        details.pop("sender", None)
         last_user = next((m["content"] for m in reversed(state["history"]) if m["role"] == "user"), "")
         lang = detect_language(last_user) if state["language"] == "auto" else state["language"]
+        j = state.get("judgments") or pick_judgments(kb, issue, None, {}, lambda x: str(x or ""))
+        jfor, jagainst = (j or {}).get("for", []), (j or {}).get("against", [])
+        def jline(c):
+            return (f"[{c['id']}] {c['name']} ({c['date'][:4]}), {c['citation']}: {c['holding']}"
+                    + (f" Caution: {c['caution']}" if c.get("caution") else ""))
+        d = dt.date.fromisoformat(today())
         system = prompts.DRAFT_SYSTEM.format(
-            doc_label=t["label"], language=lang, today=today(), template=t["structure"],
+            doc_label=t["label"], language=lang, today=today(), today_long=f"{d.day} {d.strftime('%B %Y')}",
+            sender_rule=prompts.SENDER_RULES[sender] if doc_type == "legal_notice" else
+            "The client signs it personally, in the first person.",
+            template=t["structure"],
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),
+            judgments_for="\n".join(jline(c) for c in jfor) or "(none - cite no case law)",
+            judgments_against="\n".join(jline(c) for c in jagainst) or "(none)",
+            details=json.dumps(details, ensure_ascii=False) if details else "(none given - use specific blanks)",
             case_file=json.dumps(state["case"], ensure_ascii=False))
-        convo = "\n".join(f"{m['role']}: {m['content']}" for m in state["history"][-8:])
-        raw = self.llm.chat(system, [{"role": "user", "content": f"Conversation so far:\n{convo}\n\nDraft the {t['label']} now."}],
-                            json_mode=True, max_tokens=8192)
+        convo = "\n".join(f"{m['role']}: {m['content']}" for m in state["history"][-10:])
+        ask = [{"role": "user", "content": f"Conversation so far:\n{convo}\n\nDraft the {t['label']} now."}]
+        raw = self.llm.chat(system, ask, json_mode=True, max_tokens=8192)
         out = parse_json(raw) or {"document": raw, "blanks": [], "user_note": ""}
-        g = check(out.get("document", ""), self.kb)
-        blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.\-]{2,60}\]", g.text)))
-        res = {"document": g.text, "blanks": blanks, "user_note": out.get("user_note", ""),
+        doc = MARKER_STRIP_KEEP(out.get("document", ""))
+        problems = lint_draft(doc, doc_type, sender, kb)
+        repaired = False
+        if problems:   # one repair pass: the model fixes exactly what code found, nothing else
+            fix = ask + [{"role": "assistant", "content": json.dumps({"document": doc}, ensure_ascii=False)},
+                         {"role": "user", "content": "A legal reviewer checked this draft and found these problems:\n- "
+                          + "\n- ".join(problems) + "\nReturn the corrected full document in the same JSON format. "
+                          "Fix exactly these points; keep everything else as it is."}]
+            raw2 = self.llm.chat(system, fix, json_mode=True, max_tokens=8192)
+            out2 = parse_json(raw2)
+            if out2 and out2.get("document"):
+                doc2 = MARKER_STRIP_KEEP(out2["document"])
+                p2 = lint_draft(doc2, doc_type, sender, kb)
+                if len(p2) < len(problems):
+                    doc, problems, repaired = doc2, p2, True
+                    out["user_note"] = out2.get("user_note") or out.get("user_note", "")
+        g = check(doc, kb)
+        blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.()?:\-]{2,90}\]", g.text)))
+        res = {"document": g.text, "blanks": blanks, "user_note": out.get("user_note", ""), "sender": sender,
+               "checks": draft_checks(g.text, doc_type, sender), "problems": problems, "repaired": repaired,
                "guard_flags": g.flags, "model": self.llm.name, "raw": raw}
-        state["log"].append({"draft": doc_type, "guard_flags": g.flags, "blanks": blanks})
+        state["log"].append({"draft": doc_type, "guard_flags": g.flags, "blanks": blanks, "problems": problems})
         return res
 
     # --------------------------------------------------------------- practise
@@ -283,3 +318,96 @@ class NyaySaathi:
         shown = g.text + (f"\n\n{footer(g)}" if g.flags or g.sources else "")
         practise_history += [{"role": "user", "content": user_text}, {"role": "assistant", "content": shown}]
         return {"reply": shown, "guard_flags": g.flags, "model": self.llm.name, "raw": raw}
+
+
+# ------------------------------------------------------------------ draft quality checks (code, not model)
+BANNED_PHRASES = ["incontrovertible", "irrefutable", "conclusively prove", "conclusively establish", "beyond any doubt",
+                  "sole cost", "own peril", "at your risk and cost", "risks and consequences", "risk and consequences",
+                  "dire consequences", "strictest action", "without any further notice"]
+VERDICT_RE = re.compile(r"\byou (?:have|had) (?:committed|extorted|blackmailed|defamed|cheated|stalked)\b|\byou are guilty\b"
+                        r"|\boffences? (?:is|are|has been|have been) (?:clearly )?(?:made out|committed)\b", re.I)
+NOTICE_HEADINGS = [("FACTS", "a 'FACTS IN ORDER OF DATE' section"), ("EVIDENCE", "an evidence schedule"),
+                   ("LEGAL POSITION", "a 'LEGAL POSITION' section"), ("DEMANDS", "a numbered 'DEMANDS' section"),
+                   ("MANNER OF REPLY", "a 'TIME FOR COMPLIANCE AND MANNER OF REPLY' section"),
+                   ("CONSEQUENCES", "one 'CONSEQUENCES OF NON-COMPLIANCE' paragraph"),
+                   ("RESERVATION OF RIGHTS", "a 'RESERVATION OF RIGHTS' section"), ("ENCLOSURES", "an 'ENCLOSURES' list"),
+                   ("SERVICE RECORD", "the 'SERVICE RECORD' office-copy block")]
+VAGUE_BLANK_RE = re.compile(r"\[(?:DATE|DETAILS|NAME|ADDRESS|AMOUNT|PLACE|X|XX|___+)\]")
+
+
+def MARKER_STRIP_KEEP(text: str) -> str:
+    """Drafts never carry [CARD-ID] markers; strip them and any markdown the model added."""
+    text = MARKER_RE.sub("", str(text or ""))
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    return re.sub(r"(?m)^#{1,6}\s*", "", text).replace(" .", ".").strip()
+
+
+def has_heading(doc: str, key: str) -> bool:
+    """A section heading: the key in capitals at the start of a line (after an optional number like '4.' or 'B.')."""
+    return re.search(rf"(?m)^\s*(?:[0-9A-H]{{1,2}}[.)]\s*)?[A-Z ,&/-]*{re.escape(key)}", doc) is not None
+
+
+def lint_draft(doc: str, doc_type: str, sender: str, kb) -> list[str]:
+    """Problems a careful senior advocate would mark on the draft. Empty list = passes."""
+    low, probs = doc.lower(), []
+    for ph in BANNED_PHRASES:
+        if ph in low:
+            probs.append(f'Remove "{ph}": overstated or aggressive; use measured language ("records", "shows", "costs as the court may allow").')
+    for m in VERDICT_RE.finditer(doc):
+        probs.append(f'"{m.group(0)}" states guilt as settled; rephrase as an allegation ("the conduct described, if established, would constitute ...").')
+    for b in sorted(set(VAGUE_BLANK_RE.findall(doc))):
+        probs.append(f"{b} is too vague; name exactly what to fill, e.g. [DATE OF THE FIRST THREAT MESSAGE].")
+    bad = [f["mention"] for f in check(doc, kb).flags if f["severity"] == "block"]
+    if bad:
+        probs.append("These legal references are not on the law or judgment cards; remove them or use only card law: " + ", ".join(bad[:6]))
+    if doc_type == "legal_notice":
+        for key, what in NOTICE_HEADINGS:
+            if not has_heading(doc, key):
+                probs.append(f"Add {what}.")
+        if sender == "self" and re.search(r"\b(?:my|our) client\b", low):
+            probs.append("The client sends this personally: write 'I' throughout, never 'my client'/'our client'.")
+        if sender == "advocate":
+            if not re.search(r"\bmy client\b", low):
+                probs.append("An advocate sends this: refer to the client as 'my client' throughout.")
+            if "enrol" not in low:
+                probs.append("Add the advocate's enrolment number and Bar Council in the letterhead and signature.")
+            if re.search(r"\bour client\b", low):
+                probs.append("Use 'my client' consistently, not 'our client'.")
+        if not re.search(r"\b\d{1,3}\s*(?:days?|hours?)\b", low):
+            probs.append("State a clear time for compliance (in days) and its basis.")
+        elif not re.search(r"reasonable|statutory|prescribed|required by|under section|as provided", low):
+            probs.append("Explain the basis of the compliance period (statutory, or a reasonable period for a considered reply).")
+        if not re.search(r"without prejudice", low):
+            probs.append("The reservation of rights must say the notice is without prejudice to all other civil and criminal remedies.")
+        annex = set(re.findall(r"annexure\s+([a-z]-?\d+)", low))
+        if not annex:
+            probs.append("Number the evidence as Annexure A-1, A-2 ... and refer to it in the facts.")
+        else:
+            orphan = [a.upper() for a in annex if low.count(f"annexure {a}") < 2]
+            if orphan:
+                probs.append("Annexures mentioned only once (must appear in the facts/schedule AND the enclosures): " + ", ".join(sorted(orphan)))
+        dm = re.search(r"DEMANDS(.*?)(?:TIME FOR COMPLIANCE|MANNER OF REPLY|CONSEQUENCES|$)", doc, re.S)
+        items = re.findall(r"(?m)^\s*\(?(?:[ivx]{1,4}|[a-h]|\d{1,2}(?:\.\d{1,2})?)[).]\s", dm.group(1)) if dm else []
+        if len(items) < 2:
+            probs.append("Number the demands (i), (ii), (iii) - each a specific action with a time limit and how compliance is shown.")
+    return probs
+
+
+def draft_checks(doc: str, doc_type: str, sender: str) -> list[tuple[str, bool]]:
+    """Plain-language checklist shown to the user beside the draft."""
+    low = doc.lower()
+    if doc_type != "legal_notice":
+        return [("Only verified law cited", "⚠️[unverified]" not in doc),
+                ("No vague blanks", not VAGUE_BLANK_RE.search(doc))]
+    h = lambda k: has_heading(doc, k)   # noqa: E731
+    return [("Facts in date order, each with its channel and annexure", h("FACTS") and "annexure" in low),
+            ("Exact sections, with ingredients mapped to the facts", h("LEGAL POSITION") and "⚠️[unverified]" not in doc),
+            ("Written as allegations, not a verdict", not VERDICT_RE.search(doc)),
+            ("Evidence schedule, with BSA s.63 certificate note", h("EVIDENCE") and ("63" in doc or "certificate" in low)),
+            ("Specific, numbered demands with time limits", h("DEMANDS")),
+            ("Deadline explained, and how to reply", h("TIME FOR COMPLIANCE") or h("MANNER OF REPLY")),
+            ("Measured language, one consequences paragraph", not any(p in low for p in BANNED_PHRASES)),
+            ("Rights reserved", "without prejudice" in low),
+            ("One consistent sender: " + ("you personally" if sender == "self" else "your advocate"),
+             not (sender == "self" and re.search(r"\b(?:my|our) client\b", low))),
+            ("Service record for your office copy", h("SERVICE RECORD"))]

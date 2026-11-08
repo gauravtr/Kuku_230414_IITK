@@ -424,3 +424,9 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
 .jg li a { font-size: 12.8px; font-weight: 600; color: var(--ink-2); display: inline-flex; align-items: center; gap: 3px; text-decoration: none; }
 .jg li a .ms { font-size: 14px; }
 .jfoot { font-size: 12px; color: var(--muted); margin: 4px 14px 12px; }
+
+/* draft quality checklist */
+.checks { list-style: none; margin: 6px 0 4px; padding: 0; }
+.checks li { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; padding: 3px 0; color: var(--ink-2); }
+.checks li .ms { font-size: 18px; flex: none; }
+.checks li.ok .ms { color: var(--green); } .checks li.no .ms { color: var(--amber); }
