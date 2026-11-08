@@ -306,7 +306,7 @@
     "police_complaint"
    ],
    "lawyer_when": [
-    "always for the court hearings: a free DLSA lawyer can represent her",
+    "for the court hearings a free DLSA lawyer can represent her - mention this once, after the plan, not instead of it",
     "the husband has filed or threatens divorce, custody or a false case",
     "there are children and custody is disputed",
     "injuries are serious or there are threats to life (also call 112)"
@@ -333,11 +333,12 @@
     "any documents, messages, receipts"
    ],
    "ladder": [
-    "Nyay Saathi covers 5 problem types in depth (deposit, consumer, salary, cheque bounce, domestic violence). For anything else, contact free legal aid (15100 / DLSA)."
+    "Take the facts first: ask the 3-5 questions a lawyer would ask, explain in plain words how this kind of matter generally works, the usual options (talk, written notice, mediation, legal aid, police or court) and what documents to collect. Don't cite sections that are not on a card.",
+    "After the facts are clear, if it still falls outside the 5 covered types, say a lawyer is needed, give the specific reason, and point to free legal aid (15100 / DLSA)."
    ],
    "drafts": [],
    "lawyer_when": [
-    "always for problems outside the 5 covered types"
+    "after the facts are collected, for problems outside the 5 covered types"
    ]
   }
  },
@@ -347,45 +348,43 @@
    "keywords": [
     "arrest",
     "arrested",
-    "police",
-    "fir",
     "bail",
-    "custody",
+    "anticipatory bail",
     "summons",
     "warrant",
+    "against me",
+    "against us",
     "गिरफ्तार",
-    "पुलिस",
-    "एफआईआर",
     "जमानत",
     "समन",
-    "thana",
-    "थाना",
-    "காவல்",
+    "वारंट",
+    "मेरे खिलाफ",
+    "हमारे खिलाफ",
     "கைது"
    ],
-   "message": "This involves the police or a court. Please speak to a lawyer today. Free lawyer: NALSA 15100 or your District Legal Services Authority. Emergency: 112."
+   "message": "If someone has been arrested, or a case, summons or warrant is against you, time matters: you have the right to a lawyer, and a free one is available - NALSA 15100 or your District Legal Services Authority. Don't sign or admit anything until you have read it and taken advice.",
+   "escalate": "urgent"
   },
   {
    "id": "violence",
    "keywords": [
     "beat",
     "beaten",
+    "beats me",
     "hit me",
     "violence",
-    "threat",
-    "threatening",
     "dowry",
     "domestic",
-    "harass",
     "मारपीट",
-    "धमकी",
+    "मारता",
+    "पीटता",
     "दहेज",
     "घरेलू हिंसा",
     "அடித்தார்",
-    "மிரட்டல்",
     "வரதட்சணை"
    ],
-   "message": "If she is in danger right now: call 112. Women Helpline 181 (free, 24x7) connects to the district One Stop Centre: free medical exam, police help, a lawyer and shelter."
+   "message": "If she is in danger right now: call 112. Women Helpline 181 (free, 24x7) connects to the district One Stop Centre: free medical exam, police help, a lawyer and shelter.",
+   "escalate": "safety"
   },
   {
    "id": "self_harm",
@@ -397,7 +396,8 @@
     "जान दे",
     "தற்கொலை"
    ],
-   "message": "I'm really sorry you're going through this. Please talk to someone now: Tele-MANAS 14416 (free, 24x7) or 112 in an emergency."
+   "message": "I'm really sorry you're going through this. Please talk to someone now: Tele-MANAS 14416 (free, 24x7) or 112 in an emergency.",
+   "escalate": "safety"
   },
   {
    "id": "fraud",
@@ -412,7 +412,8 @@
     "धोखाधड़ी",
     "மோசடி"
    ],
-   "message": "If money was taken through online fraud, call 1930 or report at cybercrime.gov.in immediately - acting within hours improves the chance of freezing the money."
+   "message": "If money was taken through online fraud, call 1930 or report at cybercrime.gov.in immediately - acting within hours improves the chance of freezing the money.",
+   "escalate": "none"
   },
   {
    "id": "family_property",
@@ -431,7 +432,8 @@
     "will deed",
     "वसीयत"
    ],
-   "message": "Divorce, child custody and property disputes are outside what I cover reliably. Please consult a lawyer - free legal aid via 15100 / DLSA."
+   "message": "Divorce, custody, land and inheritance matters usually end up needing a lawyer to file in court - but first take the client's facts, explain in plain words how such a matter generally works, and what to collect and ask.",
+   "escalate": "consult"
   }
  ]
 }
