@@ -481,3 +481,9 @@ ol.plan .when .ms { font-size: 14px; vertical-align: 0; color: var(--muted); }
 .j-none { display: flex; gap: 10px; align-items: flex-start; border: 1px dashed var(--line-2); border-radius: 12px; padding: 10px 14px; margin: 8px 0 4px; background: var(--surface); }
 .j-none > .ms { color: var(--brass); font-size: 20px; margin-top: 1px; }
 .j-none b { font-size: 14px; } .j-none p { margin: 3px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+/* Streamlit's markdown adds its own list indent; these lists are laid out by the cards themselves */
+[data-testid="stMarkdownContainer"] ol.plan, [data-testid="stMarkdownContainer"] .jg ul { padding-left: 0 !important; margin-left: 0 !important; }
+[data-testid="stMarkdownContainer"] ol.plan li, [data-testid="stMarkdownContainer"] .jg li { margin-left: 0 !important; padding-left: 0; }
+[data-testid="stMarkdownContainer"] .jg li { padding-left: 12px !important; }
+[data-testid="stMarkdownContainer"] .proof ul, [data-testid="stMarkdownContainer"] .op-dl ul { padding-left: 18px !important; margin: 0 !important; }
+[data-testid="stMarkdownContainer"] .jg li p { font-size: 13.8px !important; line-height: 1.55 !important; }
