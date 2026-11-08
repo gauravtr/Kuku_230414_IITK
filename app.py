@@ -199,7 +199,7 @@ has_case = bool(ss.chat or ss.get("queued"))
 with st.container(key="topbar"):
     cols = st.columns([6, 1, 1, 1] if has_case else [6, 1, 1], vertical_alignment="center")
     cols[0].markdown(f'<div class="brand">{MARK}<div><div class="name">Nyay Saathi</div>'
-                     f'<div class="sub">न्याय साथी · <b>your AI lawyer</b></div></div>'
+                     f'<div class="sub"><b>your AI lawyer</b></div></div>'
                      f'<span class="chip-verified">{ic("verified", "fill")}Verified Indian law</span></div>',
                      unsafe_allow_html=True)
     short = ss.lang.split(" · ")[0] if ss.lang != "Auto-detect" else "Auto"
@@ -284,6 +284,32 @@ def esc_html(e: dict) -> str:
             f'<b>I recommend a human lawyer for this</b><p>{reasons}</p><div class="cta">Free legal aid: '
             f'<a href="tel:15100">call 15100</a> (NALSA) · Your <b style="display:inline;font-size:inherit">case brief</b> '
             f'for them is ready in the Case file.</div></div></div>')
+
+
+def question_form(i: int, qs: list):
+    """The AI lawyer's questions as a short form under its reply: a dropdown where it gave answer choices,
+    a text box otherwise. Answers go back as the client's next message."""
+    with st.container(key=f"qform_{i}"):
+        html_block(f'<div class="card-t">{ic("edit_note")}Answer here so I can advise you precisely</div>')
+        with st.form(key=f"qf_{i}", border=False, clear_on_submit=False):
+            answers = []
+            for j, x in enumerate(qs):
+                label = f"{j + 1}. {clean(x['q'])}"
+                if x.get("options"):
+                    a = st.selectbox(label, x["options"], index=None, placeholder="Choose an answer", key=f"qa_{i}_{j}")
+                else:
+                    a = st.text_input(label, key=f"qa_{i}_{j}", placeholder="Type your answer")
+                answers.append((clean(x["q"]), a))
+            more = st.text_area("Anything else I should know? (optional)", key=f"qa_{i}_more", height=70)
+            sent = st.form_submit_button(":material/send: Send answers", type="primary")
+    if sent:
+        lines = [f"{j}. {q} — {str(a).strip()}" for j, (q, a) in enumerate(answers, 1) if a and str(a).strip()]
+        if more and more.strip():
+            lines.append(more.strip())
+        if lines:
+            ss.queued = "\n".join(lines)
+            st.rerun()
+        st.warning("Answer at least one question, or type in the box at the bottom.")
 
 
 def sources_html(sources: list) -> str:
@@ -450,6 +476,12 @@ if view == "consult":
                             "(free: 15100).</div></div>")
             if extra:
                 html_block(extra)
+            qs = m.get("questions") or [{"q": x, "options": []} for x in m.get("open_questions", [])]
+            if qs and i == len(ss.chat) - 1:
+                question_form(i, qs)
+            elif qs:
+                html_block(f'<div class="qs-asked"><div class="card-t">{ic("help")}I asked</div><ol>'
+                           + "".join(f"<li>{esc(x['q'])}</li>" for x in qs) + "</ol></div>")
 
     q = ss.pop("queued", None)
     if q:
@@ -465,7 +497,7 @@ if view == "consult":
             msg = {"role": "assistant", "content": r.get("reply_body", r["reply"]),
                    "assessment": r.get("assessment", {}), "escalation": r.get("escalation", {}),
                    "sources": r.get("sources", []), "ready": r.get("ready_to_draft", "none"),
-                   "open_questions": r.get("open_questions", []),
+                   "open_questions": r.get("open_questions", []), "questions": r.get("question_form", []),
                    "unverified": [f.get("mention") for f in r.get("guard_flags", [])
                                   if f.get("severity") == "block" and f.get("mention")]}
         except Exception as e:
