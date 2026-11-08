@@ -181,7 +181,13 @@ class NyaySaathi:
         next_steps = [{"step": verified(x.get("step")), "by_when": str(x.get("by_when") or "").strip(" -")}
                       for x in (out.get("next_steps") or []) if isinstance(x, dict)]
         next_steps = [x for x in next_steps if x["step"]][:6]
-        open_q = [q for q in (verified(q) for q in (out.get("open_questions") or [])) if q][:4]
+        def question(q):   # {"q": text, "options": [..]} or a bare string -> verified dict, or None
+            text, opts = (q.get("q") or q.get("question"), q.get("options")) if isinstance(q, dict) else (q, [])
+            text = verified(text)
+            opts = [o for o in (verified(o) for o in (opts or []) if isinstance(o, (str, int, float))) if o and len(o) <= 60]
+            return {"q": text, "options": list(dict.fromkeys(opts))[:6]} if text else None
+        qform = [x for x in (question(q) for q in (out.get("open_questions") or [])) if x][:5]
+        open_q = [x["q"] for x in qform]
         if esc["reasons"]:
             esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]
             esc["reasons"] = [r for r in esc["reasons"] if r]
@@ -199,6 +205,7 @@ class NyaySaathi:
                   "cards_given": [c["id"] for c in cards],
                   "needs_lawyer": esc["level"] != "none", "lawyer_reason": "; ".join(esc["reasons"]),
                   "escalation": esc, "assessment": assessment, "next_steps": next_steps, "open_questions": open_q,
+                  "question_form": qform,
                   "ready_to_draft": out.get("ready_to_draft", "none"), "red_flags": [f["id"] for f in active],
                   "guard_flags": g.flags, "sources": g.sources, "case_file": state["case"],
                   "parse_error": out.get("_parse_error", False), "model": self.llm.name, "raw": raw}

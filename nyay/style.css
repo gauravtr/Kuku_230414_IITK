@@ -388,3 +388,11 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
   .paper-empty { padding: 26px 22px; min-height: 320px; }
   .section-h { flex-direction: column; gap: 2px; margin-top: 26px; }
 }
+
+/* questions form under the latest answer */
+[class*="st-key-qform_"] { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 12px; gap: .5rem; margin-top: 4px; }
+[class*="st-key-qform_"] [data-testid="stForm"] { padding: 0; border: 0; }
+[class*="st-key-qform_"] label p { font-size: 14.5px !important; line-height: 1.45 !important; font-weight: 550; color: var(--ink) !important; }
+[class*="st-key-qform_"] [data-testid="stFormSubmitButton"] button { border-radius: 10px; }
+.qs-asked { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 6px; }
+.qs-asked ol { margin: 6px 0 0; padding-left: 1.2rem; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
