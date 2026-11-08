@@ -278,7 +278,7 @@
    "caution": "A supply-contract case; the same rule on security deposits applies to a rent deposit by principle.",
    "url": "https://indiankanoon.org/doc/158693/",
    "when": "the landlord keeps the whole deposit, or deducts more than any real loss",
-   "match": "forfeit|whole deposit|entire deposit|full deposit|kept (?:the |my )?(?:whole|entire|full|all)|not return|won'?t return|refus|deduct|kaat|katt|काट|पूरा|wapas nahi|वापस नहीं"
+   "match": "forfeit|whole deposit|entire deposit|full deposit|kept (?:the |my )?(?:whole|entire|full|all)|not return|won'?t return|refus|deduct|kaat|katt|काट|पूरा|wapas nahi|वापस नहीं|sitting on|holding (?:on to |back )?(?:my |the )?deposit|withh[eo]ld|ha(?:s|sn'?t|ve)n?'?t? (?:returned|refunded|paid (?:it )?back)|not (?:yet )?(?:returned|refunded|giving (?:it )?back)|keeps? saying|doesn'?t have (?:the )?money|no money (?:right )?now"
   },
   {
    "id": "JUD-KAILASH",
@@ -291,8 +291,8 @@
    "applies": "principle",
    "caution": "An auction/earnest-money case applied to deposits by principle; where real damage is shown, a fair deduction is allowed.",
    "url": "https://www.ndl.gov.in/lw_document/supreme_court_india/supreme_court/4334",
-   "when": "the landlord deducts money without showing an actual loss or damage",
-   "match": "no damage|no loss|good condition|clean|paint|wear and tear|deduct|kaat|katt|काट|cut|forfeit|maintenance charge"
+   "when": "the landlord deducts or holds back money without showing any actual loss or damage",
+   "match": "no damage|no loss|good condition|clean|paint|wear and tear|deduct|kaat|katt|काट|cut|forfeit|maintenance charge|sitting on|holding (?:on to |back )?(?:my |the )?deposit|withh[eo]ld|ha(?:s|sn'?t|ve)n?'?t? (?:returned|refunded|paid (?:it )?back)|not (?:yet )?(?:returned|refunded|giving (?:it )?back)|keeps? saying|doesn'?t have (?:the )?money|no money (?:right )?now"
   },
   {
    "id": "JUD-ATMARAM",
