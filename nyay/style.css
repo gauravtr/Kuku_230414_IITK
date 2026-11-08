@@ -359,6 +359,15 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
   .meta > span { font-size: 12px; }
 }
 
+.st-key-card_doctype [data-testid="stElementContainer"]:has(.stRadio), .st-key-card_doctype .stRadio, .st-key-card_doctype .stRadio > div,
+.st-key-card_doctype [role="radiogroup"] > div { width: 100% !important; }
+.st-key-nav [data-testid="stButtonGroup"] div:has(> button) { width: 100% !important; max-width: none !important; }
+@media (max-width: 760px) {
+  .st-key-nav [data-testid="stButtonGroup"] button span:has(> [data-testid="stIconMaterial"]) { display: none !important; }
+  .st-key-nav [data-testid="stButtonGroup"] button p { overflow: visible; text-overflow: clip; font-size: 12.5px; letter-spacing: -.015em; }
+  .st-key-nav [data-testid="stButtonGroup"] button { padding: 0 2px !important; }
+}
+
 /* ---------- small screens ---------- */
 @media (max-width: 760px) {
   [data-testid="stMainBlockContainer"] { padding: .6rem .9rem 7.5rem; }
