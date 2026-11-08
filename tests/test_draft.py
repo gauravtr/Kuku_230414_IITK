@@ -293,3 +293,14 @@ def test_found_in_live_test_runs_2():
     fit = lambda t: [j["id"] for j, _ in kb.judgments_fitting("deposit", t)]   # noqa: E731
     assert "JUD-ATMARAM" not in fit("I vacated on 30 June 2026 after the lease ended.")
     assert "JUD-ATMARAM" in fit("I stayed 2 extra months after the agreement ended.")
+
+
+def test_found_in_live_test_runs_3():
+    """Case 13: a draft named the BNS in its legal-position section and later wrote 'Section 308(4)' in the
+    authorities paragraph, 400+ characters away. A section of an act named elsewhere in the text is verified;
+    a section that exists in no named act is still blocked."""
+    from nyay.guard import check
+    far = "Section 308(3) of the Bharatiya Nyaya Sanhita, 2023 applies. " + "x " * 400 + "That case concerned Section 308(4)."
+    assert check(far, kb).clean
+    assert [f["mention"] for f in check(far.replace("Section 308(4)", "Section 999"), kb).flags] == ["Section 999"]
+    assert not check("That case concerned Section 308(4).", kb).clean
