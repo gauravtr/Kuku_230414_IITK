@@ -1,5 +1,5 @@
 {
- "_about": "Verified Supreme Court of India judgments, one card each, checked against a published source on 2026-11-08. The model may only mention judgments on these cards; the app shows name, citation and link straight from here, so nothing is invented. 'favours' says which side the ruling helps; code splits them into 'for you' / 'against you' from the client's side. 'applies' is 'direct' when the ruling is on this kind of dispute, 'principle' when the same legal rule carries over.",
+ "_about": "Verified Supreme Court of India judgments, one card each, checked against a published source on 2026-11-08. The model may only mention judgments on these cards; the app shows name, citation and link straight from here, so nothing is invented. 'favours' says which side the ruling helps; code splits them into 'for you' / 'against you' from the client's side. 'applies' is 'direct' when the ruling is on this kind of dispute, 'principle' when the same legal rule carries over. 'when' is the fact pattern the ruling fits, in plain words; 'match' is a pattern code runs over the client's own facts - a ruling is shown, given to the model or cited in a draft ONLY when it matches, so a ruling that doesn't fit the case is never suggested.",
  "verified_on": "2026-11-08",
  "sides": {
   "deposit": {
@@ -38,7 +38,9 @@
    "holding": "A 'shared household' is not limited to a house owned or rented by the husband. A wife can claim the right to live in the in-laws' house where she lived after marriage, even if her father-in-law owns it. This overruled the older narrow view in S.R. Batra.",
    "applies": "direct",
    "caution": "The right to residence is protected, but it is not an ownership right; the court balances it case by case.",
-   "url": "https://www.scobserver.in/journal/court-reinterprets-shared-household-under-the-domestic-violence-law/"
+   "url": "https://www.scobserver.in/journal/court-reinterprets-shared-household-under-the-domestic-violence-law/",
+   "when": "she lived in the in-laws' house after marriage and is being kept out of it",
+   "match": "in-?laws?|sasural|ससुराल|father-in-law|mother-in-law|\\bsaas\\b|सास|ससुर|thrown out|ghar se nikal|घर से निकाल|matrimonial home|shared household|right to (?:live|reside)"
   },
   {
    "id": "JUD-PTYAGI",
@@ -50,7 +52,9 @@
    "holding": "A woman can enforce her right to reside in the shared household whether or not she actually lived there, and she can file under the DV Act even if she is no longer living with the respondents when she files, as long as the violence relates to the domestic relationship.",
    "applies": "direct",
    "caution": "",
-   "url": "https://livelaw.in/top-stories/supreme-court-shared-house-hold-domestic-violence-prabha-tyagi-vs-kamlesh-devi-2022-livelaw-sc-474-198966"
+   "url": "https://livelaw.in/top-stories/supreme-court-shared-house-hold-domestic-violence-prabha-tyagi-vs-kamlesh-devi-2022-livelaw-sc-474-198966",
+   "when": "she has left, or was made to leave, the shared home but still wants to claim residence or file",
+   "match": "thrown out|ghar se nikal|घर से निकाल|left (?:the |my )?(?:house|home)|(?:living|staying) (?:with|at) (?:my )?(?:parents|maayk|mayk)|maayk|mayk|मायके|not living (?:with|there)|shared household"
   },
   {
    "id": "JUD-RAJNESH",
@@ -62,7 +66,9 @@
    "holding": "Laid down binding guidelines for maintenance: both sides must file an affidavit disclosing income, assets and liabilities; maintenance runs from the date the application is filed; courts must decide interim maintenance quickly. The Supreme Court has since ordered this judgment re-circulated to all judges.",
    "applies": "direct",
    "caution": "The disclosure affidavit applies to her too: she must also disclose her own income and assets.",
-   "url": "https://www.mondaq.com/supreme-court-clarifies-the-law-on-maintenance/1034570"
+   "url": "https://www.mondaq.com/supreme-court-clarifies-the-law-on-maintenance/1034570",
+   "when": "money for her own or the children's upkeep (maintenance) is in issue",
+   "match": "maintenance|kharch|खर्च|guzara|गुजारा|alimony|no money|monthly (?:support|expenses)|financial support|school fees|support (?:me|the (?:kids|children))"
   },
   {
    "id": "JUD-DARA",
@@ -74,7 +80,9 @@
    "holding": "Quashed a dowry-cruelty FIR against the husband and his relatives because the allegations were vague and omnibus, with no dates or specific acts. The Court warned against misuse of the cruelty law to drag the whole family in.",
    "applies": "direct",
    "caution": "It protects relatives against vague complaints; specific, dated allegations with proof are not affected.",
-   "url": "https://www.scconline.com/blog/post/2024/12/11/supreme-court-quashes-false-dowry-case-misuse-section-498a-ipc/"
+   "url": "https://www.scconline.com/blog/post/2024/12/11/supreme-court-quashes-false-dowry-case-misuse-section-498a-ipc/",
+   "when": "a police complaint or dowry-cruelty case may name the husband's relatives",
+   "match": "\\bfir\\b|police|पुलिस|498|dowry|dahej|दहेज|in-?laws?|relatives|family members|sasural|ससुराल"
   },
   {
    "id": "JUD-ARNESH",
@@ -86,7 +94,9 @@
    "holding": "Police must not arrest automatically in dowry-cruelty cases (offences punishable up to 7 years). They must record why arrest is necessary, and magistrates must check this before ordering detention. The guidelines continue under the new criminal codes.",
    "applies": "direct",
    "caution": "It limits arrest; it does not stop the case, the investigation or a DV Act application.",
-   "url": "https://legalfly.in/case-summary-arnesh-kumar-v-state-of-bihar/"
+   "url": "https://legalfly.in/case-summary-arnesh-kumar-v-state-of-bihar/",
+   "when": "a dowry-cruelty police case, and possible arrest, is in the picture",
+   "match": "\\bfir\\b|police|पुलिस|498|dowry|dahej|दहेज|arrest|giraftar|गिरफ्तार"
   },
   {
    "id": "JUD-RANGAPPA",
@@ -98,7 +108,9 @@
    "holding": "Once the signature on the cheque is admitted, the court presumes the cheque was given for a legally enforceable debt. The burden shifts to the person who gave the cheque to show, on probabilities, that there was no such debt.",
    "applies": "direct",
    "caution": "The presumption can be rebutted by a probable defence.",
-   "url": "https://indiankanoon.org/doc/150051/"
+   "url": "https://indiankanoon.org/doc/150051/",
+   "when": "a cheque has bounced (been dishonoured) and the signature is not disputed",
+   "match": "bounc|dishono|return(?:ed)? unpaid|insufficient|funds? (?:not|in)sufficient|section 138|\\bs\\.?\\s?138\\b|cheque (?:was |got )?return|चेक"
   },
   {
    "id": "JUD-SANJABIJ",
@@ -110,7 +122,9 @@
    "holding": "A cheque given against a cash loan above Rs 20,000 is still enforceable even though the cash loan breached the Income Tax Act. Merely questioning the lender's financial capacity does not defeat the presumption. The Court also issued guidelines to speed up cheque cases, including online summons and payment.",
    "applies": "direct",
    "caution": "",
-   "url": "https://www.livelaw.in/amp/top-stories/s138-ni-act-cheque-bounce-case-maintainable-even-for-cash-loan-above-20000-supreme-court-sets-aside-kerala-high-court-ruling-305132"
+   "url": "https://www.livelaw.in/amp/top-stories/s138-ni-act-cheque-bounce-case-maintainable-even-for-cash-loan-above-20000-supreme-court-sets-aside-kerala-high-court-ruling-305132",
+   "when": "the cheque was given against a loan, especially a cash loan, or the lender's means are questioned",
+   "match": "cash|loan|udhaar|udhar|उधार|\\blent\\b|borrow|karz|karj|कर्ज|financial capacity|income tax"
   },
   {
    "id": "JUD-BASALINGAPPA",
@@ -122,7 +136,9 @@
    "holding": "The person who gave the cheque can rebut the presumption on a balance of probabilities and need not prove a negative. When the lender's financial capacity to lend is seriously questioned, the lender must explain it with evidence, or the case can fail.",
    "applies": "direct",
    "caution": "Later read with Sanjabij Tari (2025): merely raising the capacity point is not enough without a real basis.",
-   "url": "https://indiankanoon.org/doc/87091644/"
+   "url": "https://indiankanoon.org/doc/87091644/",
+   "when": "the person who gave the cheque disputes the loan or the lender's means to lend",
+   "match": "cash|loan|udhaar|udhar|उधार|\\blent\\b|borrow|karz|कर्ज|capacity|no debt|(?:don'?t|do not|never) owe|security cheque|blank cheque"
   },
   {
    "id": "JUD-INDUS",
@@ -134,7 +150,9 @@
    "holding": "For a cheque-bounce offence there must be a legally enforceable debt existing on the cheque's date. A post-dated cheque given as advance payment for an order that was later cancelled is not for an existing debt, so its dishonour is not an offence.",
    "applies": "direct",
    "caution": "Later judgments distinguish it: a cheque labelled 'security' can still attract the offence once the debt has become due.",
-   "url": "https://indiankanoon.org/doc/77590271/"
+   "url": "https://indiankanoon.org/doc/77590271/",
+   "when": "the cheque was an advance, post-dated or 'security' cheque rather than for a debt already due",
+   "match": "advance|post-?dated|security cheque|as security|blank cheque|cancel(?:led)? (?:the )?order|for (?:a|the) (?:deal|order|booking)"
   },
   {
    "id": "JUD-LDA",
@@ -146,7 +164,9 @@
    "holding": "Consumer commissions can award compensation not only for money lost but also for harassment and mental agony caused by deficient service, and even public authorities are answerable as service providers.",
    "applies": "direct",
    "caution": "Compensation must still be supported by the facts; large claims need proof.",
-   "url": "https://indiankanoon.org/doc/1375046/"
+   "url": "https://indiankanoon.org/doc/1375046/",
+   "when": "the consumer was harassed or kept chasing the company, and compensation is sought beyond the refund",
+   "match": "harass|mental|agony|stress|tension|pareshan|परेशान|compensation|baar baar|बार बार|again and again|follow(?:ed)? up|chas(?:e|ed|ing)|(?:many|several|multiple) (?:calls|emails|times|complaints)|months|weeks"
   },
   {
    "id": "JUD-EMAAR",
@@ -158,7 +178,9 @@
    "holding": "An arbitration clause in the seller's terms cannot stop a consumer from filing a complaint before the consumer commission; the consumer remedy is a special remedy and goes ahead despite the clause.",
    "applies": "direct",
    "caution": "It is the consumer's choice: the consumer can still opt for arbitration.",
-   "url": "https://www.barandbench.com/news/arbitration-clause-oust-jurisdiction-consumer-courts-section-8-amendment-supreme-court"
+   "url": "https://www.barandbench.com/news/arbitration-clause-oust-jurisdiction-consumer-courts-section-8-amendment-supreme-court",
+   "when": "the seller's terms carry an arbitration clause, or the dispute is with a builder",
+   "match": "arbitrat|terms (?:and|&) conditions|\\bt ?& ?c\\b|clause|builder|flat|apartment|possession"
   },
   {
    "id": "JUD-SBIBSA",
@@ -170,7 +192,9 @@
    "holding": "The consumer commission must itself check limitation: a complaint filed after the 2-year limit must be dismissed unless delay is condoned for sufficient cause recorded in writing, even if the other side never raised it.",
    "applies": "direct",
    "caution": "Delay can be condoned if you show sufficient cause; explain any delay in the complaint itself.",
-   "url": "https://indiankanoon.org/doc/1338648/"
+   "url": "https://indiankanoon.org/doc/1338648/",
+   "when": "the problem is old enough that the 2-year time limit may be an issue",
+   "match": "years? ago|last year|saal pehle|साल पहले|pichhle saal|पिछले साल|delay(?:ed)? (?:in )?filing|limitation|time limit|\\b20(?:1\\d|2[0-4])\\b"
   },
   {
    "id": "JUD-BAGGA",
@@ -182,7 +206,9 @@
    "holding": "The burden of proving deficiency in service is on the person who alleges it. A bona fide action by the service provider, taken with due care, is not a deficiency.",
    "applies": "direct",
    "caution": "Your proof (bills, chats, ticket numbers, photos) is what discharges this burden.",
-   "url": "https://indiankanoon.org/doc/564766/"
+   "url": "https://indiankanoon.org/doc/564766/",
+   "when": "the company may say there was no deficiency, so the consumer's proof decides it",
+   "match": "deficien|service|repair|warranty|flight|airline|delivery|courier|no (?:bill|invoice|receipt)|lost (?:the )?(?:bill|receipt)|without (?:a )?(?:bill|receipt)|deny|denied|refus"
   },
   {
    "id": "JUD-HINGORANI",
@@ -194,7 +220,9 @@
    "holding": "Prolonged non-payment of salary to employees of State-owned corporations violates their right to life under Article 21; financial difficulty is no excuse and the State had to pay.",
    "applies": "principle",
    "caution": "Decided for employees of government-owned companies; for a private employer the remedy is the wage claim under the wages law, but the principle that earned salary must be paid stands.",
-   "url": "https://indiankanoon.org/doc/1455798/"
+   "url": "https://indiankanoon.org/doc/1455798/",
+   "when": "the employer is a government body, PSU or state-owned corporation",
+   "match": "government|\\bgovt\\b|sarkari|सरकारी|\\bpsu\\b|public sector|(?:state|public|government)[- ](?:owned|run|corporation)|nigam|निगम|municipal|(?:electricity|state|water|transport|housing) board"
   },
   {
    "id": "JUD-BIHAR26",
@@ -206,7 +234,9 @@
    "holding": "Ordered 6% simple interest per year on delayed salary and wages from the date each amount fell due until payment, treating interest as compensation for being kept out of money lawfully due.",
    "applies": "principle",
    "caution": "The Court said these reliefs rest on the case's own facts and set no general rule; use it to support a claim for interest, not as a fixed rate.",
-   "url": "https://lawchakra.in/supreme-court/defunct-bihar-corporations-supreme-court-orders-rs-1-lakh-to-daily-wage-workers-interest-on-dues/"
+   "url": "https://lawchakra.in/supreme-court/defunct-bihar-corporations-supreme-court-orders-rs-1-lakh-to-daily-wage-workers-interest-on-dues/",
+   "when": "salary has been held back for a period, so interest on the delay can be claimed",
+   "match": "interest|byaj|ब्याज|months?|mahin|महीन|delay|pending|since|\\blate\\b|weeks"
   },
   {
    "id": "JUD-KELAWALA",
@@ -218,7 +248,9 @@
    "holding": "'No work, no pay': an employer may deduct wages for the period an employee did not work, such as a strike or go-slow.",
    "applies": "direct",
    "caution": "Later (Syndicate Bank v. K. Umesh Nayak, 1994) wages for a strike period are payable only if the strike was both legal and justified. It does not allow withholding pay for days actually worked.",
-   "url": "https://indiankanoon.org/doc/398653/"
+   "url": "https://indiankanoon.org/doc/398653/",
+   "when": "the employer cuts pay for days not worked: a strike, absence or unapproved leave",
+   "match": "strike|hartal|हड़ताल|go-?slow|absent|absence|leave|chhutti|छुट्टी|did not work|didn'?t work|not (?:going|coming) to work|no work"
   },
   {
    "id": "JUD-ADYANTHAYA",
@@ -230,7 +262,9 @@
    "holding": "Sales and medical representatives were held not to be 'workmen' under the Industrial Disputes Act, so labour-law remedies for workmen were not available to them; those in managerial or supervisory roles also fall outside.",
    "applies": "principle",
    "caution": "It concerns who counts as a 'workman' for industrial-dispute remedies; a plain claim for unpaid salary can still go by civil suit or the wage-claim route.",
-   "url": "https://indiankanoon.org/doc/1539516/"
+   "url": "https://indiankanoon.org/doc/1539516/",
+   "when": "the worker is in sales, a medical representative, or in a managerial or supervisory role",
+   "match": "\\bsales\\b|medical rep|\\bmr\\b|marketing|manager|supervis|team lead|labour court|industrial dispute|workman"
   },
   {
    "id": "JUD-MAULA",
@@ -242,7 +276,9 @@
    "holding": "Forfeiting a security deposit on breach is a penalty under section 74 of the Contract Act: the party holding it can keep only reasonable compensation for loss, not the whole deposit as a punishment.",
    "applies": "principle",
    "caution": "A supply-contract case; the same rule on security deposits applies to a rent deposit by principle.",
-   "url": "https://indiankanoon.org/doc/158693/"
+   "url": "https://indiankanoon.org/doc/158693/",
+   "when": "the landlord keeps the whole deposit, or deducts more than any real loss",
+   "match": "forfeit|whole deposit|entire deposit|full deposit|kept (?:the |my )?(?:whole|entire|full|all)|not return|won'?t return|refus|deduct|kaat|katt|काट|पूरा|wapas nahi|वापस नहीं"
   },
   {
    "id": "JUD-KAILASH",
@@ -254,7 +290,9 @@
    "holding": "Money cannot be forfeited where the party keeping it has suffered no loss; section 74 does not do away with the need for loss, it only saves exact proof of the amount where loss is hard to measure.",
    "applies": "principle",
    "caution": "An auction/earnest-money case applied to deposits by principle; where real damage is shown, a fair deduction is allowed.",
-   "url": "https://www.ndl.gov.in/lw_document/supreme_court_india/supreme_court/4334"
+   "url": "https://www.ndl.gov.in/lw_document/supreme_court_india/supreme_court/4334",
+   "when": "the landlord deducts money without showing an actual loss or damage",
+   "match": "no damage|no loss|good condition|clean|paint|wear and tear|deduct|kaat|katt|काट|cut|forfeit|maintenance charge"
   },
   {
    "id": "JUD-ATMARAM",
@@ -266,7 +304,9 @@
    "holding": "A tenant who stays on after the tenancy has ended is liable to pay for use and occupation at the market rate the landlord could have earned, not just the old rent.",
    "applies": "principle",
    "caution": "Matters only if you stayed beyond the end of the tenancy or the notice period.",
-   "url": "https://www.livelaw.in/amp/top-stories/landlord-entitled-to-mesne-profits-from-tenant-when-execution-of-decree-of-eviction-is-stayed-supreme-court-203186"
+   "url": "https://www.livelaw.in/amp/top-stories/landlord-entitled-to-mesne-profits-from-tenant-when-execution-of-decree-of-eviction-is-stayed-supreme-court-203186",
+   "when": "the tenant stayed on after the tenancy or notice period ended",
+   "match": "overstay|stayed (?:on|beyond|after|extra)|after (?:the )?(?:agreement|lease|tenancy|rent agreement) (?:ended|expired)|extra (?:month|months|days)|holding over|vacated late|late (?:in )?vacat|did(?:n'?t| not) vacate"
   },
   {
    "id": "JUD-SBATRA",
@@ -278,7 +318,9 @@
    "holding": "Where the contract clearly and explicitly makes an amount 'earnest money' that can be forfeited on breach, it can be forfeited when the payer breaks the contract.",
    "applies": "principle",
    "caution": "An agreement-to-sell case; it helps a landlord only if your rent agreement has a clear forfeiture clause (for example for breaking a lock-in) and you broke it.",
-   "url": "https://www.lawweb.in/2014/07/when-earnest-money-can-be-forfeited.html"
+   "url": "https://www.lawweb.in/2014/07/when-earnest-money-can-be-forfeited.html",
+   "when": "the rent agreement has a clear forfeiture or lock-in clause that the tenant broke",
+   "match": "lock-?in|forfeit|forfeiture clause|broke (?:the )?(?:agreement|lease|lock)|left (?:early|before)|before (?:the )?(?:end|lock)|without (?:giving )?notice|notice period|early exit"
   },
   {
    "id": "JUD-BALAJI",
@@ -290,7 +332,9 @@
    "holding": "Putting a person in fear of death or grievous hurt in order to commit extortion (s.387 IPC, now BNS s.308(4)) is an offence even if no money or property is ever handed over. The Supreme Court restored a criminal case that the High Court had quashed only because nothing was paid.",
    "applies": "direct",
    "caution": "The case was about the aggravated form (fear of death or grievous hurt). For threats to reputation, such as leaking photos, the matching provision is BNS s.308(3); the same reasoning supports it, but this case did not decide that point.",
-   "url": "https://www.scobserver.in/supreme-court-observer-law-reports-scolr/extortion-m-s-balaji-traders-v-the-state-of-u-p-threat-of-life-or-injury-for-extortion-does-not-need-transfer-of-property-section-387-indian-penal-code-1860/"
+   "url": "https://www.scobserver.in/supreme-court-observer-law-reports-scolr/extortion-m-s-balaji-traders-v-the-state-of-u-p-threat-of-life-or-injury-for-extortion-does-not-need-transfer-of-property-section-387-indian-penal-code-1860/",
+   "when": "money or property was demanded under threat, even if nothing has been paid",
+   "match": "demand|extort|blackmail|pay(?:ment)?|paise|paisa|पैसे|money|\\brs\\.?\\s?\\d|₹|unless|warna|nahi to|नहीं तो"
   },
   {
    "id": "JUD-LALITA",
@@ -302,7 +346,9 @@
    "holding": "When a complaint discloses a cognizable offence, the police must register an FIR; they cannot refuse it or sit on it, and officers who fail to register can face action. Registering an FIR does not mean the accused must be arrested.",
    "applies": "direct",
    "caution": "Under the new BNSS s.173(3), for offences punishable with 3 to 7 years the police may first hold a preliminary enquiry of up to 14 days, with a senior officer's permission.",
-   "url": "https://www.livelaw.in/fir-registration-is-mandatory-action-will-be-taken-if-fir-is-not-registered"
+   "url": "https://www.livelaw.in/fir-registration-is-mandatory-action-will-be-taken-if-fir-is-not-registered",
+   "when": "the client may go to the police, or the police may refuse to register the complaint",
+   "match": "police|पुलिस|\\bfir\\b|thana|थाना|cyber ?cell|cybercrime|complaint|report"
   },
   {
    "id": "JUD-KHOTKAR",
@@ -314,7 +360,9 @@
    "holding": "Copies of electronic records (printouts, CDs, pen drives) are admissible only with the certificate the law requires; oral evidence cannot replace it. But no certificate is needed when the original device itself is produced and its owner proves it. If the person in control of the device refuses to give the certificate, the court can be asked to summon it.",
    "applies": "principle",
    "caution": "Decided under s.65B of the old Evidence Act. The BSA s.63 certificate now also needs hash values and an expert's Part B.",
-   "url": "https://www.mondaq.com/india/trials-amp-appeals-amp-compensation/968812/on-admissibility-of-electronic-"
+   "url": "https://www.mondaq.com/india/trials-amp-appeals-amp-compensation/968812/on-admissibility-of-electronic-",
+   "when": "the proof is electronic: chats, screenshots, recordings, emails or posts",
+   "match": "screenshot|whatsapp|chat|message|recording|record(?:ed)? (?:the )?call|email|instagram|facebook|telegram|\\bsms\\b|video|photo|online|post"
   },
   {
    "id": "JUD-MUSUMBA",
@@ -326,7 +374,9 @@
    "holding": "Completed extortion (then ss.383-384 IPC, now BNS s.308(1)-(2)) needs actual delivery of property or money by the person threatened. Where the complaint did not say anything was handed over, the FIR for extortion was quashed.",
    "applies": "direct",
    "caution": "A threat made in order to extort, with nothing yet paid, can still be an offence under BNS s.308(3) or s.308(4) (see Balaji Traders, 2025).",
-   "url": "https://livelaw.in/high-court/bombay-high-court/bombay-high-court-section-383-ipc-extortion-pressurising-someone-to-give-up-demand-for-repayment-of-money-231430"
+   "url": "https://livelaw.in/high-court/bombay-high-court/bombay-high-court-section-383-ipc-extortion-pressurising-someone-to-give-up-demand-for-repayment-of-money-231430",
+   "when": "money was demanded but nothing has actually been handed over yet",
+   "match": "demand|extort|blackmail|paise|paisa|पैसे|money|\\brs\\.?\\s?\\d|₹|unless|warna|nahi to|नहीं तो"
   },
   {
    "id": "JUD-TANEJA",
@@ -338,7 +388,9 @@
    "holding": "Criminal intimidation needs an intention to cause alarm, or to make the person do or stop doing something. Mere words, without material showing that intent, are not enough; the case over Facebook comments about the traffic police was quashed.",
    "applies": "direct",
    "caution": "Decided under IPC ss.503 and 506; BNS s.351 uses the same test.",
-   "url": "https://www.lawweb.in/2015/08/when-offence-of-criminal-intimidation.html"
+   "url": "https://www.lawweb.in/2015/08/when-offence-of-criminal-intimidation.html",
+   "when": "the case rests on words (messages, comments, posts) and the other side may say they were not meant",
+   "match": "threat|dhamki|धमकी|comment|post|message|said|abuse|gaali|गाली|warn"
   }
  ]
 }
