@@ -256,3 +256,27 @@ def test_unreadable_reply_is_asked_again_once():
     llm = BrokenThenFixedLLM()
     r = NyaySaathi(llm=llm, kb=kb).turn(new_state(), "Landlord kept my deposit")
     assert llm.n == 2 and r["reply_body"] == "Fixed reply." and not r["parse_error"]
+
+
+def test_empty_gemini_reply_is_retried_then_falls_back(monkeypatch):
+    """Found in the live test runs: Gemini 2.5 sometimes answers 200 OK with no text."""
+    import os
+    from nyay import llm as L
+    monkeypatch.setitem(os.environ, "GEMINI_API_KEY", "x")
+
+    class R:
+        def __init__(self, d):
+            self.d, self.status_code, self.ok = d, 200, True
+
+        def json(self):
+            return self.d
+
+        def raise_for_status(self):
+            pass
+    empty, good = {"candidates": [{"content": {}, "finishReason": "STOP"}]}, {"candidates": [{"content": {"parts": [{"text": "ok"}]}}]}
+    seq = [R(empty), R(empty), R(good)]
+    monkeypatch.setattr(L.requests, "post", lambda *a, **k: seq.pop(0))
+    assert L.LLM("gemini", "gemini-2.5-flash")._gemini_post({"contents": []}) == "ok"      # asked again
+    seq[:] = [R(empty)] * 3 + [R(good)]
+    m = L.LLM("gemini", "gemini-2.5-flash")
+    assert m._gemini_post({"contents": []}) == "ok" and m.model != "gemini-2.5-flash"      # next model answered
