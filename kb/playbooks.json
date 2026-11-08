@@ -467,7 +467,13 @@
     "கைது"
    ],
    "message": "If someone has been arrested, or a case, summons or warrant is against you, time matters: you have the right to a lawyer, and a free one is available - NALSA 15100 or your District Legal Services Authority. Don't sign or admit anything until you have read it and taken advice.",
-   "escalate": "urgent"
+   "escalate": "urgent",
+   "not_when": [
+    "(?:get|have|see|make sure|want)\\s+(?:him|her|them|the\\s+\\w+|my\\s+\\w+|that\\s+\\w+)\\s+(?:\\w+\\s+)?arrested",
+    "\\barrest\\s+(?:him|her|them|the\\s+\\w+|my\\s+(?:landlord|employer|ex\\w*))\\b",
+    "against\\s+(?:him|her|them|the\\s+(?:landlord|owner|company|seller|employer)|my\\s+(?:landlord|employer|ex\\w*))"
+   ],
+   "_note": "'not_when': phrases where the arrest or case is aimed at the OTHER side ('get him arrested'); they are removed before matching, so a client who wants to complain is not told a case is against them."
   },
   {
    "id": "violence",
