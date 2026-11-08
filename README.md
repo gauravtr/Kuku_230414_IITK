@@ -50,15 +50,20 @@ NYAY_BASE_URL=https://your-gateway/v1 NYAY_PROVIDER=openai NYAY_MODEL=<model>   
 ```
 No SDKs: every provider is a plain HTTP call in `nyay/llm.py`.
 
-## Run the test cases (raw outputs)
+## Test cases and their outputs
+**[`outputs/`](outputs/summary.md) holds 14 full consultations recorded from the live app** (Gemini, 8 November 2026) through
+its normal chat and Documents screens, unedited: the client's story, the AI lawyer's questions and the answers, the opinion and
+plan on every turn, the Supreme Court rulings that fit, then the drafts with their code checks. 58 client turns, 14 drafts.
+They cover Hindi, Hinglish and Tamil; deposit, consumer, salary, cheque, threats and domestic-violence matters; a request for a
+made-up judgment, a request to forge receipts, an outdated IPC 420 question, a husband named in a dowry FIR, a one-line vague
+start, a time-barred complaint, and a rehearsed phone call with a coach.
+[`outputs/REVIEW.md`](outputs/REVIEW.md) is a human review of those transcripts: what works, what is still wrong, and the
+bugs these runs found that were then fixed in code (each with a regression test).
+
+To replay the same scripts (`tests/cases.json`) with your own key:
 ```bash
-python run_tests.py --provider gemini        # writes outputs/<case>.md, outputs/summary.md
+python run_tests.py --provider gemini        # writes outputs/<case>.md, summary.md, summary.json
 ```
-`tests/cases.json` has 12 cases: Hindi, Hinglish and Tamil; a full deposit → legal-notice flow; a consumer complaint draft;
-a cheque notice the user doesn't understand; a request for a fake Supreme Court judgment; an outdated IPC 420 question; a police/dowry red flag;
-a request to forge a receipt; a vague one-liner; a time-barred complaint; and practise mode.
-`outputs/REVIEW.md` is the manual review, including where it fails. (The saved outputs come from the first prompt version,
-before the AI-lawyer opinion and plan fields were added. Re-run the command above to regenerate them.)
 
 ## Layout
 ```
