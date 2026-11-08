@@ -72,7 +72,11 @@ def _find_act(kb: KB, window: str, nearest_end: bool = False):
     return best, (len(w) - best_pos if nearest_end else best_pos)
 
 
-MULTI_MARKER_RE = re.compile(r"\[([A-Z]{2,6}-[A-Z0-9]{1,12}(?:\s*[,;]\s*[A-Z]{2,6}-[A-Z0-9]{1,12})+)\]")
+MULTI_MARKER_RE = re.compile(r"\[([A-Z]{2,6}-[A-Z0-9]{1,12}(?:\s*[,;]\s*(?:[A-Z]{2,6}-[A-Z0-9]{1,12}|[A-Z][A-Z0-9]{2,11}))+)\]")
+# "Police vs Court", "Notice vs Case": headings that look like "X v. Y" but name no party
+GENERIC_SIDES = {"police", "court", "courts", "civil", "criminal", "consumer", "commission", "notice", "case", "fir", "complaint",
+                 "landlord", "tenant", "employer", "employee", "option", "route", "path", "mediation", "settlement", "suit",
+                 "online", "offline", "family", "state", "law", "rights", "money", "time", "cost", "costs", "risk", "you", "them"}
 
 
 def _party(name: str) -> str:
@@ -135,7 +139,10 @@ def fix_case_citations(text: str, kb: KB) -> str:
 def check(text: str, kb: KB) -> GuardResult:
     text = fix_case_citations(fix_act_years(text, kb), kb)
     # "[COW-45, GEN-LIMIT]" -> "[COW-45][GEN-LIMIT]" so each card becomes its own numbered source
-    text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{x.strip()}]" for x in re.split(r"[,;]", m.group(1))), text)
+    def _one(x):   # "[BNSS-MAINT, RAJNESH]": a bare short name of a judgment card means that card
+        x = x.strip()
+        return x if "-" in x else ("JUD-" + x if "JUD-" + x in getattr(kb, "judgments", {}) else "")
+    text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{y}]" for y in map(_one, re.split(r"[,;]", m.group(1))) if y), text)
     flags, marks = [], []  # marks: (end_index, label)
     allowed = kb.allowed_sections()
 
@@ -192,6 +199,9 @@ def check(text: str, kb: KB) -> GuardResult:
     for m in ARTICLE_RE.finditer(text):
         add(m.span(), m.group(0), "block", "constitutional article not on a verified card")
     for m in CASE_RE.finditer(text):
+        words = re.findall(r"[A-Za-z]+", m.group(0).lower())
+        if words and all(w in GENERIC_SIDES or w in ("v", "vs", "versus", "the", "and", "of") for w in words):
+            continue   # "Police vs Court": a comparison heading, not a case name
         if _known_judgment(m.group(0), kb):
             continue   # a verified Supreme Court judgment card
         if REFUSAL_RE.search(_sentence(text, m.start(), m.end())):
