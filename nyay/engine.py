@@ -219,7 +219,8 @@ class NyaySaathi:
         asked = bool(re.search(r"judg|case ?law|precedent|ruling|supreme court|फैसल|निर्णय|नज़ीर|नजीर", user_text, re.I))
         jout = out.get("judgments") if isinstance(out.get("judgments"), dict) else {}
         judgments = None
-        if kb.judgments_for(issue) and (not open_q or turn_no >= INTAKE_TURNS or asked):
+        model_ready = isinstance(jout.get("notes"), dict) and len(jout["notes"]) >= 2   # model judged the facts sufficient
+        if kb.judgments_for(issue) and (model_ready or not open_q or turn_no >= INTAKE_TURNS or asked):
             judgments = pick_judgments(kb, issue, jout.get("client_side"), jout.get("notes"), verified)
         if esc["reasons"]:
             esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]

@@ -138,9 +138,10 @@ def check(text: str, kb: KB) -> GuardResult:
 
     # 4) [CARD-ID] markers -> numbered sources; unknown IDs are dropped
     order: list[str] = []
+    judgments = getattr(kb, "judgments", {})
     def to_num(m):
         cid = m.group(1)
-        if cid not in kb.cards:
+        if cid not in kb.cards and cid not in judgments:
             flags.append({"mention": m.group(0), "severity": "block", "why": "model cited a card ID that does not exist"})
             return ""
         if cid not in order:
@@ -155,8 +156,14 @@ def check(text: str, kb: KB) -> GuardResult:
         seen.add(end)
         text = text[:end] + label + text[end:]
     text = MARKER_RE.sub(to_num, text)
-    sources = [{"n": i + 1, "id": cid, "title": kb.cards[cid]["title"], "url": kb.cards[cid]["source"],
-                "verified": kb.cards[cid]["verified"]} for i, cid in enumerate(order)]
+    def src(i, cid):
+        if cid in kb.cards:
+            return {"n": i + 1, "id": cid, "title": kb.cards[cid]["title"], "url": kb.cards[cid]["source"],
+                    "verified": kb.cards[cid]["verified"]}
+        j = judgments[cid]   # a verified Supreme Court judgment card
+        return {"n": i + 1, "id": cid, "title": f"Supreme Court: {j['name']}, {j['citation']}", "url": j["url"],
+                "verified": True}
+    sources = [src(i, cid) for i, cid in enumerate(order)]
     return GuardResult(text=text, flags=_dedupe(flags), sources=sources)
 
 
