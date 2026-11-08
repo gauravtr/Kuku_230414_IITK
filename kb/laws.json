@@ -135,6 +135,26 @@
     "evidence act"
    ],
    "outdated": true
+  },
+  "PWDV": {
+   "name": "Protection of Women from Domestic Violence Act, 2005",
+   "aliases": [
+    "protection of women from domestic violence",
+    "domestic violence act",
+    "pwdv",
+    "pwdva",
+    "dv act",
+    "घरेलू हिंसा से महिलाओं का संरक्षण",
+    "घरेलू हिंसा अधिनियम"
+   ]
+  },
+  "MWCD": {
+   "name": "One Stop Centre (Sakhi) scheme, Ministry of Women & Child Development",
+   "aliases": [
+    "one stop centre",
+    "sakhi",
+    "mission shakti"
+   ]
   }
  },
  "cards": [
@@ -424,6 +444,143 @@
    "text": "During a cheque bounce trial the court may order the drawer to pay interim compensation of up to 20% of the cheque amount to the complainant.",
    "source": "https://www.indiacode.nic.in/ (search: Negotiable Instruments Act, 1881)",
    "verified": "2026-11-07"
+  },
+  {
+   "id": "DV-WHO",
+   "act": "PWDV",
+   "sections": [
+    "2",
+    "3"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "What counts as domestic violence and who can use the DV Act (s.2, s.3)",
+   "text": "Domestic violence covers physical abuse (beating, slapping, causing injury), sexual abuse, verbal and emotional abuse (insults, threats, taunts about dowry or not having a son) and economic abuse (stopping money for household needs, taking her salary or stridhan, throwing her out). Any woman in a domestic relationship can use it: a wife, a woman in a live-in relationship in the nature of marriage, a mother, sister or daughter living in the same house. She can name the husband and his relatives (for example in-laws) as respondents.",
+   "source": "https://www.indiacode.nic.in/ (Act 43 of 2005)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "DV-APPLY",
+   "act": "PWDV",
+   "sections": [
+    "9",
+    "12",
+    "27"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "How to start a DV case: Protection Officer and application to the Magistrate (s.9, s.12, s.27)",
+   "text": "She (or the Protection Officer, or someone on her behalf) files an application under s.12 before the Judicial Magistrate. Every district has a Protection Officer (s.9) who records a Domestic Incident Report, helps her file, and arranges medical help and shelter, free of cost. She can file in the court where she now lives, even temporarily (for example at her parents' home), or where the husband lives, or where the violence happened (s.27). The Magistrate should ordinarily fix the first hearing within 3 days of receiving the application and try to decide it within 60 days of the first hearing (s.12).",
+   "source": "https://www.indiacode.nic.in/ (Act 43 of 2005)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "DV-RELIEF",
+   "act": "PWDV",
+   "sections": [
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "What the Magistrate can order (s.17-22)",
+   "text": "Protection order (s.18): stop the violence, stop contact, stop entering her workplace, stop selling joint assets. Right to live in the shared household (s.17) and residence order (s.19): she cannot be thrown out of the matrimonial home; the court can remove the abuser from it or order alternative housing and the return of her stridhan and valuables. Monetary relief (s.20): medical expenses, lost earnings, damaged property and maintenance for her and her children. Custody of children (s.21). Compensation (s.22) for injuries and mental torture and emotional distress.",
+   "source": "https://www.indiacode.nic.in/ (Act 43 of 2005)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "DV-URGENT",
+   "act": "PWDV",
+   "sections": [
+    "23",
+    "31"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "Urgent (ex parte) orders and breach (s.23, s.31)",
+   "text": "If she is in danger, the Magistrate can pass an interim or ex parte protection order on her affidavit itself, without first hearing the husband (s.23). Breaking a protection order is a criminal offence: up to 1 year in jail, or fine up to Rs 20,000, or both (s.31), and she can call the police when it is broken.",
+   "source": "https://www.indiacode.nic.in/ (Act 43 of 2005)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-CRUELTY",
+   "act": "BNS",
+   "sections": [
+    "85",
+    "86"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "Cruelty by husband or in-laws is a crime (BNS s.85, s.86; earlier IPC 498A)",
+   "text": "A husband or his relative who subjects a woman to cruelty can be jailed up to 3 years and fined (BNS s.85). Cruelty (s.86) means wilful conduct likely to drive her to suicide or cause grave injury or danger to her life, limb or health (physical or mental), or harassment to force her or her family to meet an unlawful demand such as dowry. This replaced IPC 498A for incidents from 1 July 2024. Note: under Supreme Court directions (2025), a complaint only of this kind may first go to a district Family Welfare Committee, with no arrest for 2 months; this does not stop her DV Act case or her protection.",
+   "source": "https://www.mha.gov.in/ (Bharatiya Nyaya Sanhita, 2023)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNS-HURT",
+   "act": "BNS",
+   "sections": [
+    "115",
+    "116",
+    "117"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "Hurt and grievous hurt (BNS s.115-117)",
+   "text": "Voluntarily causing hurt (pain or injury) is punishable with up to 1 year, or fine up to Rs 10,000, or both (s.115). Grievous hurt (s.116) includes permanent disfigurement of the head or face, a fracture or dislocation of a bone or tooth, and injury causing severe pain or inability to carry on normal work for 15 days. Voluntarily causing grievous hurt: up to 7 years and fine (s.117). Permanent scars on the face or head can count as grievous hurt; the doctor's medical report decides how the injury is classified.",
+   "source": "https://www.mha.gov.in/ (Bharatiya Nyaya Sanhita, 2023)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNSS-FIR",
+   "act": "BNSS",
+   "sections": [
+    "173"
+   ],
+   "issues": [
+    "domestic",
+    "*"
+   ],
+   "title": "Filing an FIR: any police station, e-FIR, free copy, if police refuse (BNSS s.173)",
+   "text": "An FIR for a cognizable offence can be filed at ANY police station, even if the incident happened elsewhere (Zero FIR); it is then transferred. Information can also be given electronically (e-FIR) and must be signed at the station within 3 days. She gets a free copy of the FIR. If the police refuse to register it, she can send the complaint in writing to the Superintendent of Police (s.173(4)).",
+   "source": "https://www.mha.gov.in/ (Bharatiya Nagarik Suraksha Sanhita, 2023)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "BNSS-MAINT",
+   "act": "BNSS",
+   "sections": [
+    "144"
+   ],
+   "issues": [
+    "domestic"
+   ],
+   "title": "Maintenance for wife and children (BNSS s.144; earlier CrPC 125)",
+   "text": "A wife who cannot maintain herself, and children, can ask the Magistrate to order the husband to pay monthly maintenance if he has means and neglects or refuses to support them. This is separate from, and can run alongside, monetary relief under the DV Act.",
+   "source": "https://www.mha.gov.in/ (Bharatiya Nagarik Suraksha Sanhita, 2023)",
+   "verified": "2026-11-08"
+  },
+  {
+   "id": "OSC-181",
+   "act": "MWCD",
+   "sections": [],
+   "issues": [
+    "domestic"
+   ],
+   "title": "One Stop Centre (Sakhi) and Women Helpline 181",
+   "text": "Women Helpline 181 is free and 24x7 and connects her to the district One Stop Centre (Sakhi), which gives under one roof, free: medical help and medico-legal examination, help with the police and FIR, free legal aid through the Legal Services Authority, counselling, and temporary shelter (usually up to 5 days). For immediate danger, 112.",
+   "source": "https://wcd.gov.in/ (Mission Shakti - Sambal)",
+   "verified": "2026-11-08"
   }
  ]
 }

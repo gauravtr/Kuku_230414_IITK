@@ -215,6 +215,103 @@
     "the 15-day or one-month deadline is close or has passed"
    ]
   },
+  "domestic": {
+   "label": "Domestic violence / cruelty by husband or in-laws",
+   "keywords": [
+    "husband",
+    "in-laws",
+    "in laws",
+    "in-law",
+    "mother-in-law",
+    "father-in-law",
+    "sasural",
+    "sasuraal",
+    "saas",
+    "sasur",
+    "pati",
+    "dowry",
+    "dahej",
+    "beat",
+    "beats",
+    "beaten",
+    "beating",
+    "hit me",
+    "hits me",
+    "slap",
+    "slapped",
+    "scar",
+    "scars",
+    "bruise",
+    "bruises",
+    "injury",
+    "injuries",
+    "abuse",
+    "abused",
+    "abusive",
+    "domestic violence",
+    "cruelty",
+    "thrown out",
+    "throw me out",
+    "marpeet",
+    "maarta",
+    "maarte",
+    "maarti",
+    "stridhan",
+    "matrimonial",
+    "पति",
+    "ससुराल",
+    "सास",
+    "ससुर",
+    "दहेज",
+    "मारपीट",
+    "मारता",
+    "मारते",
+    "घरेलू हिंसा",
+    "घर से निकाल",
+    "स्त्रीधन",
+    "கணவர்",
+    "மாமியார்",
+    "வரதட்சணை",
+    "அடித்தார்"
+   ],
+   "facts_to_collect": [
+    "is she safe right now, and where is she living now (matrimonial home / parents' home / elsewhere)",
+    "who did it (husband, in-laws) and since when; the latest incident date",
+    "injuries: was she treated, is there a hospital/medical (MLC) record, are the scars on face or head",
+    "any dowry or money demands",
+    "children: their ages and who they are with",
+    "her income and the husband's income (for maintenance)",
+    "has any police complaint, FIR or court case already been filed by either side",
+    "city and state"
+   ],
+   "proof": [
+    "medical / MLC report from a government hospital (get one now even for old injuries; the doctor records the scars)",
+    "dated photos of injuries and scars",
+    "WhatsApp/SMS/voice notes with threats or dowry demands",
+    "names of neighbours or relatives who saw or heard it",
+    "list of stridhan and jewellery given at marriage, with photos or bills",
+    "marriage proof (certificate, photos, invitation card)",
+    "copies of any earlier police complaint or NCR"
+   ],
+   "ladder": [
+    "SAFETY FIRST: if in danger now, call 112, or 181 (Women Helpline), which connects to the district One Stop Centre for free medical help, police help, a lawyer and shelter",
+    "Get a medical examination at a government hospital and ask for a medico-legal (MLC) report recording every injury and scar; photograph the injuries",
+    "Meet the district Protection Officer (via 181, the One Stop Centre or the DLSA) and record a Domestic Incident Report",
+    "File the DV Act application (s.12) before the Magistrate where she now lives, asking for an urgent ex parte protection order, residence order, monetary relief/maintenance, custody and compensation (Nyay Saathi can draft it)",
+    "Criminal route (her choice, can run in parallel): written police complaint/FIR for cruelty and hurt at any police station (Zero FIR); if refused, send it to the SP (Nyay Saathi can draft it)",
+    "Free lawyer from the DLSA (15100); women get free legal aid regardless of income"
+   ],
+   "drafts": [
+    "dv_application",
+    "police_complaint"
+   ],
+   "lawyer_when": [
+    "always for the court hearings: a free DLSA lawyer can represent her",
+    "the husband has filed or threatens divorce, custody or a false case",
+    "there are children and custody is disputed",
+    "injuries are serious or there are threats to life (also call 112)"
+   ]
+  },
   "other": {
    "label": "Something else",
    "keywords": [],
@@ -225,11 +322,11 @@
     "any documents, messages, receipts"
    ],
    "ladder": [
-    "Nyay Saathi only covers 4 problem types in depth. For anything else, contact free legal aid (15100 / DLSA)."
+    "Nyay Saathi covers 5 problem types in depth (deposit, consumer, salary, cheque bounce, domestic violence). For anything else, contact free legal aid (15100 / DLSA)."
    ],
    "drafts": [],
    "lawyer_when": [
-    "always for problems outside the 4 covered types"
+    "always for problems outside the 5 covered types"
    ]
   }
  },
@@ -277,7 +374,7 @@
     "மிரட்டல்",
     "வரதட்சணை"
    ],
-   "message": "If you are in danger, call 112 now. Women's helpline: 181. Free legal aid: 15100. Your safety comes first - this needs a real lawyer or protection officer, not just an app."
+   "message": "If she is in danger right now: call 112. Women Helpline 181 (free, 24x7) connects to the district One Stop Centre: free medical exam, police help, a lawyer and shelter."
   },
   {
    "id": "self_harm",
@@ -311,7 +408,6 @@
    "keywords": [
     "divorce",
     "custody",
-    "maintenance",
     "property dispute",
     "land",
     "inheritance",
@@ -324,7 +420,7 @@
     "will deed",
     "वसीयत"
    ],
-   "message": "Family and property disputes are outside what I cover reliably. Please consult a lawyer - free legal aid is available via 15100 / DLSA."
+   "message": "Divorce, child custody and property disputes are outside what I cover reliably. Please consult a lawyer - free legal aid via 15100 / DLSA."
   }
  ]
 }
