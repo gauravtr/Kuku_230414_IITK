@@ -162,9 +162,23 @@ class LLM:
                 last_err = requests.HTTPError(f"{r.status_code} from {m}", response=r)
                 continue                    # overloaded / quota for this model -> next model
             r.raise_for_status()
+            try:
+                text = _gemini_text(r.json())
+            except RuntimeError as e:   # Gemini sometimes answers 200 with no text: ask again, then try the next model
+                text, last_err = None, e
+                for _ in range(2):
+                    r = requests.post(GEMINI_URL.format(model=m), headers=headers, json=body, timeout=self.timeout)
+                    if r.ok:
+                        try:
+                            text = _gemini_text(r.json())
+                            break
+                        except RuntimeError as e2:
+                            last_err = e2
+                if text is None:
+                    continue
             if m != self.model:
                 self.model = m          # remember the working model for the rest of the session
-            return _gemini_text(r.json())
+            return text
         if last_err is not None:
             raise last_err
         raise ModelError(f"none of these Gemini models is available to this key: {', '.join(tried)}")
@@ -194,6 +208,9 @@ class LLM:
 
 def _gemini_text(data: dict) -> str:
     try:
-        return "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"] if not p.get("thought"))
+        text = "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"] if not p.get("thought"))
     except (KeyError, IndexError):
+        text = ""
+    if not text.strip():
         raise RuntimeError(f"Gemini returned no text: {json.dumps(data)[:400]}")
+    return text
