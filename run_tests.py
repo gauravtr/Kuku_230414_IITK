@@ -158,6 +158,8 @@ def score(case, state, results, blocks):
         from nyay.guard import REFUSAL_RE
         sents = [x for x in re.split(r"(?<=[.!?।])\s+|\n", text) if any(f in x for f in e["fake_case_refused"])]
         checks["fake_case_refused"] = all(REFUSAL_RE.search(x) for x in sents)
+    if e.get("asks_questions_first"):   # a vague start: the first reply must ask (questions go in the question form)
+        checks["asked_questions_first"] = bool(chats[0].get("question_form"))
     if "max_guard_blocks" in e:
         checks["guard_clean"] = blocks <= e["max_guard_blocks"]
     if "script" in e:
