@@ -74,9 +74,10 @@ LANGS = {"Auto-detect": "auto", "English": "English", "हिंदी · Hindi"
          "मराठी · Marathi": "Marathi", "తెలుగు · Telugu": "Telugu", "ಕನ್ನಡ · Kannada": "Kannada",
          "ગુજરાતી · Gujarati": "Gujarati", "മലയാളം · Malayalam": "Malayalam"}
 ISSUES = {"deposit": "Security deposit", "consumer": "Consumer · refund", "salary": "Unpaid salary",
-          "cheque": "Cheque bounce", "other": "General matter"}
+          "cheque": "Cheque bounce", "domestic": "Domestic violence", "other": "General matter"}
 OPPONENTS = {"deposit": ("the landlord", "Landlord"), "consumer": ("the company's customer-care manager", "Customer care"),
              "salary": ("the employer's HR manager", "HR manager"), "cheque": ("the person who gave the cheque", "Cheque issuer"),
+             "domestic": ("the duty officer at the police station, who is reluctant to register your FIR", "Police officer"),
              "other": ("the other side", "Other side")}
 EXAMPLES = [
     ("home", "Deposit not returned", "Landlord holding back your security deposit", "English",
@@ -94,7 +95,15 @@ EXAMPLES = [
 VIEWS = {"consult": ":material/forum: Consult", "case": ":material/folder_open: Case file",
          "docs": ":material/description: Documents", "rehearse": ":material/record_voice_over: Rehearse"}
 DOCS = {"legal_notice": ("Legal notice", "A formal written demand to the other side. Usually the first step."),
-        "consumer_complaint": ("Consumer complaint", "For the District Consumer Commission, if a notice didn't work.")}
+        "consumer_complaint": ("Consumer complaint", "For the District Consumer Commission, if a notice didn't work."),
+        "dv_application": ("DV Act application", "Asks the Magistrate for urgent protection, the right to stay in the home, "
+                           "maintenance, medical costs and compensation."),
+        "police_complaint": ("Police complaint (FIR)", "A written complaint to the police station. If they refuse, the same "
+                             "copy goes to the Superintendent of Police.")}
+
+
+def docs_for(issue) -> list[str]:
+    return ["dv_application", "police_complaint"] if issue == "domestic" else ["legal_notice", "consumer_complaint"]
 STRENGTH = {"strong": ("Strong case", 3), "moderate": ("Moderate case", 2), "weak": ("Weak case", 1),
             "unclear": ("Needs a few more facts", 0)}
 REASONS = {"safety": "This may involve your safety or liberty.",
@@ -451,9 +460,12 @@ if view == "consult":
         st.write("")
         with st.container(key="actions"):
             c1, c2, c3 = st.columns(3)
-            c1.button(":material/edit_document: " + ("Draft complaint" if ready == "consumer_complaint" else "Draft legal notice"),
-                      width="stretch", type="primary" if ready in DOCS else "secondary",
-                      on_click=go, args=("docs", ready if ready in DOCS else "legal_notice"))
+            kinds = docs_for(state.get("issue"))
+            pick = ready if ready in kinds else kinds[0]
+            c1.button(":material/edit_document: Draft " + {"legal_notice": "legal notice", "consumer_complaint": "complaint",
+                      "dv_application": "DV application", "police_complaint": "police complaint"}[pick],
+                      width="stretch", type="primary" if ready in kinds else "secondary",
+                      on_click=go, args=("docs", pick))
             c2.button(":material/folder_open: Case file & plan", width="stretch", on_click=go, args=("case",))
             c3.button(f":material/record_voice_over: Rehearse with {opp[1].lower()}", width="stretch",
                       on_click=go, args=("rehearse",))
@@ -552,13 +564,15 @@ elif view == "docs":
                    'the consultation comes first.</p></div></div>')
         st.button(":material/forum: Start the consultation", on_click=go, args=("consult",), type="primary")
     else:
-        ss.setdefault("doc_kind", "legal_notice")
+        kinds = docs_for(state.get("issue"))
+        if ss.get("doc_kind") not in kinds:
+            ss.doc_kind = kinds[0]
         left, right = st.columns([1, 1.45], gap="large")
         d = ss.get("draft")
         with left:
             with st.container(key="card_doctype"):
                 html_block(f'<div class="card-t">{ic("description")}Choose a document</div>')
-                kind = st.radio("Document", list(DOCS), key="doc_kind", format_func=lambda k: DOCS[k][0],
+                kind = st.radio("Document", kinds, key="doc_kind", format_func=lambda k: DOCS[k][0],
                                 label_visibility="collapsed")
                 html_block(f'<div class="note">{DOCS[kind][1]}</div>')
                 again = d and d.get("kind") == kind
@@ -582,6 +596,20 @@ elif view == "docs":
                                  "Send it by <b>Registered Post AD</b> or <b>Speed Post</b>. Keep the receipt.",
                                  "Also send a scan by email or WhatsApp, if you have their contact.",
                                  "Note the date. If there's no reply by the deadline in the notice, come back for next steps."]
+                    elif d.get("kind") == "dv_application":
+                        steps = ["Call <b>181</b> or <b>15100</b> and ask for the district <b>Protection Officer</b> or a free "
+                                 "DLSA lawyer. Women get free legal aid, whatever their income.",
+                                 "Take this draft, your medical (MLC) papers, photos and messages to them. They file it with the "
+                                 "Magistrate along with your affidavit.",
+                                 "Ask for an <b>urgent ex parte protection order</b> on the first day if you are at risk.",
+                                 "Keep copies of everything, and the case number, for every hearing."]
+                    elif d.get("kind") == "police_complaint":
+                        steps = ["Print two copies and sign both. Go to <b>any</b> police station; it doesn't have to be where it "
+                                 "happened. Take someone you trust if you can.",
+                                 "Hand it to the duty officer and get the second copy stamped as received (date and stamp).",
+                                 "Ask to be sent for a <b>medical examination</b>, and ask for your <b>free copy of the FIR</b>.",
+                                 "If they refuse, send the stamped copy to the <b>Superintendent of Police</b> by Registered Post "
+                                 "the same day, and keep the receipt."]
                     else:
                         steps = ["File it online at <b>e-Jagriti</b> (e-jagriti.gov.in).",
                                  "Attach an affidavit and copies of your proof: bills, chats, photos, your notice.",
