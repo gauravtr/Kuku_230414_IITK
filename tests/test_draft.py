@@ -374,3 +374,21 @@ def test_found_in_live_run_of_case_14():
     g = check("You can ask for maintenance for your daughter [BNSS-MAINT, RAJNESH].", kb)
     assert g.text.endswith("daughter [1][2].") and "RAJNESH" not in g.text
     assert any("Rajnesh" in str(x) for x in g.sources)   # the bare short name became the verified judgment card
+
+
+def test_markers_never_shown_raw():
+    """Case 14: the draft's note to the client showed '[OSC-181, GEN-LEGALAID]' raw; it skipped the guard."""
+    from nyay.engine import MARKER_STRIP
+    assert MARKER_STRIP("Call 181 or DLSA [OSC-181, GEN-LEGALAID].") == "Call 181 or DLSA."
+    assert MARKER_STRIP("Wages by the 7th [COW-17].") == "Wages by the 7th."
+
+    class NoteLLM:
+        name = "fake"
+
+        def chat(self, system, messages, json_mode=False, **k):
+            return json.dumps({"document": "To,\\nMr. X\\n\\nSubject: Deposit\\n\\nPlease pay.", "blanks": [],
+                               "user_note": "File it with the DLSA [OSC-181, GEN-LEGALAID]. Also use Section 999 IPC."})
+    st = new_state(); st["issue"] = "deposit"; st["case"] = {"summary": "deposit"}
+    st["history"] = [{"role": "user", "content": "landlord kept my deposit"}]
+    r = NyaySaathi(llm=NoteLLM(), kb=kb).draft(st, "legal_notice", {})
+    assert "OSC-181" not in r["user_note"] and "⚠️[unverified]" in r["user_note"]   # guarded like any reply
