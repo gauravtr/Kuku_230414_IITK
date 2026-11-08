@@ -146,3 +146,19 @@ def test_found_in_second_live_review():
     llm.chat = lambda system, messages, **k: json.dumps({"document": GOOD.replace("Ref. No.: NIL", "Ref. No.: LN/2026/07")})
     res = NyaySaathi(llm=llm, kb=kb).draft(dict(new_state(), issue="threats"), "legal_notice", {"sender": "self"})
     assert "LN/2026/07" not in res["document"] and "[YOUR REFERENCE NUMBER, OR NIL]" in res["document"]
+
+
+def test_found_in_third_live_review():
+    proved = GOOD.replace("the conduct in paras 2.1-2.2, if established, would amount to putting\nme in fear",
+                          "these ingredients are satisfied by paras 2.1-2.2, which put\nme in fear")
+    assert any("treats the allegation as proved" in p for p in lint_draft(proved, "legal_notice", "self", kb))
+    bare = GOOD.replace("Section 308(3) of the Bharatiya", "Section 308 of the Bharatiya")
+    assert any("exact sub-section of Section 308" in p for p in lint_draft(bare, "legal_notice", "self", kb))
+    case = GOOD.replace("4. LEGAL POSITION\n", "4. LEGAL POSITION\nIn M/s Balaji Traders v. State of U.P. (2025) the Court held so.\n")
+    assert any("2025 INSC 806" in p for p in lint_draft(case, "legal_notice", "self", kb))
+    assert lint_draft(case.replace("(2025) the", "(2025), 2025 INSC 806, the"), "legal_notice", "self", kb) == []
+    from nyay.engine import NyaySaathi as _N  # the Ref. No. rewrite keeps the colon
+    llm = TwoStepLLM()
+    llm.chat = lambda system, messages, **k: json.dumps({"document": GOOD.replace("Ref. No.: NIL", "Ref. No.: LN/2026/07")})
+    res = _N(llm=llm, kb=kb).draft(dict(new_state(), issue="threats"), "legal_notice", {"sender": "self"})
+    assert "Ref. No.: [YOUR REFERENCE NUMBER, OR NIL]" in res["document"]
