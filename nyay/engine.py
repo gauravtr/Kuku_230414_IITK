@@ -155,6 +155,30 @@ def case_text(case: dict | None) -> str:
     return "\n".join(str(x) for x in out if x)
 
 
+SIDE_ALIASES = {"wife": "woman", "daughter-in-law": "woman", "husband": "respondent", "in-laws": "respondent",
+                "worker": "employee", "staff": "employee", "lender": "payee", "creditor": "payee", "borrower": "drawer",
+                "buyer": "consumer", "customer": "consumer", "seller": "company", "owner": "landlord", "renter": "tenant",
+                "complainant": "victim", "blackmailer": "accused"}
+
+
+def normalize_side(kb, issue, side, prev=None):
+    """The model may say 'husband' or 'Tenant' instead of the side key: map it to the key whose label names it
+    ('Husband / in-laws accused' -> respondent). Unknown -> the side already known for this case, else None."""
+    sides = kb.sides.get(issue) or {}
+    s = str(side or "").strip().lower()
+    if s in sides:
+        return s
+    for word, key in SIDE_ALIASES.items():
+        if key in sides and re.search(rf"\b{word}\b", s):
+            return key
+    if s:
+        for k, label in sides.items():
+            words = re.findall(r"[a-z\-]+", label.lower())
+            if s in words or any(w and w in words for w in re.findall(r"[a-z\-]+", s)):
+                return k
+    return prev if prev in sides else None
+
+
 def pick_judgments(kb, issue: str, side, notes, verify, words: str = "", case: str = "", asked: bool = False) -> dict | None:
     """Supreme Court rulings that FIT this client's facts, split into 'for you' / 'against you'.
 
@@ -249,8 +273,11 @@ class NyaySaathi:
         reply = g.text
         # the client is the ACCUSED side (a husband named in a dowry FIR): a victim-safety block addressed to "her" is
         # not for them; their urgent-lawyer card still applies
-        accused = str((out.get("judgments") or {}).get("client_side") if isinstance(out.get("judgments"), dict) else "") \
-            in ("respondent", "accused")
+        side = normalize_side(kb, issue, (out.get("judgments") or {}).get("client_side")
+                              if isinstance(out.get("judgments"), dict) else None, state.get("client_side"))
+        if side:
+            state["client_side"] = side   # remembered: a later turn may not say it again, or may say 'husband'
+        accused = side in ("respondent", "accused")
         missed = [f["message"] for f in active if f.get("escalate") != "consult"
                   and not (accused and f.get("escalate") == "safety" and f["id"] == "violence")
                   and (nums := re.findall(r"\b1\d{2,4}\b", f["message"])) and not any(n in reply for n in nums)]
@@ -285,7 +312,7 @@ class NyaySaathi:
         judgments = None
         model_ready = bool(fitting) and isinstance(jout.get("notes"), dict) and len(jout["notes"]) >= min(2, len(fitting))   # model judged the facts sufficient
         if kb.judgments_for(issue) and (model_ready or not open_q or turn_no >= INTAKE_TURNS or asked):
-            judgments = pick_judgments(kb, issue, jout.get("client_side"), jout.get("notes"), verified,
+            judgments = pick_judgments(kb, issue, side, jout.get("notes"), verified,
                                        words, case_text(case), asked)
         if esc["reasons"]:
             esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]
