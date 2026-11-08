@@ -132,3 +132,17 @@ def test_found_in_live_review():
     assert lint_draft(ok, "legal_notice", "self", kb) == []
     bad = GOOD.replace("I, Riya Sharma, resident of", "Under instructions from myself, Riya Sharma, resident of")
     assert any("under instructions" in p for p in lint_draft(bad, "legal_notice", "self", kb))
+
+
+def test_found_in_second_live_review():
+    from nyay.guard import check
+    hist = "decided under Section 387 IPC (now BNS Section 308(4)); and Section 384 of the IPC applies here."
+    flagged = [f["mention"] for f in check(hist, kb).flags if f["severity"] == "block"]
+    assert flagged == ["Section 384"]                        # history allowed, old law as the law to apply is not
+    ok = GOOD.replace("7 days is a reasonable period for a considered written reply",
+                      "A period of seven (7) days is granted for your considered written reply")
+    assert lint_draft(ok, "legal_notice", "self", kb) == []
+    llm = TwoStepLLM()
+    llm.chat = lambda system, messages, **k: json.dumps({"document": GOOD.replace("Ref. No.: NIL", "Ref. No.: LN/2026/07")})
+    res = NyaySaathi(llm=llm, kb=kb).draft(dict(new_state(), issue="threats"), "legal_notice", {"sender": "self"})
+    assert "LN/2026/07" not in res["document"] and "[YOUR REFERENCE NUMBER, OR NIL]" in res["document"]
