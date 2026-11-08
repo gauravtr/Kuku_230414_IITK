@@ -23,6 +23,17 @@ CASE_RE = re.compile(
     r"|\bAIR\s*\d{4}\s*\w+\s*\d+|\(\d{4}\)\s*\d+\s*SCC\s*\d+|\b\d{4}\s+SCC\s+(?:OnLine\s+)?\w*\s*\d+")
 ACT_NAME_RE = re.compile(r"\b((?:[A-Z][a-z]+\s+(?:(?:of|on|and|the)\s+)?){1,6}(?:Act|Code|Rules|Sanhita|Adhiniyam)),?\s*(\d{4})")
 MARKER_RE = re.compile(r"\[([A-Z]{2,6}-[A-Z0-9]{1,12})\]")
+# "I cannot confirm 'Sharma v. Kapoor' ...": an unverified case named only to refuse it is not a citation
+REFUSAL_RE = re.compile(r"\b(?:cannot|can't|can not|could not|couldn't|unable to|won't|will not)\s+(?:confirm|verify|cite|find|use|rely)"
+                        r"|\bnot (?:in|on) (?:my|our|the) (?:verified|checked)|\bnot verified\b|\bno such (?:judgment|case|ruling)"
+                        r"|\b(?:does not|doesn't) exist|\bnot a real\b|\bfake\b|\bmade[- ]up\b|\binvented\b"
+                        r"|पुष्टि नहीं|सत्यापित नहीं|उपलब्ध नहीं", re.I)
+
+
+def _sentence(text: str, a: int, b: int) -> str:
+    s = max(text.rfind(". ", 0, a), text.rfind("\n", 0, a)) + 1
+    ends = [x for x in (text.find(". ", b), text.find("\n", b)) if x >= 0]
+    return text[s: min(ends) if ends else len(text)]
 
 
 @dataclass
@@ -152,6 +163,9 @@ def check(text: str, kb: KB) -> GuardResult:
     for m in CASE_RE.finditer(text):
         if _known_judgment(m.group(0), kb):
             continue   # a verified Supreme Court judgment card
+        if REFUSAL_RE.search(_sentence(text, m.start(), m.end())):
+            flags.append({"mention": m.group(0), "severity": "note", "why": "unverified case named only to say it can't be relied on"})
+            continue
         add(m.span(), m.group(0), "block", "case-law citation not on a verified judgment card")
     known = [a["name"].lower() for a in kb.acts.values()] + [al for a in kb.acts.values() for al in a["aliases"]]
     for m in ACT_NAME_RE.finditer(text):
