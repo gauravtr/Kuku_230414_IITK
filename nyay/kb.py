@@ -60,8 +60,14 @@ class KB:
         return {k: s for k, s in sorted(scores.items(), key=lambda x: (-x[1], rank.get(x[0], 99))) if s > 0}
 
     def detect_red_flags(self, text: str) -> list[dict]:
-        t = text.lower()
-        return [rf for rf in self.red_flags if any(_match(k, t) for k in rf["keywords"])]
+        t, out = text.lower(), []
+        for rf in self.red_flags:
+            tt = t
+            for rx in rf.get("not_when", []):   # "get him arrested": aimed at the other side, not at the client
+                tt = re.sub(rx, " ", tt)
+            if any(_match(k, tt) for k in rf["keywords"]):
+                out.append(rf)
+        return out
 
     def cards_for(self, issues: list[str]) -> list[dict]:
         wanted = set(issues) | {"*"}

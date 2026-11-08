@@ -30,6 +30,11 @@ REFUSAL_RE = re.compile(r"\b(?:cannot|can't|can not|could not|couldn't|unable to
                         r"|पुष्टि नहीं|सत्यापित नहीं|उपलब्ध नहीं", re.I)
 
 
+# "IPC 420 was replaced on 1 July 2024 by the BNS": the old law named as history, right after the citation
+HISTORY_AFTER_RE = re.compile(r"^\W*(?:\([^)]{0,30}\)\W*)?(?:was|has been|have been|got|stands?|is now|were)\s+(?:\w+\s+){0,2}"
+                              r"(?:replaced|repealed|substituted|superseded)|^[^.\n]{0,40}\b(?:replaced by|repealed|no longer (?:in force|applies|the law))", re.I)
+
+
 def _sentence(text: str, a: int, b: int) -> str:
     s = max(text.rfind(". ", 0, a), text.rfind("\n", 0, a)) + 1
     ends = [x for x in (text.find(". ", b), text.find("\n", b)) if x >= 0]
@@ -163,7 +168,8 @@ def check(text: str, kb: KB) -> GuardResult:
                 add(m.span(), m.group(0), "block", "section number with no act we can verify")
             continue
         if kb.acts[act].get("outdated"):
-            if re.search(r"^[^.\n]{0,25}\(?\s*(?:now|since replaced|replaced by|corresponding to)\b", text[m.end(): m.end() + 60], re.I):
+            if re.search(r"^[^.\n]{0,25}\(?\s*(?:now|since replaced|replaced by|corresponding to)\b", text[m.end(): m.end() + 60], re.I) \
+                    or HISTORY_AFTER_RE.search(text[m.end(): m.end() + 80]):
                 continue   # "Section 387 IPC (now BNS s.308(4))": the old law named as history, with today's section
             add(m.span(), m.group(0), "block", f"{kb.acts[act]['name']}: old law, use BNS/BNSS")
         elif sec not in allowed[act]:
@@ -177,6 +183,8 @@ def check(text: str, kb: KB) -> GuardResult:
                 r"(earlier|old|formerly|former|previously|replaced|was|पहले|पुरान|purana|pehle)\W*(\w+\W+){0,3}$",
                 text[max(0, m.start() - 40): m.start()], re.I):
             continue   # "earlier IPC 498A" names the old law as history, not as the law to apply
+        if act and kb.acts.get(act, {}).get("outdated") and HISTORY_AFTER_RE.search(text[m.end(): m.end() + 80]):
+            continue   # "IPC 420 was replaced on 1 July 2024 by the BNS"
         if act is None or kb.acts.get(act, {}).get("outdated") or sec not in allowed.get(act, set()):
             add(m.span(), m.group(0), "block", "criminal/statute section not on a verified card")
 
