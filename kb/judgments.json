@@ -1,0 +1,280 @@
+{
+ "_about": "Verified Supreme Court of India judgments, one card each, checked against a published source on 2026-11-08. The model may only mention judgments on these cards; the app shows name, citation and link straight from here, so nothing is invented. 'favours' says which side the ruling helps; code splits them into 'for you' / 'against you' from the client's side. 'applies' is 'direct' when the ruling is on this kind of dispute, 'principle' when the same legal rule carries over.",
+ "verified_on": "2026-11-08",
+ "sides": {
+  "deposit": {
+   "tenant": "Tenant (wants the deposit back)",
+   "landlord": "Landlord (keeping or cutting the deposit)"
+  },
+  "consumer": {
+   "consumer": "Consumer / buyer",
+   "company": "Company / seller / service provider"
+  },
+  "salary": {
+   "employee": "Employee (unpaid)",
+   "employer": "Employer"
+  },
+  "cheque": {
+   "payee": "Person who received the bounced cheque",
+   "drawer": "Person who gave the cheque"
+  },
+  "domestic": {
+   "woman": "Woman facing violence",
+   "respondent": "Husband / in-laws accused"
+  }
+ },
+ "judgments": [
+  {
+   "id": "JUD-AHUJA",
+   "issue": "domestic",
+   "favours": "woman",
+   "name": "Satish Chander Ahuja v. Sneha Ahuja",
+   "date": "2020-10-15",
+   "citation": "2020 INSC 599; [2020] 12 SCR 189 (3 judges)",
+   "holding": "A 'shared household' is not limited to a house owned or rented by the husband. A wife can claim the right to live in the in-laws' house where she lived after marriage, even if her father-in-law owns it. This overruled the older narrow view in S.R. Batra.",
+   "applies": "direct",
+   "caution": "The right to residence is protected, but it is not an ownership right; the court balances it case by case.",
+   "url": "https://www.scobserver.in/journal/court-reinterprets-shared-household-under-the-domestic-violence-law/"
+  },
+  {
+   "id": "JUD-PTYAGI",
+   "issue": "domestic",
+   "favours": "woman",
+   "name": "Prabha Tyagi v. Kamlesh Devi",
+   "date": "2022-05-12",
+   "citation": "(2022) 8 SCC 90; Crl. Appeal 511 of 2022",
+   "holding": "A woman can enforce her right to reside in the shared household whether or not she actually lived there, and she can file under the DV Act even if she is no longer living with the respondents when she files, as long as the violence relates to the domestic relationship.",
+   "applies": "direct",
+   "caution": "",
+   "url": "https://livelaw.in/top-stories/supreme-court-shared-house-hold-domestic-violence-prabha-tyagi-vs-kamlesh-devi-2022-livelaw-sc-474-198966"
+  },
+  {
+   "id": "JUD-RAJNESH",
+   "issue": "domestic",
+   "favours": "woman",
+   "name": "Rajnesh v. Neha",
+   "date": "2020-11-04",
+   "citation": "(2021) 2 SCC 324",
+   "holding": "Laid down binding guidelines for maintenance: both sides must file an affidavit disclosing income, assets and liabilities; maintenance runs from the date the application is filed; courts must decide interim maintenance quickly. The Supreme Court has since ordered this judgment re-circulated to all judges.",
+   "applies": "direct",
+   "caution": "The disclosure affidavit applies to her too: she must also disclose her own income and assets.",
+   "url": "https://www.mondaq.com/supreme-court-clarifies-the-law-on-maintenance/1034570"
+  },
+  {
+   "id": "JUD-DARA",
+   "issue": "domestic",
+   "favours": "respondent",
+   "name": "Dara Lakshmi Narayana v. State of Telangana",
+   "date": "2024-12-10",
+   "citation": "2024 INSC 953; (2025) 3 SCC 735",
+   "holding": "Quashed a dowry-cruelty FIR against the husband and his relatives because the allegations were vague and omnibus, with no dates or specific acts. The Court warned against misuse of the cruelty law to drag the whole family in.",
+   "applies": "direct",
+   "caution": "It protects relatives against vague complaints; specific, dated allegations with proof are not affected.",
+   "url": "https://www.scconline.com/blog/post/2024/12/11/supreme-court-quashes-false-dowry-case-misuse-section-498a-ipc/"
+  },
+  {
+   "id": "JUD-ARNESH",
+   "issue": "domestic",
+   "favours": "respondent",
+   "name": "Arnesh Kumar v. State of Bihar",
+   "date": "2014-07-02",
+   "citation": "(2014) 8 SCC 273",
+   "holding": "Police must not arrest automatically in dowry-cruelty cases (offences punishable up to 7 years). They must record why arrest is necessary, and magistrates must check this before ordering detention. The guidelines continue under the new criminal codes.",
+   "applies": "direct",
+   "caution": "It limits arrest; it does not stop the case, the investigation or a DV Act application.",
+   "url": "https://legalfly.in/case-summary-arnesh-kumar-v-state-of-bihar/"
+  },
+  {
+   "id": "JUD-RANGAPPA",
+   "issue": "cheque",
+   "favours": "payee",
+   "name": "Rangappa v. Sri Mohan",
+   "date": "2010-05-07",
+   "citation": "(2010) 11 SCC 441 (3 judges)",
+   "holding": "Once the signature on the cheque is admitted, the court presumes the cheque was given for a legally enforceable debt. The burden shifts to the person who gave the cheque to show, on probabilities, that there was no such debt.",
+   "applies": "direct",
+   "caution": "The presumption can be rebutted by a probable defence.",
+   "url": "https://indiankanoon.org/doc/150051/"
+  },
+  {
+   "id": "JUD-SANJABIJ",
+   "issue": "cheque",
+   "favours": "payee",
+   "name": "Sanjabij Tari v. Kishore S. Borcar",
+   "date": "2025-09-25",
+   "citation": "2025 INSC 1158",
+   "holding": "A cheque given against a cash loan above Rs 20,000 is still enforceable even though the cash loan breached the Income Tax Act. Merely questioning the lender's financial capacity does not defeat the presumption. The Court also issued guidelines to speed up cheque cases, including online summons and payment.",
+   "applies": "direct",
+   "caution": "",
+   "url": "https://www.livelaw.in/amp/top-stories/s138-ni-act-cheque-bounce-case-maintainable-even-for-cash-loan-above-20000-supreme-court-sets-aside-kerala-high-court-ruling-305132"
+  },
+  {
+   "id": "JUD-BASALINGAPPA",
+   "issue": "cheque",
+   "favours": "drawer",
+   "name": "Basalingappa v. Mudibasappa",
+   "date": "2019-04-09",
+   "citation": "(2019) 5 SCC 418",
+   "holding": "The person who gave the cheque can rebut the presumption on a balance of probabilities and need not prove a negative. When the lender's financial capacity to lend is seriously questioned, the lender must explain it with evidence, or the case can fail.",
+   "applies": "direct",
+   "caution": "Later read with Sanjabij Tari (2025): merely raising the capacity point is not enough without a real basis.",
+   "url": "https://indiankanoon.org/doc/87091644/"
+  },
+  {
+   "id": "JUD-INDUS",
+   "issue": "cheque",
+   "favours": "drawer",
+   "name": "Indus Airways Pvt Ltd v. Magnum Aviation Pvt Ltd",
+   "date": "2014-04-07",
+   "citation": "(2014) 12 SCC 539",
+   "holding": "For a cheque-bounce offence there must be a legally enforceable debt existing on the cheque's date. A post-dated cheque given as advance payment for an order that was later cancelled is not for an existing debt, so its dishonour is not an offence.",
+   "applies": "direct",
+   "caution": "Later judgments distinguish it: a cheque labelled 'security' can still attract the offence once the debt has become due.",
+   "url": "https://indiankanoon.org/doc/77590271/"
+  },
+  {
+   "id": "JUD-LDA",
+   "issue": "consumer",
+   "favours": "consumer",
+   "name": "Lucknow Development Authority v. M.K. Gupta",
+   "date": "1993-11-05",
+   "citation": "(1994) 1 SCC 243; AIR 1994 SC 787",
+   "holding": "Consumer commissions can award compensation not only for money lost but also for harassment and mental agony caused by deficient service, and even public authorities are answerable as service providers.",
+   "applies": "direct",
+   "caution": "Compensation must still be supported by the facts; large claims need proof.",
+   "url": "https://indiankanoon.org/doc/1375046/"
+  },
+  {
+   "id": "JUD-EMAAR",
+   "issue": "consumer",
+   "favours": "consumer",
+   "name": "Emaar MGF Land Ltd v. Aftab Singh",
+   "date": "2018-12-10",
+   "citation": "Review Petition (C) 2629-2630 of 2018",
+   "holding": "An arbitration clause in the seller's terms cannot stop a consumer from filing a complaint before the consumer commission; the consumer remedy is a special remedy and goes ahead despite the clause.",
+   "applies": "direct",
+   "caution": "It is the consumer's choice: the consumer can still opt for arbitration.",
+   "url": "https://www.barandbench.com/news/arbitration-clause-oust-jurisdiction-consumer-courts-section-8-amendment-supreme-court"
+  },
+  {
+   "id": "JUD-SBIBSA",
+   "issue": "consumer",
+   "favours": "company",
+   "name": "State Bank of India v. B.S. Agricultural Industries (I)",
+   "date": "2009-03-20",
+   "citation": "(2009) 5 SCC 121",
+   "holding": "The consumer commission must itself check limitation: a complaint filed after the 2-year limit must be dismissed unless delay is condoned for sufficient cause recorded in writing, even if the other side never raised it.",
+   "applies": "direct",
+   "caution": "Delay can be condoned if you show sufficient cause; explain any delay in the complaint itself.",
+   "url": "https://indiankanoon.org/doc/1338648/"
+  },
+  {
+   "id": "JUD-BAGGA",
+   "issue": "consumer",
+   "favours": "company",
+   "name": "Ravneet Singh Bagga v. KLM Royal Dutch Airlines",
+   "date": "1999-11-02",
+   "citation": "(2000) 1 SCC 66",
+   "holding": "The burden of proving deficiency in service is on the person who alleges it. A bona fide action by the service provider, taken with due care, is not a deficiency.",
+   "applies": "direct",
+   "caution": "Your proof (bills, chats, ticket numbers, photos) is what discharges this burden.",
+   "url": "https://indiankanoon.org/doc/564766/"
+  },
+  {
+   "id": "JUD-HINGORANI",
+   "issue": "salary",
+   "favours": "employee",
+   "name": "Kapila Hingorani v. State of Bihar",
+   "date": "2003-05-09",
+   "citation": "(2003) 6 SCC 1",
+   "holding": "Prolonged non-payment of salary to employees of State-owned corporations violates their right to life under Article 21; financial difficulty is no excuse and the State had to pay.",
+   "applies": "principle",
+   "caution": "Decided for employees of government-owned companies; for a private employer the remedy is the wage claim under the wages law, but the principle that earned salary must be paid stands.",
+   "url": "https://indiankanoon.org/doc/1455798/"
+  },
+  {
+   "id": "JUD-BIHAR26",
+   "issue": "salary",
+   "favours": "employee",
+   "name": "Bihar State Ardh Sarkari Arajpati Karamchari Maha Sangh v. State of Bihar",
+   "date": "2026-09-28",
+   "citation": "2026 INSC 1061",
+   "holding": "Ordered 6% simple interest per year on delayed salary and wages from the date each amount fell due until payment, treating interest as compensation for being kept out of money lawfully due.",
+   "applies": "principle",
+   "caution": "The Court said these reliefs rest on the case's own facts and set no general rule; use it to support a claim for interest, not as a fixed rate.",
+   "url": "https://lawchakra.in/supreme-court/defunct-bihar-corporations-supreme-court-orders-rs-1-lakh-to-daily-wage-workers-interest-on-dues/"
+  },
+  {
+   "id": "JUD-KELAWALA",
+   "issue": "salary",
+   "favours": "employer",
+   "name": "Bank of India v. T.S. Kelawala",
+   "date": "1990-05-04",
+   "citation": "(1990) 4 SCC 744",
+   "holding": "'No work, no pay': an employer may deduct wages for the period an employee did not work, such as a strike or go-slow.",
+   "applies": "direct",
+   "caution": "Later (Syndicate Bank v. K. Umesh Nayak, 1994) wages for a strike period are payable only if the strike was both legal and justified. It does not allow withholding pay for days actually worked.",
+   "url": "https://indiankanoon.org/doc/398653/"
+  },
+  {
+   "id": "JUD-ADYANTHAYA",
+   "issue": "salary",
+   "favours": "employer",
+   "name": "H.R. Adyanthaya v. Sandoz (India) Ltd",
+   "date": "1994-08-11",
+   "citation": "(1994) 5 SCC 737 (Constitution Bench)",
+   "holding": "Sales and medical representatives were held not to be 'workmen' under the Industrial Disputes Act, so labour-law remedies for workmen were not available to them; those in managerial or supervisory roles also fall outside.",
+   "applies": "principle",
+   "caution": "It concerns who counts as a 'workman' for industrial-dispute remedies; a plain claim for unpaid salary can still go by civil suit or the wage-claim route.",
+   "url": "https://indiankanoon.org/doc/1539516/"
+  },
+  {
+   "id": "JUD-MAULA",
+   "issue": "deposit",
+   "favours": "tenant",
+   "name": "Maula Bux v. Union of India",
+   "date": "1969-08-19",
+   "citation": "(1969) 2 SCC 554; AIR 1970 SC 1955",
+   "holding": "Forfeiting a security deposit on breach is a penalty under section 74 of the Contract Act: the party holding it can keep only reasonable compensation for loss, not the whole deposit as a punishment.",
+   "applies": "principle",
+   "caution": "A supply-contract case; the same rule on security deposits applies to a rent deposit by principle.",
+   "url": "https://indiankanoon.org/doc/158693/"
+  },
+  {
+   "id": "JUD-KAILASH",
+   "issue": "deposit",
+   "favours": "tenant",
+   "name": "Kailash Nath Associates v. Delhi Development Authority",
+   "date": "2015",
+   "citation": "(2015) 4 SCC 136; 2015 INSC 22",
+   "holding": "Money cannot be forfeited where the party keeping it has suffered no loss; section 74 does not do away with the need for loss, it only saves exact proof of the amount where loss is hard to measure.",
+   "applies": "principle",
+   "caution": "An auction/earnest-money case applied to deposits by principle; where real damage is shown, a fair deduction is allowed.",
+   "url": "https://www.ndl.gov.in/lw_document/supreme_court_india/supreme_court/4334"
+  },
+  {
+   "id": "JUD-ATMARAM",
+   "issue": "deposit",
+   "favours": "landlord",
+   "name": "Atma Ram Properties (P) Ltd v. Federal Motors (P) Ltd",
+   "date": "2004-12-10",
+   "citation": "(2005) 1 SCC 705; 2004 INSC 708",
+   "holding": "A tenant who stays on after the tenancy has ended is liable to pay for use and occupation at the market rate the landlord could have earned, not just the old rent.",
+   "applies": "principle",
+   "caution": "Matters only if you stayed beyond the end of the tenancy or the notice period.",
+   "url": "https://www.livelaw.in/amp/top-stories/landlord-entitled-to-mesne-profits-from-tenant-when-execution-of-decree-of-eviction-is-stayed-supreme-court-203186"
+  },
+  {
+   "id": "JUD-SBATRA",
+   "issue": "deposit",
+   "favours": "landlord",
+   "name": "Satish Batra v. Sudhir Rawal",
+   "date": "2012-10-18",
+   "citation": "(2013) 1 SCC 345",
+   "holding": "Where the contract clearly and explicitly makes an amount 'earnest money' that can be forfeited on breach, it can be forfeited when the payer breaks the contract.",
+   "applies": "principle",
+   "caution": "An agreement-to-sell case; it helps a landlord only if your rent agreement has a clear forfeiture clause (for example for breaking a lock-in) and you broke it.",
+   "url": "https://www.lawweb.in/2014/07/when-earnest-money-can-be-forfeited.html"
+  }
+ ]
+}
