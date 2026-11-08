@@ -12,6 +12,8 @@ from .guard import MARKER_RE
 STRENGTH_LABEL = {"strong": "Strong", "moderate": "Moderate", "weak": "Weak", "unclear": "Unclear - more facts needed"}
 REASON_LABEL = {
     "safety": "Possible risk to safety or liberty (police, violence, self-harm, fraud or family matter).",
+    "liberty": "Arrest, summons or a case against the client: liberty may be at stake.",
+    "court_matter": "A matter that is usually decided in court (divorce, custody, land or inheritance).",
     "out_of_scope": "The problem is outside the areas the AI lawyer has verified law for.",
     "large_amount": "A large amount is at stake (over about Rs 5 lakh).",
     "ambiguous": "Key facts are still unclear, and they change the legal answer.",

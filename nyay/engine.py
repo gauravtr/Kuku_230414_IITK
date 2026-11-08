@@ -62,7 +62,8 @@ def parse_json(raw: str) -> dict | None:
 
 
 STRENGTHS = ("strong", "moderate", "weak", "unclear")
-ESC_CODES = ("safety", "out_of_scope", "large_amount", "ambiguous")
+ESC_CODES = ("safety", "liberty", "court_matter", "out_of_scope", "large_amount", "ambiguous")
+INTAKE_TURNS = 3   # while still asking questions in the first 3 turns, no "consult a lawyer" card
 LARGE_AMOUNT = 500_000   # Rs 5 lakh: above this, a human lawyer should look at it (playbooks agree)
 
 
@@ -77,13 +78,18 @@ def parse_amount(text) -> int | None:
 
 
 def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, turn_no: int) -> dict:
-    """Code, not the model, has the final say on 'you need a real lawyer'. Returns {level, reasons}.
-    level: none | consult | urgent. Reasons are short English codes the UI turns into plain words."""
+    """Code, not the model, has the final say on 'you need a real lawyer'. Returns {level, reasons, safety}.
+    level: none | consult | urgent. Reasons are short English codes the UI turns into plain words.
+    safety: red-flag ids that need a safety card (helplines), which is NOT the same as 'get a lawyer'.
+
+    Intake first: a client doesn't know which facts matter, so while the AI lawyer is still asking
+    questions (first 3 turns), a 'consult a lawyer' card is held back. Only urgent matters
+    (arrest, summons, a case against the client, a deadline within days) skip the wait."""
     level, reasons = "none", []
+    order = ["none", "consult", "urgent"]
 
     def bump(new, why):
         nonlocal level
-        order = ["none", "consult", "urgent"]
         level = max(level, new, key=order.index)
         if why and why not in reasons:
             reasons.append(why)
@@ -91,17 +97,25 @@ def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, tur
     esc = out.get("escalate") if isinstance(out.get("escalate"), dict) else {}
     if esc.get("needed"):
         bump("urgent" if esc.get("level") == "urgent" else "consult", esc.get("reason") or "")
-    if active_flags:
-        bump("urgent", "safety")
+    safety = []
+    for f in active_flags:
+        kind = f.get("escalate", "urgent")
+        if kind == "safety":
+            safety.append(f["id"])
+        elif kind in ("consult", "urgent"):
+            bump(kind, "liberty" if kind == "urgent" else "court_matter")
     if issue == "other":
         bump("consult", "out_of_scope")
     amt = parse_amount((case or {}).get("amount_at_stake"))
     if amt and amt > LARGE_AMOUNT:
         bump("consult", "large_amount")
     a = out.get("assessment") if isinstance(out.get("assessment"), dict) else {}
-    if turn_no >= 2 and (a.get("confidence") == "low" or a.get("strength") == "unclear") and out.get("open_questions"):
-        bump("consult", "ambiguous")   # still unclear after we already asked: don't let the client guess
-    return {"level": level, "reasons": reasons}
+    if turn_no >= 4 and (a.get("confidence") == "low" or a.get("strength") == "unclear") and out.get("open_questions"):
+        bump("consult", "ambiguous")   # still unclear after several rounds of questions
+    still_asking = bool(out.get("open_questions")) and turn_no <= INTAKE_TURNS
+    if level == "consult" and still_asking:
+        level, reasons = "none", []    # take the facts first; the card can come once they are in
+    return {"level": level, "reasons": reasons, "safety": safety}
 
 
 class NyaySaathi:
@@ -127,8 +141,7 @@ class NyaySaathi:
             if f["id"] not in state["red_flags"]:
                 state["red_flags"].append(f["id"])
         active = [f for f in kb.red_flags if f["id"] in state["red_flags"]]
-        redflag_rule = prompts.REDFLAG_RULE.format(
-            flags=", ".join(f["id"] for f in active), messages=" | ".join(f["message"] for f in active)) if active else ""
+        redflag_rule = "".join(prompts.REDFLAG_RULE[f.get("escalate", "urgent")].format(message=f["message"]) for f in active)
 
         system = prompts.TURN_SYSTEM.format(
             today=today(),
@@ -152,8 +165,10 @@ class NyaySaathi:
         # 4. code: verify + enforce
         g = check(out.get("reply", ""), kb)
         reply = g.text
-        if active and not any(n in reply for f in active for n in re.findall(r"\b1\d{2,4}\b", f["message"])):
-            reply = "⚠️ " + " ".join(f["message"] for f in active) + "\n\n" + reply   # model forgot -> code adds it
+        missed = [f["message"] for f in active if f.get("escalate") != "consult"
+                  and (nums := re.findall(r"\b1\d{2,4}\b", f["message"])) and not any(n in reply for n in nums)]
+        if missed:
+            reply = "⚠️ " + " ".join(missed) + "\n\n" + reply   # model forgot a helpline -> code adds it
         case = out.get("case_file") or state["case"]
         turn_no = 1 + sum(m["role"] == "user" for m in state["history"])
         esc = decide_escalation(out, active, issue, case, turn_no)
