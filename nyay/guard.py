@@ -119,6 +119,10 @@ def check(text: str, kb: KB) -> GuardResult:
 
     cited_ids = [m.group(1) for m in MARKER_RE.finditer(text)]
     cited_acts = {kb.cards[i]["act"] for i in cited_ids if i in kb.cards}
+    low = text.lower()   # acts named anywhere in this text, e.g. a notice that names the BNS in its legal-position section
+    named_acts = {k for k, a in kb.acts.items() if not a.get("outdated") and any(
+        (re.search(rf"(?<![a-z]){re.escape(x.lower())}(?![a-z])", low) if x.isascii() else x in text)
+        for x in a["aliases"] + [a["name"]] if len(x) > 2)}
 
     def add(span, mention, severity, why):
         flags.append({"mention": mention, "severity": severity, "why": why})
@@ -134,8 +138,8 @@ def check(text: str, kb: KB) -> GuardResult:
         act = a1 if d1 <= d2 else a2
         if act is None:   # "4.3 IT Act - Section 66E ... (a) ... (Section 67)": the act was named a line or two above
             act, _ = _find_act(kb, text[max(0, m.start() - 400): m.start()], nearest_end=True)
-        if act is None:
-            ok = any(sec in allowed[a] for a in cited_acts)
+        if act is None:   # no act nearby: fine if a verified act named (or card-cited) elsewhere in this text has the section
+            ok = any(sec in allowed[a] for a in cited_acts | named_acts)
             if not ok:
                 add(m.span(), m.group(0), "block", "section number with no act we can verify")
             continue
