@@ -248,6 +248,58 @@ def verdict_html(a: dict, show_unclear: bool = False) -> str:
             f'<span class="meter">{meter}</span><span class="val">{label}</span></div>{why}</div>')
 
 
+def opinion_head_html(m: dict) -> str:
+    """The bottom line first, the way a lawyer's written opinion opens, with the case-strength meter beside it."""
+    line, a = clean(m.get("headline")), m.get("assessment") or {}
+    s = a.get("strength")
+    if not line:
+        return ""
+    meter = ""
+    if s in STRENGTH and (s != "unclear" or m.get("open_questions")):
+        label, n = STRENGTH[s]
+        bars = "".join(f'<i class="{"on" if k < n else ""}"></i>' for k in range(3))
+        why = f'<p class="why">{esc(a.get("why"))}</p>' if clean(a.get("why")) else ""
+        meter = (f'<div class="op-str v-{s}"><span class="lbl">Case strength</span><span class="meter">{bars}</span>'
+                 f'<span class="val">{label}</span></div>{why}')
+    return (f'<div class="op-head"><div class="op-eye">{ic("gavel")}Bottom line</div>'
+            f'<p class="op-line">{esc(line)}</p>{meter}</div>')
+
+
+def opinion_body_label() -> str:
+    return f'<div class="op-eye op-eye-2">{ic("psychology_alt")}My reasoning</div>'
+
+
+def plan_html(steps: list) -> str:
+    steps = [x for x in steps or [] if clean(x.get("step"))]
+    if not steps:
+        return ""
+    lis = "".join(
+        f'<li><span class="n">{k}</span><div class="t">{esc(x["step"])}'
+        + (' <span class="first">Start here</span>' if k == 1 else "") + "</div>"
+        + (f'<span class="when">{ic("schedule")}{esc(x.get("by_when"))}</span>' if known(x.get("by_when")) else "")
+        + "</li>" for k, x in enumerate(steps, 1))
+    return f'<section class="op-sec"><div class="op-h">{ic("route")}Your action plan</div><ol class="plan">{lis}</ol></section>'
+
+
+def deadlines_html(dl: list) -> str:
+    dl = [d for d in dl or [] if known(d)]
+    if not dl:
+        return ""
+    return (f'<section class="op-sec op-dl"><div class="op-h">{ic("alarm", "fill")}Deadlines you must not miss</div><ul>'
+            + "".join(f"<li>{esc(d)}</li>" for d in dl) + "</ul></section>")
+
+
+def proof_html(have: list, missing: list) -> str:
+    have, missing = [x for x in have or [] if known(x)], [x for x in missing or [] if known(x)]
+    if not have and not missing:
+        return ""
+    col = lambda title, icon, cls, xs: (f'<div class="pc {cls}"><div class="ph">{ic(icon, "fill")}{title}</div><ul>'   # noqa: E731
+                                        + "".join(f"<li>{esc(x)}</li>" for x in xs) + "</ul></div>") if xs else ""
+    return (f'<section class="op-sec"><div class="op-h">{ic("folder_managed")}Your proof</div><div class="proof">'
+            + col("You have", "check_circle", "have", have) + col("Get it, or keep it safe", "pending", "need", missing)
+            + "</div></section>")
+
+
 def badge_html(a: dict) -> str:
     s = (a or {}).get("strength")
     if s not in STRENGTH:
@@ -319,7 +371,13 @@ def question_form(i: int, qs: list):
 
 def judgments_html(j: dict) -> str:
     """Supreme Court rulings for and against the client, rendered from verified judgment cards only."""
-    if not j or not (j.get("for") or j.get("against")):
+    if not j:
+        return ""
+    if j.get("none_fit"):
+        return (f'<div class="j-none">{ic("account_balance")}<div><b>No Supreme Court ruling fits your facts closely</b>'
+                f'<p>I checked the {int(j.get("considered") or 0)} verified rulings I hold on this kind of problem. None matches '
+                f'what you have told me, so I won\'t stretch one to fit. Your position rests on the law itself, listed below.</p></div></div>')
+    if not (j.get("for") or j.get("against")):
         return ""
 
     def item(c, cls):
@@ -327,9 +385,16 @@ def judgments_html(j: dict) -> str:
         why = f'<p class="why"><b>What it means for you:</b> {esc(c["why"])}</p>' if clean(c.get("why")) else ""
         note = f'<p class="cau">{ic("info")}{html.escape(c["caution"])}</p>' if c.get("caution") else ""
         how = ' · <span class="tag">same principle</span>' if c.get("applies") == "principle" else ""
+        fit = ""
+        if c.get("quote") or c.get("when"):
+            qt = str(c.get("quote") or "")
+            said = (f'From your case file: <q>{html.escape(qt[5:])}</q>' if qt.startswith("case:")
+                    else f'You said: <q>{html.escape(qt)}</q>' if qt else "")
+            when = f'<span class="w">Applies when {html.escape(c["when"])}.</span>' if c.get("when") else ""
+            fit = f'<div class="fit">{ic("link")}<div><b>Why it fits your case</b> {when} {said}</div></div>'
         return (f'<li class="{cls}"><div class="jn">{html.escape(c["name"])}</div>'
                 f'<div class="jm">Supreme Court · {year} · {html.escape(c["citation"])}{how}</div>'
-                f'<p>{html.escape(c["holding"])}</p>{why}{note}'
+                f'{fit}<p><b class="hl">Held:</b> {html.escape(c["holding"])}</p>{why}{note}'
                 f'<a href="{html.escape(c["url"])}" target="_blank" rel="noopener">Read the judgment summary{ic("open_in_new")}</a></li>')
 
     parts = []
@@ -340,8 +405,10 @@ def judgments_html(j: dict) -> str:
         parts.append(f'<div class="jg jg-against"><div class="jh">{ic("warning", "fill")}Against you: '
                      f'what the other side may cite</div><ul>' + "".join(item(c, "against") for c in j["against"]) + "</ul></div>")
     side = f'<span class="right">You: {html.escape(j.get("side_label", ""))}</span>' if j.get("side_label") else ""
-    return (f'<details class="juds" open><summary>{ic("account_balance")}Supreme Court judgments{side}{ic("expand_more", "chev")}</summary>'
-            + "".join(parts) + '<p class="jfoot">Verified summaries from published sources. Read the full judgment, '
+    n = len(j.get("for", [])) + len(j.get("against", []))
+    return (f'<details class="juds" open><summary>{ic("account_balance")}Supreme Court rulings that fit your facts · {n}'
+            f'{side}{ic("expand_more", "chev")}</summary>' + "".join(parts) + '<p class="jfoot">Shown only because your facts match them; '
+            'rulings that don\'t fit your case are left out. Verified summaries from published sources: read the full judgment, '
             'or ask a lawyer (free: 15100), before relying on one in court.</p></details>')
 
 
@@ -499,8 +566,14 @@ if view == "consult":
             if m.get("error"):
                 st.markdown(m["content"])
                 continue
+            head = opinion_head_html(m)
+            if head:
+                html_block(head + opinion_body_label())
             st.markdown(m["content"])
-            extra = verdict_html(m.get("assessment"), show_unclear=bool(m.get("open_questions"))) + esc_html(m.get("escalation"))
+            extra = ("" if head else verdict_html(m.get("assessment"), show_unclear=bool(m.get("open_questions"))))
+            extra += esc_html(m.get("escalation"))
+            if i == len(ss.chat) - 1:   # the working plan belongs to the latest opinion; earlier ones stay short
+                extra += plan_html(m.get("plan")) + deadlines_html(m.get("deadlines")) + proof_html(m.get("proof_have"), m.get("proof_missing"))
             extra += judgments_html(m.get("judgments")) + sources_html(m.get("sources"))
             if m.get("unverified"):
                 extra += (f'<div class="caution">{ic("warning")}<div>I mentioned '
@@ -532,7 +605,9 @@ if view == "consult":
             r = bot.turn(state, q)
             for s in r["sources"]:
                 ss.sources[s["title"]] = s
-            msg = {"role": "assistant", "content": r.get("reply_body", r["reply"]),
+            msg = {"role": "assistant", "content": r.get("reply_body", r["reply"]), "headline": r.get("headline", ""),
+                   "plan": r.get("next_steps", []), "deadlines": r.get("deadlines", []),
+                   "proof_have": r.get("proof_have", []), "proof_missing": r.get("proof_missing", []),
                    "assessment": r.get("assessment", {}), "escalation": r.get("escalation", {}),
                    "sources": r.get("sources", []), "ready": r.get("ready_to_draft", "none"),
                    "open_questions": r.get("open_questions", []), "questions": r.get("question_form", []), "judgments": r.get("judgments"),

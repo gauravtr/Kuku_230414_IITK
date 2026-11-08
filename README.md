@@ -14,7 +14,7 @@ Talk to it by text or voice, in Hindi, Hinglish, Tamil, English or any Indian la
 For anything else (criminal, family, property) it says honestly that it doesn't cover it and points to **free legal aid (NALSA 15100)**.
 
 ## How it works like a lawyer, and when it hands you to a human one
-Each answer is a first consultation: the facts, a **legal opinion** (case strength: strong / moderate / weak / unclear, and why),
+Each answer is laid out like a lawyer's written opinion: **bottom line** and case strength, the reasoning, an **action plan** with timing, deadlines, the proof you have and still need, the rulings that fit, and the law relied on. Behind it: the facts, a **legal opinion** (case strength: strong / moderate / weak / unclear, and why),
 a **step-by-step plan** with deadlines, and the **paperwork** (legal notice, consumer complaint). The plan becomes a tickable
 checklist in the case file.
 
@@ -27,9 +27,10 @@ When that happens, the case file offers a one-page **case brief for a lawyer** (
 no model call) to take to free legal aid (NALSA 15100). It never claims to be an enrolled advocate.
 
 ## How it avoids made-up law
-1. **The model only sees verified law cards** (`kb/laws.json`, 21 cards, each with a source and a verified date), picked by code from keywords, and must tag every legal claim with a card ID.
-2. **A code guard (`nyay/guard.py`) checks every answer before the user sees it**: any section, act, constitutional article or court case that isn't on a card is marked `⚠️[unverified]` with a warning. Case law is never allowed. Old IPC/CrPC numbers are flagged. 19 offline tests: `python tests/test_guard.py`. The same guard also checks the opinion line and plan steps; any with unverified law are dropped.
-3. **Safety is code, not prompt**: police/violence/self-harm/fraud keywords force a "talk to a lawyer / call 112, 15100, 1930, 14416" block even if the model forgets.
+1. **The model only sees verified law cards** (`kb/laws.json`, 38 cards, each with a source and a verified date), picked by code from keywords, and must tag every legal claim with a card ID.
+2. **A code guard (`nyay/guard.py`) checks every answer before the user sees it**: any section, act, constitutional article or court case that isn't on a card is marked `⚠️[unverified]` with a warning. Old IPC/CrPC numbers are flagged. Offline tests: `python -m pytest tests`. The same guard also checks the opinion line and plan steps; any with unverified law are dropped.
+3. **Supreme Court rulings only when they fit.** `kb/judgments.json` holds 26 verified rulings, each with the fact pattern it fits. Code shows a ruling (and lets the model or a draft cite it) only when that pattern appears in the client's own facts, and shows the client's words as the reason. Rulings against the client that fit are always shown; if none fits, none is shown.
+4. **Safety is code, not prompt**: police/violence/self-harm/fraud keywords force a "talk to a lawyer / call 112, 15100, 1930, 14416" block even if the model forgets.
 
 ## Run it
 ```bash
