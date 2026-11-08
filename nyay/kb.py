@@ -16,6 +16,15 @@ def _match(keyword: str, text: str) -> bool:
     return keyword in text
 
 
+def _negated(text: str, a: int, b: int) -> bool:
+    """'no managerial role', 'not a manager or supervisor', 'सरकारी नौकरी नहीं': the fact pattern is denied, not present."""
+    pre = text[max(text.rfind("\n", 0, a) + 1, a - 40): a]
+    post = text[b: b + 20].split("\n")[0]
+    return bool(re.search(r"\b(?:not|no|never|non|neither|nor)\s*-?\s*(?:a|an|the|any)?\s*$", pre, re.I)
+                or re.search(r"\b(?:not|no|never|neither)\s+(?:a|an|any)?\s*\w+\s+(?:or|nor)\s+$", pre, re.I)
+                or re.match(r"[^।.]{0,12}(?:नहीं|नही\b|இல்லை)", post))
+
+
 def _quote(text: str, a: int, b: int, pad: int = 38) -> str:
     """'...landlord kept the whole deposit of Rs 50,000...' - the matched words with a little context, cut at word edges."""
     ls, le = text.rfind("\n", 0, a) + 1, text.find("\n", b)   # stay inside the one line (message or fact) that matched
@@ -69,11 +78,14 @@ class KB:
             rx = j.get("match")
             if not rx:
                 continue
+            hit = None
             for src, who in ((client_words, ""), (case_text, "case")):
-                m = re.search(rx, src or "", re.I)
+                m = next((m for m in re.finditer(rx, src or "", re.I) if not _negated(src, m.start(), m.end())), None)
                 if m:
-                    out.append((j, ("case:" if who else "") + _quote(src, m.start(), m.end())))
+                    hit = ("case:" if who else "") + _quote(src, m.start(), m.end())
                     break
+            if hit:
+                out.append((j, hit))
         return out
 
 

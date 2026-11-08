@@ -46,19 +46,37 @@ def new_state(language: str = "auto") -> dict:
             "assessment": {}, "escalation": {"level": "none", "reasons": []}, "plan": [], "open_questions": []}
 
 
+def _repair_json(s: str) -> str:
+    """Common model slips, fixed in code: a key missing a quote ('  other_side": 1' or '  other_side: 1'),
+    and trailing commas before a closing bracket."""
+    s = re.sub(r'(?m)^(\s*)"?([A-Za-z_][A-Za-z0-9_]*)"?(\s*):', r'\1"\2"\3:', s)
+    return re.sub(r",(\s*[}\]])", r"\1", s)
+
+
 def parse_json(raw: str) -> dict | None:
     s = raw.strip()
     s = re.sub(r"^```(?:json)?\s*|\s*```$", "", s)
-    try:
-        return json.loads(s)
-    except json.JSONDecodeError:
-        m = re.search(r"\{.*\}", s, re.S)
-        if m:
+    m = re.search(r"\{.*\}", s, re.S)
+    for cand in (s, m.group(0) if m else None):
+        if not cand:
+            continue
+        for text in (cand, _repair_json(cand)):
             try:
-                return json.loads(m.group(0))
+                return json.loads(text)
             except json.JSONDecodeError:
-                return None
+                pass
     return None
+
+
+def reply_from_broken_json(raw: str) -> str:
+    """Last resort when the model's JSON can't be read: show the 'reply' text, never raw JSON, to the client."""
+    m = re.search(r'"reply"\s*:\s*"((?:[^"\\]|\\.)*)"', raw, re.S)
+    if m:
+        try:
+            return json.loads('"' + m.group(1) + '"')
+        except json.JSONDecodeError:
+            return m.group(1).replace("\\n", "\n")
+    return "Sorry, I couldn't put my answer together properly. Please send your message again."
 
 
 STRENGTHS = ("strong", "moderate", "weak", "unclear")
@@ -214,8 +232,15 @@ class NyaySaathi:
         # 3. model
         raw = self.llm.chat(system, messages, json_mode=True)
         out = parse_json(raw)
+        if out is None:   # one re-ask: same content, valid JSON
+            raw2 = self.llm.chat(system, messages + [{"role": "assistant", "content": raw}, {"role": "user", "content":
+                                 "Your last answer was not valid JSON. Return the same answer as one valid JSON object only."}],
+                                 json_mode=True)
+            out = parse_json(raw2)
+            raw = raw2 if out is not None else raw
         if out is None:
-            out = {"reply": raw, "case_file": state["case"], "ready_to_draft": "none", "issue": issue, "_parse_error": True}
+            out = {"reply": reply_from_broken_json(raw), "case_file": state["case"], "ready_to_draft": "none", "issue": issue,
+                   "_parse_error": True}
         if "escalate" not in out and "needs_lawyer" in out:   # older output shape
             out["escalate"] = {"needed": bool(out["needs_lawyer"]), "level": "consult", "reason": out.get("lawyer_reason", "")}
 
