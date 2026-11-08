@@ -129,6 +129,8 @@ def check(text: str, kb: KB) -> GuardResult:
                 add(m.span(), m.group(0), "block", "section number with no act we can verify")
             continue
         if kb.acts[act].get("outdated"):
+            if re.search(r"^[^.\n]{0,25}\(?\s*(?:now|since replaced|replaced by|corresponding to)\b", text[m.end(): m.end() + 60], re.I):
+                continue   # "Section 387 IPC (now BNS s.308(4))": the old law named as history, with today's section
             add(m.span(), m.group(0), "block", f"{kb.acts[act]['name']}: old law, use BNS/BNSS")
         elif sec not in allowed[act]:
             add(m.span(), m.group(0), "block", f"section {sec} of {kb.acts[act]['name']} is not on a verified card")

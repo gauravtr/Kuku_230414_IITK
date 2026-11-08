@@ -298,6 +298,9 @@ class NyaySaathi:
                 if len(p2) < len(problems):
                     doc, problems, repaired = doc2, p2, True
                     out["user_note"] = out2.get("user_note") or out.get("user_note", "")
+        if doc_type == "legal_notice" and not details.get("ref_no"):   # a reference number is the sender's to give
+            doc = re.sub(r"(?mi)^(\s*Ref(?:erence)?\.?\s*No\.?\s*:?\s*)(?!NIL\b|\[)(\S+(?: \S+)*?)(?=\s{2,}|\s*$)",
+                         r"\1[YOUR REFERENCE NUMBER, OR NIL]", doc, count=1)
         g = check(doc, kb)
         blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.()?:\-]{2,90}\]", g.text)))
         res = {"document": g.text, "blanks": blanks, "user_note": out.get("user_note", ""), "sender": sender,
@@ -378,7 +381,8 @@ def lint_draft(doc: str, doc_type: str, sender: str, kb) -> list[str]:
         if sender == "self" and re.search(r"under (?:the )?instructions? (?:from|of)", low):
             probs.append("The client sends this personally: open with 'I, [name], resident of [address], address you as "
                          "follows:', not 'under instructions from'.")
-        if not re.search(r"\b\d{1,3}\s*(?:\([a-z -]+\)\s*)?(?:days?|hours?)\b", low):   # "7 days", "7 (seven) days"
+        if not re.search(r"\b\d{1,3}\s*(?:\([a-z -]+\)\s*)?(?:days?|hours?)\b|\(\d{1,3}\)\s*(?:days?|hours?)\b", low):
+            # "7 days", "7 (seven) days", "seven (7) days"
             probs.append("State a clear time for compliance (in days) and its basis.")
         elif not re.search(r"reasonable|statutory|prescribed|required by|under section|as provided|considered", low):
             probs.append("Explain the basis of the compliance period (statutory, or a reasonable period for a considered reply).")
