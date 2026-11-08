@@ -81,7 +81,26 @@ def _known_judgment(mention: str, kb: KB) -> bool:
     return False
 
 
+def fix_act_years(text: str, kb: KB) -> str:
+    """'Bharatiya Nagarik Suraksha Sanhita, 2024' -> '..., 2023'. A known act with a year off by one or two is a slip,
+    corrected in code. A year further off (e.g. 'Consumer Protection Act, 1986') may name the older law, so it is left."""
+    years = {}
+    for a in kb.acts.values():
+        mm = re.match(r"(.+?),\s*(\d{4})", a["name"])
+        if mm:
+            years[mm.group(1).strip().lower()] = mm.group(2)
+
+    def repl(m):
+        name = m.group(1).strip().lower()   # may carry a leading capitalised word: "Under Bharatiya ... Sanhita"
+        right = next((y for k, y in years.items() if name == k or name.endswith(" " + k)), None)
+        if right and right != m.group(2) and abs(int(right) - int(m.group(2))) <= 2:
+            return m.group(0)[: m.start(2) - m.start(0)] + right
+        return m.group(0)
+    return ACT_NAME_RE.sub(repl, text)
+
+
 def check(text: str, kb: KB) -> GuardResult:
+    text = fix_act_years(text, kb)
     # "[COW-45, GEN-LIMIT]" -> "[COW-45][GEN-LIMIT]" so each card becomes its own numbered source
     text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{x.strip()}]" for x in re.split(r"[,;]", m.group(1))), text)
     flags, marks = [], []  # marks: (end_index, label)
@@ -98,10 +117,12 @@ def check(text: str, kb: KB) -> GuardResult:
     # 1) "Section 17 of the Code on Wages", "धारा 45", "s.69"
     for m in SECTION_RE.finditer(text):
         sec = m.group(1).upper()
-        after = text[m.end(): m.end() + 90]
+        after = re.split(r"\.(?=\s)|\n", text[m.end(): m.end() + 90], maxsplit=1)[0]   # this sentence only
         before = text[max(0, m.start() - 50): m.start()]
         (a1, d1), (a2, d2) = _find_act(kb, after), _find_act(kb, before, nearest_end=True)
         act = a1 if d1 <= d2 else a2
+        if act is None:   # "4.3 IT Act - Section 66E ... (a) ... (Section 67)": the act was named a line or two above
+            act, _ = _find_act(kb, text[max(0, m.start() - 400): m.start()], nearest_end=True)
         if act is None:
             ok = any(sec in allowed[a] for a in cited_acts)
             if not ok:

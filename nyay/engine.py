@@ -272,6 +272,8 @@ class NyaySaathi:
             "The client signs it personally, in the first person.",
             template=t["structure"],
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),
+            act_names="; ".join(dict.fromkeys(kb.acts[c["act"]]["name"] for c in cards if c["act"] in kb.acts
+                                              and not kb.acts[c["act"]].get("outdated"))),
             judgments_for="\n".join(jline(c) for c in jfor) or "(none - cite no case law)",
             judgments_against="\n".join(jline(c) for c in jagainst) or "(none)",
             details=json.dumps(details, ensure_ascii=False) if details else "(none given - use specific blanks)",
@@ -373,9 +375,12 @@ def lint_draft(doc: str, doc_type: str, sender: str, kb) -> list[str]:
                 probs.append("Add the advocate's enrolment number and Bar Council in the letterhead and signature.")
             if re.search(r"\bour client\b", low):
                 probs.append("Use 'my client' consistently, not 'our client'.")
-        if not re.search(r"\b\d{1,3}\s*(?:days?|hours?)\b", low):
+        if sender == "self" and re.search(r"under (?:the )?instructions? (?:from|of)", low):
+            probs.append("The client sends this personally: open with 'I, [name], resident of [address], address you as "
+                         "follows:', not 'under instructions from'.")
+        if not re.search(r"\b\d{1,3}\s*(?:\([a-z -]+\)\s*)?(?:days?|hours?)\b", low):   # "7 days", "7 (seven) days"
             probs.append("State a clear time for compliance (in days) and its basis.")
-        elif not re.search(r"reasonable|statutory|prescribed|required by|under section|as provided", low):
+        elif not re.search(r"reasonable|statutory|prescribed|required by|under section|as provided|considered", low):
             probs.append("Explain the basis of the compliance period (statutory, or a reasonable period for a considered reply).")
         if not re.search(r"without prejudice", low):
             probs.append("The reservation of rights must say the notice is without prejudice to all other civil and criminal remedies.")
