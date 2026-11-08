@@ -162,3 +162,65 @@ def test_found_in_third_live_review():
     llm.chat = lambda system, messages, **k: json.dumps({"document": GOOD.replace("Ref. No.: NIL", "Ref. No.: LN/2026/07")})
     res = _N(llm=llm, kb=kb).draft(dict(new_state(), issue="threats"), "legal_notice", {"sender": "self"})
     assert "Ref. No.: [YOUR REFERENCE NUMBER, OR NIL]" in res["document"]
+
+
+def test_judgments_only_when_they_fit_the_facts():
+    """A Supreme Court ruling is suggested only when its fact pattern appears in what the client said."""
+    from nyay.engine import pick_judgments
+    ids = lambda j: {c["id"] for g in ("for", "against") for c in (j or {}).get(g, [])}   # noqa: E731
+    same = lambda x: x   # noqa: E731
+    # an ordinary deposit case: forfeiture rulings fit; 'stayed on after tenancy' and 'lock-in clause' rulings do not
+    w = "My landlord kept my whole deposit of Rs 40,000 saying painting is needed. I vacated on 1 Oct after giving notice."
+    j = pick_judgments(kb, "deposit", "tenant", {}, same, w)
+    assert {"JUD-MAULA", "JUD-KAILASH"} <= ids(j) and not {"JUD-ATMARAM", "JUD-SBATRA"} & ids(j)
+    assert any("whole deposit" in c["quote"] for c in j["for"])          # the client's own words are the reason shown
+    # ...until the client says they stayed on: then the ruling against them is shown, never hidden
+    j = pick_judgments(kb, "deposit", "tenant", {}, same, w + " I stayed 2 extra months after the agreement ended.")
+    assert "JUD-ATMARAM" in {c["id"] for c in j["against"]}
+    # private-company salary: the State-corporation and 'not a workman' rulings stay out
+    j = pick_judgments(kb, "salary", "employee", {}, same, "My private IT company (ABC Corporation) hasn't paid salary for 3 months.")
+    assert "JUD-BIHAR26" in ids(j) and not {"JUD-HINGORANI", "JUD-ADYANTHAYA", "JUD-KELAWALA"} & ids(j)
+    # a plain cheque bounce: no loan-capacity or advance-cheque rulings
+    j = pick_judgments(kb, "cheque", "payee", {}, same, "The cheque he gave me for the goods bounced, insufficient funds.")
+    assert ids(j) == {"JUD-RANGAPPA"}
+    # nothing fits: nothing is shown; if the client asked for case law, say honestly that none fits
+    assert pick_judgments(kb, "domestic", "woman", {}, same, "I want a divorce.") is None
+    j = pick_judgments(kb, "domestic", "woman", {}, same, "I want a divorce. Any Supreme Court judgment?", asked=True)
+    assert j["none_fit"] and not j["for"] and not j["against"]
+    # once the model has weighed the facts, a favourable ruling it left out is dropped; a fitting adverse one is kept
+    w = "He threatens on WhatsApp to leak my photos unless I pay Rs 50,000. I have screenshots."
+    j = pick_judgments(kb, "threats", "victim", {"JUD-BALAJI": "fits"}, same, w)
+    assert {c["id"] for c in j["for"]} == {"JUD-BALAJI"} and "JUD-MUSUMBA" in {c["id"] for c in j["against"]}
+
+
+class CaptureLLM:
+    name = "fake"
+
+    def __init__(self, reply):
+        self.reply, self.system = reply, ""
+
+    def chat(self, system, messages, json_mode=False, **k):
+        self.system = system
+        return json.dumps(self.reply)
+
+
+def test_model_sees_only_fitting_rulings_and_answer_is_structured():
+    llm = CaptureLLM({"issue": "deposit", "headline": "You have a strong claim to the full deposit [TEN-WEAR].",
+                      "reply": "Painting is normal wear and tear.", "assessment": {"strength": "strong", "why": "x"},
+                      "case_file": {"summary": "deposit", "deadlines": ["Consumer complaint within 2 years [CPA-LIMIT]",
+                                    "File under Section 999 of the Indian Penal Code by Friday"],
+                                    "proof_have": ["rent agreement"], "proof_missing": ["move-out photos"]},
+                      "next_steps": [{"step": "Send a legal notice", "by_when": "this week"}], "open_questions": []})
+    bot = NyaySaathi(llm=llm, kb=kb)
+    r = bot.turn(new_state(), "Landlord kept my whole security deposit of Rs 40,000 for painting after I vacated the flat.")
+    assert "Maula Bux" in llm.system and "Atma Ram" not in llm.system and "Satish Batra" not in llm.system
+    assert r["headline"] and "[" not in r["headline"]                  # card markers removed from the headline
+    assert r["deadlines"] == ["Consumer complaint within 2 years"]     # the unverified-law deadline is dropped
+    assert r["proof_have"] == ["rent agreement"] and r["proof_missing"] == ["move-out photos"]
+
+
+def test_extortion_message_routes_to_threats_not_salary():
+    """Found while previewing: 'pay 50,000 or I post your private photos' tied with salary on the word 'pay'."""
+    assert next(iter(kb.classify("My ex sent a WhatsApp: pay 50,000 or I post your private photos. I haven't paid."))) == "threats"
+    assert next(iter(kb.classify("My company did not pay my salary for 2 months"))) == "salary"
+    assert next(iter(kb.classify("Landlord not returning deposit, says I must pay for painting"))) == "deposit"
