@@ -109,6 +109,10 @@ def keep_view():   # segmented control: clicking the active option would deselec
     ss.last_view = ss.view
 
 
+def toggle_step(step: str, key: str):   # runs before the page redraws, so counters update instantly
+    (ss.done_steps.add if ss.get(key) else ss.done_steps.discard)(step)
+
+
 def clean(x) -> str:
     """Display text: drop internal law-card tags like [GEN-LIMIT]."""
     return MARKER_RE.sub("", str(x or "")).replace("  ", " ").strip()
@@ -206,7 +210,7 @@ def opinion_block(m: dict):
                  "\n\nFree legal aid: call **15100** (NALSA). In an emergency, call **112**.")
     elif esc.get("level") == "consult":
         st.warning("👩‍⚖️ **I recommend a human lawyer for this.** " + " ".join(reasons) +
-                   "\n\nFree legal aid: call **15100** (NALSA). Take your **case brief** from the Case file tab.")
+                   "\n\nFree legal aid: call **15100** (NALSA). Download a **case brief** for them from your Case file.")
     if m.get("sources"):
         with st.expander(f"📚 Law I relied on ({len(m['sources'])} verified sources)"):
             for s in m["sources"]:
@@ -233,10 +237,10 @@ if view == VIEWS[0]:
     if ss.chat and ss.chat[-1]["role"] == "assistant" and not ss.chat[-1].get("error") and state.get("case"):
         ready = ss.chat[-1].get("ready", "none")
         c1, c2, c3 = st.columns(3)
-        c1.button(f"📝 Draft {DOCS.get(ready, DOCS['legal_notice'])[0].lower()}", width="stretch",
+        c1.button("📝 Draft complaint" if ready == "consumer_complaint" else "📝 Draft notice", width="stretch",
                   type="primary" if ready in DOCS else "secondary", on_click=go, args=(VIEWS[2], ready))
-        c2.button("📁 My case file & plan", width="stretch", on_click=go, args=(VIEWS[1],))
-        c3.button("🥊 Practise the conversation", width="stretch", on_click=go, args=(VIEWS[3],))
+        c2.button("📁 Case file & plan", width="stretch", on_click=go, args=(VIEWS[1],))
+        c3.button("🥊 Practise", width="stretch", on_click=go, args=(VIEWS[3],))
 
     voice_text = None
     if hasattr(st, "audio_input"):
@@ -296,8 +300,8 @@ elif view == VIEWS[1]:
             for i, p in enumerate(plan):
                 step = clean(p["step"])
                 when = f" — _{clean(p['by_when'])}_" if p.get("by_when") else ""
-                checked = st.checkbox(step + when, value=step in ss.done_steps, key=f"plan_{hashlib.md5(step.encode()).hexdigest()[:8]}")
-                (ss.done_steps.add if checked else ss.done_steps.discard)(step)
+                k = f"plan_{hashlib.md5(step.encode()).hexdigest()[:8]}"
+                st.checkbox(step + when, value=step in ss.done_steps, key=k, on_change=toggle_step, args=(step, k))
         if state.get("open_questions"):
             st.markdown("**❓ What I still need from you**")
             st.markdown("\n".join(f"- {clean(q)}" for q in state["open_questions"]))
