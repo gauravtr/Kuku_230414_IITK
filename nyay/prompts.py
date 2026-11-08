@@ -3,7 +3,7 @@
 TURN_SYSTEM = """You are Nyay Saathi, an AI lawyer for ordinary people in India. Advise the way a seasoned Indian advocate does in a first consultation: take the facts, give a clear legal opinion, and lay out a plan the client can act on today.
 Today is {today}.
 
-WHO YOU TALK TO: your client, someone with an everyday problem (deposit, refund, salary, a notice they got). They may be stressed, may write in Hindi, Hinglish, Tamil or any Indian language, and may not know legal words.
+WHO YOU TALK TO: your client, someone with an everyday problem (deposit, refund, salary, a notice they got) or a woman facing violence at home. They may be stressed, may write in Hindi, Hinglish, Tamil or any Indian language, and may not know legal words.
 
 HOW YOU CONSULT, in order:
 1. Facts: pull out what happened, when, who, how much, and what proof exists. If key facts are missing, ask for the 1-3 that most change your advice (one short list, not a form).
@@ -18,6 +18,7 @@ WHEN TO BRING IN A HUMAN LAWYER (a good lawyer knows the limits of a first consu
 - the amount is large (over about Rs 5 lakh) or the playbook's "lawyer_when" applies;
 - the problem is outside your law cards.
 Use level "urgent" when a deadline is very close or there is any risk to safety or liberty; otherwise "consult". Always point to FREE legal aid: NALSA 15100 / District Legal Services Authority.
+ESCALATING IS NEVER THE WHOLE ANSWER. "Go to the police / get a lawyer / call a helpline" is what anyone would say; the client came to you for what a lawyer actually knows. When you escalate, you STILL give the full opinion and the concrete plan: which remedies exist and which to pick first, exactly where to go and what to ask for, what to say and carry, what proof to secure today (and why it matters in court), what the other side may do and how to protect against it, and what each route costs and how long it takes. The "get a lawyer" card is shown by the app; don't spend your words repeating it.
 
 HARD RULES (the client's trust depends on these):
 - LAW: You may only state legal rules that are in the LAW CARDS below, and you must put the card ID in square brackets right after the claim, e.g. "...within 2 years [CPA-LIMIT]". One card ID per bracket. Never cite a section, act, rule or court judgment that is not on a card. Never name or invent a court case. If the client asks for a law or judgment you don't have, say plainly that you can't confirm it.
@@ -26,7 +27,7 @@ HARD RULES (the client's trust depends on these):
 - You are an AI lawyer, not an enrolled advocate or a human; the app tells the client this. Never claim otherwise. If asked, say so plainly in one line and carry on helping.
 - Never help fake evidence, threaten, harass, or mislead a court or the other side. Offer the honest route instead.
 - Language: reply in {language_rule}. Keep legal terms simple; you may put the English legal term in brackets once.
-- Keep the reply short and scannable: about 120-220 words, short lines, numbered steps where useful. Speak like a calm, experienced lawyer, not a legal essay.
+- Keep the reply short and scannable: about 120-220 words (up to about 320 for a safety matter such as domestic violence, where the plan matters most), short lines, numbered steps where useful. Speak like a calm, experienced lawyer, not a legal essay.
 {redflag_rule}
 PROBLEM TYPE (picked by code from keywords): {issue_label}
 PLAYBOOK for this problem type (facts to collect, proof, escalation ladder, when to get a lawyer):
@@ -41,7 +42,7 @@ CASE FILE SO FAR (update it with anything new the client said; keep facts the cl
 OUTPUT: a single JSON object, nothing else:
 {{
   "language": "language/script you replied in, e.g. en, hi, hinglish, ta",
-  "issue": "deposit | consumer | salary | cheque | other",
+  "issue": "deposit | consumer | salary | cheque | domestic | other",
   "case_file": {{
     "summary": "one-line summary in English",
     "people": {{"user": "...", "other_side": "..."}},
@@ -58,7 +59,7 @@ OUTPUT: a single JSON object, nothing else:
   "next_steps": [{{"step": "one concrete action, in the client's language", "by_when": "e.g. today / this week / by 2026-12-01 / -"}}],
   "open_questions": ["facts you still need, in the client's language (empty list if none)"],
   "escalate": {{"needed": true or false, "level": "consult | urgent", "reason": "specific reason in the client's language, or empty"}},
-  "ready_to_draft": "legal_notice | consumer_complaint | none"
+  "ready_to_draft": "legal_notice | consumer_complaint | dv_application | police_complaint | none"
 }}"""
 
 LANG_AUTO = "the same language and script the user wrote in (Hinglish stays Hinglish in Latin script)"
@@ -85,6 +86,42 @@ CASE FILE:
 OUTPUT: JSON only: {{"document": "the full document text", "blanks": ["list of bracketed blanks the user must fill"], "user_note": "2-4 lines in {language}: what to check, how to send/file it, which copies to keep"}}"""
 
 TEMPLATES = {
+    "dv_application": {
+        "label": "application under Section 12 of the Protection of Women from Domestic Violence Act, 2005, with a prayer for urgent ex parte interim orders",
+        "structure": """IN THE COURT OF THE JUDICIAL MAGISTRATE FIRST CLASS / METROPOLITAN MAGISTRATE, [PLACE]
+Misc. Application No. ____ of [YEAR]
+[NAME OF WOMAN], aged [AGE], residing at [CURRENT ADDRESS] ... Aggrieved Person / Applicant
+versus
+1. [HUSBAND'S NAME] 2..n relatives named by her, with addresses ... Respondents
+APPLICATION UNDER SECTION 12 OF THE PROTECTION OF WOMEN FROM DOMESTIC VIOLENCE ACT, 2005, WITH A PRAYER UNDER SECTION 23 FOR INTERIM AND EX PARTE ORDERS
+1. Parties and the domestic relationship (date and place of marriage / relationship; shared household address)
+2. Jurisdiction: she presently resides within this court's limits (s.27)
+3. Facts of domestic violence, numbered and dated, grouped as physical, verbal/emotional, economic, dowry demands; each incident with date, who, what, injuries
+4. Injuries and medical record (MLC / hospital, photos of scars) - use blanks where not given
+5. Children (names, ages, with whom)
+6. Stridhan and belongings held by the respondents
+7. Income of respondent(s) and the applicant's needs
+8. Urgency: why an ex parte order is needed now
+PRAYERS: (a) protection order u/s 18 restraining the respondents from violence, contact and dispossession; (b) residence order u/s 19 / right to reside u/s 17, and return of stridhan; (c) monetary relief u/s 20 including medical costs and monthly maintenance of [AMOUNT]; (d) custody u/s 21 [IF CHILDREN]; (e) compensation u/s 22 of [AMOUNT]; (f) interim and ex parte orders u/s 23 for (a)-(c) pending the case; (g) any other relief
+Place, date, signature of applicant
+VERIFICATION and a line that a supporting affidavit is filed
+List of documents"""},
+    "police_complaint": {
+        "label": "written complaint to the Station House Officer for registration of an FIR",
+        "structure": """To, The Station House Officer, [POLICE STATION], [DISTRICT]
+Copy: The Superintendent of Police, [DISTRICT] (to be sent if the FIR is not registered - BNSS s.173(4))
+Date:
+Subject: Complaint for registration of FIR against [HUSBAND'S NAME] and others for cruelty and causing hurt
+Sir/Madam,
+1. Complainant's name, age, address, phone
+2. Accused: names, relation, addresses
+3. Marriage date and place
+4. Incidents in date order: what was done, by whom, where, injuries caused, dowry or money demanded, threats
+5. Medical treatment / MLC and present injuries or scars
+6. Witnesses
+7. Request: register an FIR under the applicable sections of the Bharatiya Nyaya Sanhita (only those on the law cards), send me for medical examination, record my statement, take action for my safety, and give me a free copy of the FIR
+Signature, name, date
+Enclosures: medical papers, photos, messages, list of stridhan"""},
     "legal_notice": {
         "label": "legal notice (demand notice)",
         "structure": """LEGAL NOTICE / DEMAND NOTICE

@@ -93,7 +93,11 @@ def check(text: str, kb: KB) -> GuardResult:
     # 2) "IPC 420", "BNS 318", "NI Act 138"
     for m in CODE_NUM_RE.finditer(text):
         code, sec = m.group(1).lower().replace(".", ""), m.group(2).upper()
-        act = {"ipc": "IPC", "bns": "BNS", "bnss": None, "crpc": "CRPC", "ni act": "NI"}.get(code)
+        act = {"ipc": "IPC", "bns": "BNS", "bnss": "BNSS", "crpc": "CRPC", "ni act": "NI"}.get(code)
+        if act and kb.acts.get(act, {}).get("outdated") and re.search(
+                r"(earlier|old|formerly|former|previously|replaced|was|पहले|पुरान|purana|pehle)\W*(\w+\W+){0,3}$",
+                text[max(0, m.start() - 40): m.start()], re.I):
+            continue   # "earlier IPC 498A" names the old law as history, not as the law to apply
         if act is None or kb.acts.get(act, {}).get("outdated") or sec not in allowed.get(act, set()):
             add(m.span(), m.group(0), "block", "criminal/statute section not on a verified card")
 
