@@ -110,8 +110,25 @@ def fix_act_years(text: str, kb: KB) -> str:
     return ACT_NAME_RE.sub(repl, text)
 
 
+def fix_case_citations(text: str, kb: KB) -> str:
+    """'Balaji Traders v. State of U.P. (2025), 2005 INSC 806' -> '2025 INSC 806': a verified judgment named with its own
+    INSC number but a mistyped year gets the card's exact citation, in code."""
+    for j in getattr(kb, "judgments", {}).values():
+        cm = re.match(r"(\d{4}) INSC (\d+)", j["citation"])
+        if not cm:
+            continue
+        first = j["name"].split(" v.")[0].replace("M/s ", "").strip()
+        for nm in list(re.finditer(re.escape(first), text)):
+            window = text[nm.end(): nm.end() + 160]
+            bad = re.search(rf"\(?(\d{{4}})\)?\s*INSC\s+{cm.group(2)}\b", window)
+            if bad and bad.group(1) != cm.group(1):
+                s0 = nm.end() + bad.start()
+                text = text[:s0] + f"{cm.group(1)} INSC {cm.group(2)}" + text[nm.end() + bad.end():]
+    return text
+
+
 def check(text: str, kb: KB) -> GuardResult:
-    text = fix_act_years(text, kb)
+    text = fix_case_citations(fix_act_years(text, kb), kb)
     # "[COW-45, GEN-LIMIT]" -> "[COW-45][GEN-LIMIT]" so each card becomes its own numbered source
     text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{x.strip()}]" for x in re.split(r"[,;]", m.group(1))), text)
     flags, marks = [], []  # marks: (end_index, label)
@@ -138,6 +155,8 @@ def check(text: str, kb: KB) -> GuardResult:
         act = a1 if d1 <= d2 else a2
         if act is None:   # "4.3 IT Act - Section 66E ... (a) ... (Section 67)": the act was named a line or two above
             act, _ = _find_act(kb, text[max(0, m.start() - 400): m.start()], nearest_end=True)
+            if act is not None and sec not in allowed[act] and any(sec in allowed[a] for a in cited_acts | named_acts):
+                continue   # the nearest act above lacks it, but an act named in this text has it (BNS 308 after an IT Act para)
         if act is None:   # no act nearby: fine if a verified act named (or card-cited) elsewhere in this text has the section
             ok = any(sec in allowed[a] for a in cited_acts | named_acts)
             if not ok:

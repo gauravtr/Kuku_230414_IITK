@@ -13,7 +13,7 @@ import os
 import re
 
 from . import prompts
-from .guard import MARKER_RE, check, footer
+from .guard import MARKER_RE, check, fix_act_years, fix_case_citations, footer
 from .kb import KB
 from .llm import LLM
 
@@ -346,7 +346,7 @@ class NyaySaathi:
         ask = [{"role": "user", "content": f"Conversation so far:\n{convo}\n\nDraft the {t['label']} now."}]
         raw = self.llm.chat(system, ask, json_mode=True, max_tokens=8192)
         out = parse_json(raw) or {"document": raw, "blanks": [], "user_note": ""}
-        doc = MARKER_STRIP_KEEP(out.get("document", ""))
+        doc = fix_case_citations(fix_act_years(MARKER_STRIP_KEEP(out.get("document", "")), kb), kb)   # slips fixed in code first
         problems = lint_draft(doc, doc_type, sender, kb)
         repaired = False
         if problems:   # one repair pass: the model fixes exactly what code found, nothing else
@@ -357,7 +357,7 @@ class NyaySaathi:
             raw2 = self.llm.chat(system, fix, json_mode=True, max_tokens=8192)
             out2 = parse_json(raw2)
             if out2 and out2.get("document"):
-                doc2 = MARKER_STRIP_KEEP(out2["document"])
+                doc2 = fix_case_citations(fix_act_years(MARKER_STRIP_KEEP(out2["document"]), kb), kb)
                 p2 = lint_draft(doc2, doc_type, sender, kb)
                 if len(p2) < len(problems):
                     doc, problems, repaired = doc2, p2, True
