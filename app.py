@@ -319,7 +319,7 @@ def judgments_html(j: dict) -> str:
 
     def item(c, cls):
         year = html.escape(str(c.get("date", ""))[:4])
-        why = f'<p class="why"><b>For you:</b> {esc(c["why"])}</p>' if clean(c.get("why")) else ""
+        why = f'<p class="why"><b>What it means for you:</b> {esc(c["why"])}</p>' if clean(c.get("why")) else ""
         note = f'<p class="cau">{ic("info")}{html.escape(c["caution"])}</p>' if c.get("caution") else ""
         how = ' · <span class="tag">same principle</span>' if c.get("applies") == "principle" else ""
         return (f'<li class="{cls}"><div class="jn">{html.escape(c["name"])}</div>'
