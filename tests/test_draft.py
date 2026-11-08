@@ -392,3 +392,15 @@ def test_markers_never_shown_raw():
     st["history"] = [{"role": "user", "content": "landlord kept my deposit"}]
     r = NyaySaathi(llm=NoteLLM(), kb=kb).draft(st, "legal_notice", {})
     assert "OSC-181" not in r["user_note"] and "⚠️[unverified]" in r["user_note"]   # guarded like any reply
+
+
+def test_coach_tip_markers_render_as_sources():
+    """Case 12: coach tips showed '[1] - Remind...' and 'under `[1]`' (code font) instead of a clean source mark."""
+    class CoachLLM:
+        name = "fake"
+
+        def chat(self, system, messages, **k):
+            return "Arre beta, painting toh karwani padti hai.\n\n**COACH:** TEN-WEAR - Remind him that under `TEN-WEAR` wear and tear is his cost."
+    st = new_state(); st["issue"] = "deposit"; st["case"] = {"summary": "deposit"}
+    r = NyaySaathi(llm=CoachLLM(), kb=kb).practise(st, [], "Uncle, my deposit please", "your landlord")
+    assert "`" not in r["reply"] and "**COACH:** Remind him" in r["reply"] and "[1]" in r["reply"]
