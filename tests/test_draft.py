@@ -330,3 +330,23 @@ def test_accused_husband_gets_no_victim_safety_block():
     """Case 08: a husband named in a dowry FIR was shown 'If she is in danger right now: call 112, 181'."""
     r = NyaySaathi(llm=AccusedLLM(), kb=kb).turn(new_state(), "My wife's family filed a dowry FIR against me and my parents.")
     assert "If she is in danger" not in r["reply_body"] and "violence" not in r["escalation"]["safety"]
+
+
+def test_model_side_labels_are_normalized():
+    """Case 08: in later turns the model said client_side 'husband'; it defaulted to 'woman' and flipped the rulings."""
+    from nyay.engine import normalize_side
+    assert normalize_side(kb, "domestic", "Husband") == "respondent"
+    assert normalize_side(kb, "domestic", "the wife") == "woman"
+    assert normalize_side(kb, "domestic", "", "respondent") == "respondent"
+    assert normalize_side(kb, "deposit", "Tenant") == "tenant" and normalize_side(kb, "cheque", "borrower") == "drawer"
+    assert normalize_side(kb, "domestic", "xyz") is None
+
+
+def test_withholding_without_any_damage_claim_fits_the_forfeiture_rulings():
+    """Found in the live run of case 06: 'sitting on my deposit ... doesn't have money right now' matched no ruling."""
+    from nyay.engine import pick_judgments
+    w = ("My landlord has been sitting on my Rs 1,00,000 security deposit for 4 months. He keeps saying 'next week'. "
+         "He hasn't claimed any damage, he just says he doesn't have money right now.")
+    j = pick_judgments(kb, "deposit", "tenant", {}, lambda x: x, w)
+    assert {"JUD-MAULA", "JUD-KAILASH"} <= {c["id"] for c in j["for"]}
+    assert not {"JUD-ATMARAM", "JUD-SBATRA"} & {c["id"] for g in ("for", "against") for c in j[g]}
