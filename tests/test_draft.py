@@ -350,3 +350,16 @@ def test_withholding_without_any_damage_claim_fits_the_forfeiture_rulings():
     j = pick_judgments(kb, "deposit", "tenant", {}, lambda x: x, w)
     assert {"JUD-MAULA", "JUD-KAILASH"} <= {c["id"] for c in j["for"]}
     assert not {"JUD-ATMARAM", "JUD-SBATRA"} & {c["id"] for g in ("for", "against") for c in j[g]}
+
+
+def test_found_in_live_run_of_case_07():
+    """'I want to ... get him arrested' is not 'a case is against you'; 'IPC 420 was replaced ... by the BNS' is history."""
+    from nyay.guard import check
+    ids = lambda t: {f["id"] for f in kb.detect_red_flags(t)}   # noqa: E731
+    assert "police" not in ids("I want to file a case under IPC 420 against him and get him arrested. How do I file an FIR?")
+    assert "police" not in ids("Can the police arrest my landlord for this?")
+    assert "police" in ids("Will they arrest us tomorrow? The FIR is against me and my parents.")
+    assert "police" in ids("I got a summons from the court")
+    g = check("IPC 420 was replaced on 1 July 2024 by the Bharatiya Nyaya Sanhita (BNS), but this is a civil dispute.", kb)
+    assert "⚠️[unverified]" not in g.text
+    assert "⚠️[unverified]" in check("File an FIR under IPC 420 for cheating.", kb).text   # old law as the law to apply
