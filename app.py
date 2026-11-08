@@ -91,7 +91,7 @@ EXAMPLES = [
      "I received a legal notice saying my ₹80,000 cheque bounced and I must pay in 15 days. "
      "What does this mean for me?"),
 ]
-VIEWS = {"consult": ":material/forum: Consultation", "case": ":material/folder_open: Case file",
+VIEWS = {"consult": ":material/forum: Consult", "case": ":material/folder_open: Case file",
          "docs": ":material/description: Documents", "rehearse": ":material/record_voice_over: Rehearse"}
 DOCS = {"legal_notice": ("Legal notice", "A formal written demand to the other side. Usually the first step."),
         "consumer_complaint": ("Consumer complaint", "For the District Consumer Commission, if a notice didn't work.")}
@@ -119,7 +119,7 @@ def esc(x) -> str:
 
 def clean(x) -> str:
     """Display text: drop internal law-card tags like [GEN-LIMIT]."""
-    return MARKER_RE.sub("", str(x or "")).replace("  ", " ").strip()
+    return re.sub(r"\s+([.,;:!?])", r"\1", MARKER_RE.sub("", str(x or ""))).replace("  ", " ").strip()
 
 
 def known(x) -> str:
@@ -361,7 +361,7 @@ if not has_case:
               '<li><div>File a civil claim if they still refuse<em>Within 3 years</em></div></li></ol>'
             f'<div class="docline">{ic("description")}<b>Legal notice</b><span class="ok">Ready to send</span></div></div>')
 
-    html_block('<div class="section-h"><h3>Start with a common problem</h3>'
+    html_block('<div class="section-h"><div class="sh">Start with a common problem</div>'
                '<span>Or describe anything else above — tenancy, consumer, salary, cheques and more.</span></div>')
     cols = st.columns(2, gap="small")
     for i, (icon, title, sub, lang, text) in enumerate(EXAMPLES):
@@ -371,7 +371,7 @@ if not has_case:
                            f'<span class="lang">Example in {lang}</span></div>{ic("arrow_forward", "go")}</div>')
                 st.button(title, key=f"exb_{i}", on_click=queue, args=(text,), width="stretch")
 
-    html_block('<div class="section-h"><h3>How a consultation works</h3><span>The same three things a good lawyer gives you '
+    html_block('<div class="section-h"><div class="sh">How a consultation works</div><span>The same three things a good lawyer gives you '
                'in a first meeting.</span></div><div class="how">'
                '<div><span class="n">01</span><b>Tell your story</b><p>In your own words and language — type it or speak '
                'it. I\'ll ask the questions a lawyer would.</p></div>'
@@ -458,8 +458,8 @@ if view == "consult":
             c3.button(f":material/record_voice_over: Rehearse with {opp[1].lower()}", width="stretch",
                       on_click=go, args=("rehearse",))
     c_hint, c_voice = st.columns([3, 1], vertical_alignment="center")
-    c_hint.markdown(f'<div class="hint">{ic("tips_and_updates")}Answer my questions in the chat, or add anything I missed. '
-                    'Don\'t share Aadhaar, bank or card numbers.</div>', unsafe_allow_html=True)
+    c_hint.markdown(f'<div class="hint"><span>{ic("tips_and_updates")}Answer my questions in the chat, or add anything I missed. '
+                    'Don\'t share Aadhaar, bank or card numbers.</span></div>', unsafe_allow_html=True)
     with c_voice:
         voice_popover(":material/mic: Speak")
     footer(slim=True)
@@ -559,7 +559,8 @@ elif view == "docs":
             with st.container(key="card_doctype"):
                 html_block(f'<div class="card-t">{ic("description")}Choose a document</div>')
                 kind = st.radio("Document", list(DOCS), key="doc_kind", format_func=lambda k: DOCS[k][0],
-                                captions=[DOCS[k][1] for k in DOCS], label_visibility="collapsed")
+                                label_visibility="collapsed")
+                html_block(f'<div class="note">{DOCS[kind][1]}</div>')
                 again = d and d.get("kind") == kind
                 go_draft = st.button((":material/refresh: Redraft " if again else ":material/edit: Draft my ")
                                      + DOCS[kind][0].lower(), type="secondary" if again else "primary", width="stretch")
@@ -670,7 +671,7 @@ elif view == "rehearse":
         src = ""
         if "**Sources (checked):**" in body:
             body, src = body.split("**Sources (checked):**", 1)
-            src = re.sub(r"\s—\s\S+", "", src)          # titles only; the links live in the consultation
+            src = re.sub(r"\s—\s.*?(?=;\s*\[\d|$)", "", src, flags=re.S)   # titles only; links live in the consultation
         is_feedback = i > 0 and ss.practise[i - 1]["content"].strip().lower() in ("feedback", "stop")
         if is_feedback:
             with st.container(key=f"card_feedback_{i}"):
@@ -695,6 +696,6 @@ elif view == "rehearse":
             st.error(friendly_error(e))
         st.rerun()
     if not ss.practise:
-        html_block(f'<div class="hint" style="margin-top:14px">{ic("tips_and_updates")}Open the way you would in real '
-                   'life: say what you want, by when, and why you\'re entitled to it.</div>')
+        html_block(f'<div class="hint" style="margin-top:14px"><span>{ic("tips_and_updates")}Open the way you would in real '
+                   'life: say what you want, by when, and why you\'re entitled to it.</span></div>')
     footer(slim=True)
