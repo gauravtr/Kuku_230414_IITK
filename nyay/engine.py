@@ -118,6 +118,28 @@ def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, tur
     return {"level": level, "reasons": reasons, "safety": safety}
 
 
+def pick_judgments(kb, issue: str, side, notes, verify) -> dict | None:
+    """Split the verified judgment cards for this issue into 'for you' / 'against you' from the client's
+    side. The model's picks come first; code tops each group up so the client always sees at least two
+    rulings against them (what the other side will argue) whenever the cards exist. Max 3 per group."""
+    sides = kb.sides.get(issue) or {}
+    if not sides:
+        return None
+    side = side if side in sides else next(iter(sides))
+    notes = notes if isinstance(notes, dict) else {}
+    cards = sorted(kb.judgments_for(issue), key=lambda c: c["date"], reverse=True)   # latest first
+    picked = [c for c in cards if c["id"] in notes]
+    groups = {"for": [], "against": []}
+    for c in picked + [c for c in cards if c not in picked]:
+        g = "for" if c["favours"] == side else "against"
+        if len(groups[g]) < (3 if c in picked else 2):
+            groups[g].append({k: c[k] for k in ("id", "name", "date", "citation", "holding", "applies", "caution", "url")}
+                             | {"why": verify(notes.get(c["id"]))})
+    for g in groups.values():
+        g.sort(key=lambda c: c["date"], reverse=True)
+    return {"side": side, "side_label": sides[side], **groups} if groups["for"] or groups["against"] else None
+
+
 class NyaySaathi:
     def __init__(self, llm: LLM | None = None, kb: KB | None = None):
         self.llm = llm or LLM()
@@ -150,6 +172,10 @@ class NyaySaathi:
             issue_label=kb.issues[issue]["label"],
             playbook=json.dumps({k: v for k, v in kb.issues[issue].items() if k != "keywords"}, ensure_ascii=False),
             cards="\n".join(f"[{c['id']}] {c['title']}: {c['text']}" for c in cards),
+            judgments="\n".join(f"[{j['id']}] {j['name']} ({j['date'][:4]}, {j['citation']}) - favours {j['favours']}: {j['holding']}"
+                                + (f" Caution: {j['caution']}" if j.get("caution") else "")
+                                for j in kb.judgments_for(issue)) or "(none for this problem type)",
+            sides=", ".join(f"{k} = {v}" for k, v in kb.sides.get(issue, {}).items()) or "-",
             case_file=json.dumps(state["case"], ensure_ascii=False) if state["case"] else "{} (empty - first message)",
         )
         messages = state["history"] + [{"role": "user", "content": user_text}]
@@ -188,6 +214,13 @@ class NyaySaathi:
             return {"q": text, "options": list(dict.fromkeys(opts))[:6]} if text else None
         qform = [x for x in (question(q) for q in (out.get("open_questions") or [])) if x][:5]
         open_q = [x["q"] for x in qform]
+        # Supreme Court judgments: picked by code from verified cards; the model only says whose side the
+        # client is on and why each ruling matters. Shown once the facts are in (or when the client asks).
+        asked = bool(re.search(r"judg|case ?law|precedent|ruling|supreme court|फैसल|निर्णय|नज़ीर|नजीर", user_text, re.I))
+        jout = out.get("judgments") if isinstance(out.get("judgments"), dict) else {}
+        judgments = None
+        if kb.judgments_for(issue) and (not open_q or turn_no >= INTAKE_TURNS or asked):
+            judgments = pick_judgments(kb, issue, jout.get("client_side"), jout.get("notes"), verified)
         if esc["reasons"]:
             esc["reasons"] = [r if r in ESC_CODES else verified(r) for r in esc["reasons"]]
             esc["reasons"] = [r for r in esc["reasons"] if r]
@@ -201,11 +234,13 @@ class NyaySaathi:
         if next_steps:
             state["plan"] = next_steps
         state["open_questions"] = open_q
+        if judgments:
+            state["judgments"] = judgments
         result = {"reply": final, "reply_body": reply, "issue": state["issue"], "routed_issue": issue,
                   "cards_given": [c["id"] for c in cards],
                   "needs_lawyer": esc["level"] != "none", "lawyer_reason": "; ".join(esc["reasons"]),
                   "escalation": esc, "assessment": assessment, "next_steps": next_steps, "open_questions": open_q,
-                  "question_form": qform,
+                  "question_form": qform, "judgments": judgments,
                   "ready_to_draft": out.get("ready_to_draft", "none"), "red_flags": [f["id"] for f in active],
                   "guard_flags": g.flags, "sources": g.sources, "case_file": state["case"],
                   "parse_error": out.get("_parse_error", False), "model": self.llm.name, "raw": raw}

@@ -1,9 +1,9 @@
 """Citation guard: the model's answer is checked by plain code before the user sees it.
 
 Rule: the bot may only state a section / act that exists in kb/laws.json.
-Anything else (a section number not on a card, an act we don't hold, any case-law
-citation, any old IPC/CrPC number) is marked inline as unverified and explained in
-a footer. Case law is never allowed: the KB deliberately holds none, because
+Anything else (a section number not on a card, an act we don't hold, a judgment that is
+not on a verified judgment card, any old IPC/CrPC number) is marked inline as unverified
+and explained in a footer. Judgments are allowed only from kb/judgments.json, because
 invented judgments are the most common legal hallucination.
 """
 from __future__ import annotations
@@ -59,6 +59,28 @@ def _find_act(kb: KB, window: str, nearest_end: bool = False):
 MULTI_MARKER_RE = re.compile(r"\[([A-Z]{2,6}-[A-Z0-9]{1,12}(?:\s*[,;]\s*[A-Z]{2,6}-[A-Z0-9]{1,12})+)\]")
 
 
+def _party(name: str) -> str:
+    first = re.split(r"\s+(?:v\.|vs\.?|versus)\s+", name, maxsplit=1, flags=re.I)[0].lower()
+    first = re.sub(r"\b(m/s\.?|pvt|private|ltd|limited|\(p\)|\(i\)|and others|& ors|ors)\b", " ", first)
+    return re.sub(r"[^a-z ]", " ", first).split() and " ".join(re.sub(r"[^a-z ]", " ", first).split())
+
+
+def _known_judgment(mention: str, kb: KB) -> bool:
+    """True if a case name / citation the model wrote is one of the verified judgment cards."""
+    cards = getattr(kb, "judgments", {}).values()
+    m = mention.lower()
+    if any(c["citation"].lower().find(m.strip(" ;,")) >= 0 for c in cards if re.search(r"\d", m)):
+        return True
+    mp = _party(mention)
+    if not mp:
+        return False
+    for c in cards:
+        cp = _party(c["name"])
+        if mp == cp or (len(mp) >= 8 and (mp in cp or cp in mp)):
+            return True
+    return False
+
+
 def check(text: str, kb: KB) -> GuardResult:
     # "[COW-45, GEN-LIMIT]" -> "[COW-45][GEN-LIMIT]" so each card becomes its own numbered source
     text = MULTI_MARKER_RE.sub(lambda m: "".join(f"[{x.strip()}]" for x in re.split(r"[,;]", m.group(1))), text)
@@ -105,7 +127,9 @@ def check(text: str, kb: KB) -> GuardResult:
     for m in ARTICLE_RE.finditer(text):
         add(m.span(), m.group(0), "block", "constitutional article not on a verified card")
     for m in CASE_RE.finditer(text):
-        add(m.span(), m.group(0), "block", "case-law citation (the bot is not allowed to cite judgments)")
+        if _known_judgment(m.group(0), kb):
+            continue   # a verified Supreme Court judgment card
+        add(m.span(), m.group(0), "block", "case-law citation not on a verified judgment card")
     known = [a["name"].lower() for a in kb.acts.values()] + [al for a in kb.acts.values() for al in a["aliases"]]
     for m in ACT_NAME_RE.finditer(text):
         name = m.group(1).lower()

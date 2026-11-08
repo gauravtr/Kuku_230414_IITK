@@ -24,6 +24,10 @@ class KB:
         self.cards: dict = {c["id"]: c for c in laws["cards"]}
         self.issues: dict = pb["issues"]
         self.red_flags: list = pb["red_flags"]
+        jf = kb_dir / "judgments.json"
+        jd = json.loads(jf.read_text()) if jf.exists() else {"sides": {}, "judgments": []}
+        self.sides: dict = jd["sides"]                       # issue -> {side_key: label}
+        self.judgments: dict = {j["id"]: j for j in jd["judgments"]}
 
     # ---- routing (code decides which law the model may see) -----------------
     def classify(self, text: str) -> dict[str, int]:
@@ -38,6 +42,9 @@ class KB:
     def cards_for(self, issues: list[str]) -> list[dict]:
         wanted = set(issues) | {"*"}
         return [c for c in self.cards.values() if wanted & set(c["issues"])]
+
+    def judgments_for(self, issue: str | None) -> list[dict]:
+        return [j for j in self.judgments.values() if j["issue"] == issue]
 
     # ---- whitelist used by the citation guard ------------------------------
     def allowed_sections(self) -> dict[str, set[str]]:

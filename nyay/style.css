@@ -62,11 +62,12 @@ html, body, .stApp, [data-testid="stAppViewContainer"] { background: var(--paper
   border-color: var(--ink-2) !important; background: #FCFBF8 !important; }
 .stButton button:active, .stDownloadButton button:active { transform: translateY(1px); }
 .stButton button p, .stDownloadButton button p, [data-testid="stPopover"] button p { font-weight: 600; font-size: 14.5px; }
-button[data-testid="stBaseButton-primary"], .stDownloadButton button[kind="primary"] {
+button[data-testid="stBaseButton-primary"], button[data-testid="stBaseButton-primaryFormSubmit"], .stDownloadButton button[kind="primary"] {
   background: var(--ink) !important; color: #fff !important; border-color: var(--ink) !important;
   box-shadow: 0 1px 2px rgba(14,26,43,.2), inset 0 1px 0 rgba(255,255,255,.06); }
-button[data-testid="stBaseButton-primary"]:hover { background: #1C2C44 !important; }
-button[data-testid="stBaseButton-primary"] p, button[data-testid="stBaseButton-primary"] span { color: #fff !important; }
+button[data-testid="stBaseButton-primary"]:hover, button[data-testid="stBaseButton-primaryFormSubmit"]:hover { background: #1C2C44 !important; }
+button[data-testid="stBaseButton-primary"] p, button[data-testid="stBaseButton-primary"] span,
+button[data-testid="stBaseButton-primaryFormSubmit"] p, button[data-testid="stBaseButton-primaryFormSubmit"] span { color: #fff !important; }
 button[data-testid="stBaseButton-tertiary"] { border: none !important; background: transparent !important; box-shadow: none; color: var(--ink-2) !important; min-height: 32px; padding: 0 .25rem; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 .stButton button:focus-visible, .stDownloadButton button:focus-visible { outline: 2px solid var(--brass) !important; outline-offset: 2px; }
@@ -393,6 +394,33 @@ details.srcs li { margin: 3px 0; color: var(--ink-2); }
 [class*="st-key-qform_"] { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 12px; gap: .5rem; margin-top: 4px; }
 [class*="st-key-qform_"] [data-testid="stForm"] { padding: 0; border: 0; }
 [class*="st-key-qform_"] label p { font-size: 14.5px !important; line-height: 1.45 !important; font-weight: 550; color: var(--ink) !important; }
-[class*="st-key-qform_"] [data-testid="stFormSubmitButton"] button { border-radius: 10px; }
+[class*="st-key-qform_"] [data-testid="stFormSubmitButton"] button { border-radius: 10px; min-height: 42px; padding: 0 18px; }
+[class*="st-key-qform_"] [data-testid="stFormSubmitButton"] button p { font-weight: 600; font-size: 14.5px; }
 .qs-asked { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 6px; }
 .qs-asked ol { margin: 6px 0 0; padding-left: 1.2rem; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+
+/* Supreme Court judgments panel */
+.juds { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin: 8px 0 4px; overflow: hidden; }
+.juds > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 11px 14px; font-weight: 650; font-size: 14px; color: var(--ink); }
+.juds > summary::-webkit-details-marker { display: none; }
+.juds > summary .ms { color: var(--brass); font-size: 19px; }
+.juds > summary .right { margin-left: auto; font-weight: 500; font-size: 12.5px; color: var(--muted); }
+.juds > summary .chev { margin-left: 6px; color: var(--muted); transition: transform .15s; }
+.juds[open] > summary .chev { transform: rotate(180deg); }
+.jg { padding: 4px 14px 6px; }
+.jh { display: flex; align-items: center; gap: 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin: 6px 0 6px; }
+.jh .ms { font-size: 16px; }
+.jg-for .jh { color: #1E6B45; } .jg-against .jh { color: #9A5B0F; }
+.jg ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jg li { border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; padding: 10px 12px; background: #FDFCF9; }
+.jg li.for { border-left-color: #2E8B57; } .jg li.against { border-left-color: #D4892A; }
+.jg .jn { font-family: var(--serif); font-weight: 700; font-size: 15px; color: var(--ink); line-height: 1.3; }
+.jg .jm { font-size: 12px; color: var(--muted); margin: 2px 0 6px; }
+.jg .jm .tag { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; }
+.jg li p { margin: 0 0 6px; font-size: 13.8px; line-height: 1.55; color: var(--ink-2); }
+.jg li p.why { color: var(--ink); } .jg li p.why b { font-weight: 650; }
+.jg li p.cau { display: flex; gap: 5px; font-size: 12.8px; color: var(--muted); }
+.jg li p.cau .ms { font-size: 15px; margin-top: 1px; }
+.jg li a { font-size: 12.8px; font-weight: 600; color: var(--ink-2); display: inline-flex; align-items: center; gap: 3px; text-decoration: none; }
+.jg li a .ms { font-size: 14px; }
+.jfoot { font-size: 12px; color: var(--muted); margin: 4px 14px 12px; }

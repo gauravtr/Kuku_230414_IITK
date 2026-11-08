@@ -48,6 +48,11 @@ def sections(state: dict, sources: list[dict] | None = None) -> list[tuple[str, 
     qs = [REASON_LABEL.get(r, _c(r)) for r in esc.get("reasons", [])] + [_c(q) for q in state.get("open_questions", [])]
     if qs:
         out.append(("Why a lawyer should look at this / open questions", qs))
+    j = state.get("judgments") or {}
+    if j.get("for") or j.get("against"):
+        out.append(("Supreme Court judgments (verified)",
+                    [f"FOR the client - {c['name']}, {c['citation']}: {c['holding']}" for c in j.get("for", [])]
+                    + [f"AGAINST the client - {c['name']}, {c['citation']}: {c['holding']}" for c in j.get("against", [])]))
     if sources:
         out.append(("Law relied on (verified sources)", [f"{s['title']} - {s['url']}" for s in sources]))
     out.append(("Note", ["Prepared by Nyay Saathi, an AI lawyer (not an enrolled advocate), from what the client said. "
