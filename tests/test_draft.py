@@ -316,3 +316,17 @@ def test_found_in_live_test_runs_4():
          "2000 penalises publishing images.\n4.4 The same reasoning supports Section 308(3).")
     assert check(t, kb).clean
     assert not check(t.replace("Section 308(3)", "Section 999"), kb).clean
+
+
+class AccusedLLM:
+    name = "fake"
+
+    def chat(self, system, messages, json_mode=False, **k):
+        return json.dumps({"issue": "domestic", "reply": "Get a lawyer today; carry your documents.", "case_file": {},
+                           "judgments": {"client_side": "respondent", "notes": {}}})
+
+
+def test_accused_husband_gets_no_victim_safety_block():
+    """Case 08: a husband named in a dowry FIR was shown 'If she is in danger right now: call 112, 181'."""
+    r = NyaySaathi(llm=AccusedLLM(), kb=kb).turn(new_state(), "My wife's family filed a dowry FIR against me and my parents.")
+    assert "If she is in danger" not in r["reply_body"] and "violence" not in r["escalation"]["safety"]
