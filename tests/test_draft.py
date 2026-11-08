@@ -363,3 +363,14 @@ def test_found_in_live_run_of_case_07():
     g = check("IPC 420 was replaced on 1 July 2024 by the Bharatiya Nyaya Sanhita (BNS), but this is a civil dispute.", kb)
     assert "⚠️[unverified]" not in g.text
     assert "⚠️[unverified]" in check("File an FIR under IPC 420 for cheating.", kb).text   # old law as the law to apply
+
+
+def test_found_in_live_run_of_case_14():
+    """'**Police vs Court:**' was marked as an unverified case; '[BNSS-MAINT, RAJNESH]' was left raw in the reply."""
+    from nyay.guard import check
+    g = check("4. **Police vs Court:** you can use both routes. Civil vs Criminal is a different question.", kb)
+    assert "⚠️[unverified]" not in g.text
+    assert "⚠️[unverified]" in check("As held in Sharma vs Kapoor, interest is 18%.", kb).text   # a real-looking case still checked
+    g = check("You can ask for maintenance for your daughter [BNSS-MAINT, RAJNESH].", kb)
+    assert g.text.endswith("daughter [1][2].") and "RAJNESH" not in g.text
+    assert any("Rajnesh" in str(x) for x in g.sources)   # the bare short name became the verified judgment card
