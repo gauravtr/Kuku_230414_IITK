@@ -62,7 +62,7 @@ html, body, [class*="css"], .stMarkdown, button, input, textarea {font-family: '
 div[data-testid="stChatMessage"] {border-radius:14px;}
 </style>""", unsafe_allow_html=True)
 
-LANGS = {"🌐 Auto (my language)": "auto", "English": "English", "हिंदी (Hindi)": "Hindi in Devanagari script",
+LANGS = {"Auto (same as I write)": "auto", "English": "English", "हिंदी (Hindi)": "Hindi in Devanagari script",
          "Hinglish": "Hinglish (Hindi in Latin script)", "தமிழ் (Tamil)": "Tamil", "বাংলা (Bengali)": "Bengali",
          "मराठी (Marathi)": "Marathi", "తెలుగు (Telugu)": "Telugu", "ಕನ್ನಡ (Kannada)": "Kannada",
          "ગુજરાતી (Gujarati)": "Gujarati", "മലയാളം (Malayalam)": "Malayalam"}
@@ -77,7 +77,7 @@ EXAMPLES = [
     ("🧾 Cheque bounce notice", "I received a legal notice saying my ₹80,000 cheque bounced and I must pay in 15 days. "
                                 "What does this mean for me?"),
 ]
-VIEWS = ["💬 Consultation", "📁 Case file", "📝 Documents", "🥊 Practise"]
+VIEWS = ["💬 Consult", "📁 Case file", "📝 Documents", "🥊 Practise"]
 DOCS = {"legal_notice": ("Legal notice", "A formal demand to the other side. Usually the first step."),
         "consumer_complaint": ("Consumer complaint", "For the District Consumer Commission, if a notice didn't work.")}
 STRENGTH = {"strong": ("🟢 Strong case", "ns-strong"), "moderate": ("🟡 Moderate case", "ns-moderate"),
@@ -171,11 +171,11 @@ else:
                 '<span class="t">Verified Indian law · your language · free legal aid 15100</span></div>',
                 unsafe_allow_html=True)
 
-nav_col, lang_col = st.columns([3, 1])
-with nav_col:
-    st.segmented_control("Section", VIEWS, key="view", on_change=keep_view, label_visibility="collapsed")
+# full-width nav (fits phones), then the language picker on its own row so its label is never cut off
+st.segmented_control("Section", VIEWS, key="view", on_change=keep_view, label_visibility="collapsed")
+lang_col, _ = st.columns([2, 3])
 with lang_col:
-    lang_label = st.selectbox("Reply language", list(LANGS), label_visibility="collapsed",
+    lang_label = st.selectbox("🌐 Reply language", list(LANGS),
                               help="I reply in the language you write in. Pick one to always use it.")
 state["language"] = LANGS[lang_label]
 view = ss.view or ss.last_view
@@ -261,9 +261,10 @@ if view == VIEWS[0]:
                     r = bot.turn(state, user_text)
                     for s in r["sources"]:
                         ss.sources[s["title"]] = s
-                    msg = {"role": "assistant", "content": r["reply_body"], "assessment": r["assessment"],
-                           "escalation": r["escalation"], "sources": r["sources"], "ready": r["ready_to_draft"],
-                           "open_questions": r["open_questions"]}
+                    msg = {"role": "assistant", "content": r.get("reply_body", r["reply"]),
+                           "assessment": r.get("assessment", {}), "escalation": r.get("escalation", {}),
+                           "sources": r.get("sources", []), "ready": r.get("ready_to_draft", "none"),
+                           "open_questions": r.get("open_questions", [])}
                 except Exception as e:
                     msg = {"role": "assistant", "content": friendly_error(e), "error": True}
         ss.chat.append(msg)
