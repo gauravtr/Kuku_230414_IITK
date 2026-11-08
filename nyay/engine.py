@@ -299,7 +299,7 @@ class NyaySaathi:
                     doc, problems, repaired = doc2, p2, True
                     out["user_note"] = out2.get("user_note") or out.get("user_note", "")
         if doc_type == "legal_notice" and not details.get("ref_no"):   # a reference number is the sender's to give
-            doc = re.sub(r"(?mi)^(\s*Ref(?:erence)?\.?\s*No\.?\s*:?\s*)(?!NIL\b|\[)(\S+(?: \S+)*?)(?=\s{2,}|\s*$)",
+            doc = re.sub(r"(?mi)^(\s*Ref(?:erence)?\.?\s*No\.?\s*:?\s*)(?=[A-Za-z0-9])(?!NIL\b)(\S+(?: \S+)*?)(?=\s{2,}|\s*$)",
                          r"\1[YOUR REFERENCE NUMBER, OR NIL]", doc, count=1)
         g = check(doc, kb)
         blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.()?:\-]{2,90}\]", g.text)))
@@ -395,6 +395,22 @@ def lint_draft(doc: str, doc_type: str, sender: str, kb) -> list[str]:
             orphan = [a.upper() for a in annex if low.count(f"annexure {a}") < 2]
             if orphan:
                 probs.append("Annexures mentioned only once (must appear in the facts/schedule AND the enclosures): " + ", ".join(sorted(orphan)))
+        for sent in re.split(r"(?<=[.;])\s+", doc):   # "ingredients are satisfied" without "if established"
+            if re.search(r"\b(?:are|is|stand|stands)\s+(?:clearly\s+|fully\s+)?(?:satisfied|met|fulfilled|attracted|proved)\b", sent, re.I) \
+                    and re.search(r"ingredient|section|offence|provision", sent, re.I) \
+                    and not re.search(r"if (?:established|proved)|prima facie|would", sent, re.I):
+                probs.append(f'"{sent.strip()[:90]}" treats the allegation as proved; say the facts, if established, would satisfy it.')
+                break
+        lp = re.search(r"LEGAL POSITION(.*?)(?:\n\s*(?:\d+\.\s*)?DEMANDS|$)", doc, re.S)
+        lp = lp.group(1) if lp else ""
+        for c in kb.cards.values():   # "Section 308" where the card distinguishes 308(1)-(4): name the exact sub-section
+            for sec in c["sections"]:
+                if f"s.{sec}(" in c["text"] and re.search(rf"\bSection {sec}\b(?!\s*\()(?! read)(?:,? of| BNS)", lp):
+                    probs.append(f"Cite the exact sub-section of Section {sec} (e.g. {sec}(3)), as the card does, not the bare section.")
+        for j in kb.judgments.values():   # a Supreme Court case named without its citation
+            cit = j["citation"].split(";")[0].strip()
+            if j["name"].split(" v.")[0].replace("M/s ", "").strip() + " v" in doc and cit not in doc:
+                probs.append(f"Give the full citation for {j['name']}: {cit}.")
         dm = re.search(r"DEMANDS(.*?)(?:TIME FOR COMPLIANCE|MANNER OF REPLY|CONSEQUENCES|$)", doc, re.S)
         items = re.findall(r"(?m)^\s*\(?(?:[ivx]{1,4}|[a-h]|\d{1,2}(?:\.\d{1,2})?)[).]\s", dm.group(1)) if dm else []
         if len(items) < 2:
