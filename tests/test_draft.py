@@ -304,3 +304,15 @@ def test_found_in_live_test_runs_3():
     assert check(far, kb).clean
     assert [f["mention"] for f in check(far.replace("Section 308(4)", "Section 999"), kb).flags] == ["Section 999"]
     assert not check("That case concerned Section 308(4).", kb).clean
+
+
+def test_found_in_live_test_runs_4():
+    """Case 13 again: the model wrote '2005 INSC 806' for Balaji Traders (2025 INSC 806), and a BNS section came
+    right after an IT Act paragraph."""
+    from nyay.guard import check
+    g = check("The Supreme Court in M/s Balaji Traders v. State of U.P. (2025), 2005 INSC 806 held so.", kb)
+    assert "2025 INSC 806" in g.text and "2005 INSC" not in g.text
+    t = ("4.2 Section 351(2) of the Bharatiya Nyaya Sanhita, 2023 applies.\n4.3 Section 66E of the Information Technology Act, "
+         "2000 penalises publishing images.\n4.4 The same reasoning supports Section 308(3).")
+    assert check(t, kb).clean
+    assert not check(t.replace("Section 308(3)", "Section 999"), kb).clean
