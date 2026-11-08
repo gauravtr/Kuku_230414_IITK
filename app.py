@@ -312,6 +312,34 @@ def question_form(i: int, qs: list):
         st.warning("Answer at least one question, or type in the box at the bottom.")
 
 
+def judgments_html(j: dict) -> str:
+    """Supreme Court rulings for and against the client, rendered from verified judgment cards only."""
+    if not j or not (j.get("for") or j.get("against")):
+        return ""
+
+    def item(c, cls):
+        year = html.escape(str(c.get("date", ""))[:4])
+        why = f'<p class="why"><b>For you:</b> {esc(c["why"])}</p>' if clean(c.get("why")) else ""
+        note = f'<p class="cau">{ic("info")}{html.escape(c["caution"])}</p>' if c.get("caution") else ""
+        how = ' · <span class="tag">same principle</span>' if c.get("applies") == "principle" else ""
+        return (f'<li class="{cls}"><div class="jn">{html.escape(c["name"])}</div>'
+                f'<div class="jm">Supreme Court · {year} · {html.escape(c["citation"])}{how}</div>'
+                f'<p>{html.escape(c["holding"])}</p>{why}{note}'
+                f'<a href="{html.escape(c["url"])}" target="_blank" rel="noopener">Read the judgment summary{ic("open_in_new")}</a></li>')
+
+    parts = []
+    if j.get("for"):
+        parts.append(f'<div class="jg jg-for"><div class="jh">{ic("thumb_up", "fill")}In your favour</div><ul>'
+                     + "".join(item(c, "for") for c in j["for"]) + "</ul></div>")
+    if j.get("against"):
+        parts.append(f'<div class="jg jg-against"><div class="jh">{ic("warning", "fill")}Against you: '
+                     f'what the other side may cite</div><ul>' + "".join(item(c, "against") for c in j["against"]) + "</ul></div>")
+    side = f'<span class="right">You: {html.escape(j.get("side_label", ""))}</span>' if j.get("side_label") else ""
+    return (f'<details class="juds" open><summary>{ic("account_balance")}Supreme Court judgments{side}{ic("expand_more", "chev")}</summary>'
+            + "".join(parts) + '<p class="jfoot">Verified summaries from published sources. Read the full judgment, '
+            'or ask a lawyer (free: 15100), before relying on one in court.</p></details>')
+
+
 def sources_html(sources: list) -> str:
     if not sources:
         return ""
@@ -468,7 +496,7 @@ if view == "consult":
                 continue
             st.markdown(m["content"])
             extra = verdict_html(m.get("assessment"), show_unclear=bool(m.get("open_questions"))) + esc_html(m.get("escalation"))
-            extra += sources_html(m.get("sources"))
+            extra += judgments_html(m.get("judgments")) + sources_html(m.get("sources"))
             if m.get("unverified"):
                 extra += (f'<div class="caution">{ic("warning")}<div>I mentioned '
                           + ", ".join(f"“{html.escape(x)}”" for x in m["unverified"][:4])
@@ -497,7 +525,7 @@ if view == "consult":
             msg = {"role": "assistant", "content": r.get("reply_body", r["reply"]),
                    "assessment": r.get("assessment", {}), "escalation": r.get("escalation", {}),
                    "sources": r.get("sources", []), "ready": r.get("ready_to_draft", "none"),
-                   "open_questions": r.get("open_questions", []), "questions": r.get("question_form", []),
+                   "open_questions": r.get("open_questions", []), "questions": r.get("question_form", []), "judgments": r.get("judgments"),
                    "unverified": [f.get("mention") for f in r.get("guard_flags", [])
                                   if f.get("severity") == "block" and f.get("mention")]}
         except Exception as e:
