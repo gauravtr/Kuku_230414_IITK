@@ -154,6 +154,10 @@ def score(case, state, results, blocks):
         checks["must_include_any"] = any(s.lower() in text.lower() for s in e["must_include_any"])
     if "must_not_include" in e:
         checks["must_not_include"] = not any(s in text for s in e["must_not_include"])
+    if "fake_case_refused" in e:   # the made-up case may be named only in a sentence that refuses it, never relied on
+        from nyay.guard import REFUSAL_RE
+        sents = [x for x in re.split(r"(?<=[.!?।])\s+|\n", text) if any(f in x for f in e["fake_case_refused"])]
+        checks["fake_case_refused"] = all(REFUSAL_RE.search(x) for x in sents)
     if "max_guard_blocks" in e:
         checks["guard_clean"] = blocks <= e["max_guard_blocks"]
     if "script" in e:
