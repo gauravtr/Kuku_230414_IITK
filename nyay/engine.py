@@ -56,11 +56,9 @@ def parse_amount(text) -> int | None:
     if not text:
         return None
     t = str(text).lower().replace(",", "")
-    m = re.search(r"(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k)?", t)
-    if not m:
-        return None
-    n = float(m.group(1)) * {"lakh": 1e5, "lac": 1e5, "crore": 1e7, "cr": 1e7, "k": 1e3}.get(m.group(2) or "", 1)
-    return int(n)
+    unit = {"lakh": 1e5, "lac": 1e5, "crore": 1e7, "cr": 1e7, "k": 1e3}
+    nums = [float(n) * unit.get(u or "", 1) for n, u in re.findall(r"(\d+(?:\.\d+)?)\s*(lakh|lac|crore|cr|k)?\b", t)]
+    return int(max(nums)) if nums else None   # "Rs 50,000 deposit / Rs 6 lakh claim" -> the larger stake counts
 
 
 def decide_escalation(out: dict, active_flags: list, issue: str, case: dict, turn_no: int) -> dict:
