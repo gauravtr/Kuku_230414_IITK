@@ -13,13 +13,13 @@ import os
 import re
 
 from . import prompts
-from .guard import MARKER_RE, check, fix_act_years, fix_case_citations, footer
+from .guard import MARKER_RE, MULTI_MARKER_RE, check, fix_act_years, fix_case_citations, footer
 from .kb import KB
 from .llm import LLM
 
 
-def MARKER_STRIP(text: str) -> str:
-    return MARKER_RE.sub("", text).replace("  ", " ").strip()
+def MARKER_STRIP(text: str) -> str:   # "[COW-45]" and "[OSC-181, GEN-LEGALAID]" are for the sources list, not for display
+    return re.sub(r"\s+([.,;:!?])", r"\1", MARKER_RE.sub("", MULTI_MARKER_RE.sub("", text))).replace("  ", " ").strip()
 
 
 def today() -> str:
@@ -401,7 +401,9 @@ class NyaySaathi:
                          r"\1[YOUR REFERENCE NUMBER, OR NIL]", doc, count=1)
         g = check(doc, kb)
         blanks = sorted(set(re.findall(r"\[[A-Z][A-Z0-9 /&',.()?:\-]{2,90}\]", g.text)))
-        res = {"document": g.text, "blanks": blanks, "user_note": out.get("user_note", ""), "sender": sender,
+        note = str(out.get("user_note") or "").strip()   # the note to the client gets the same guard as every reply
+        note = MARKER_STRIP(re.sub(r"\[\d+\]", "", check(note, kb).text)) if note else ""
+        res = {"document": g.text, "blanks": blanks, "user_note": note, "sender": sender,
                "checks": draft_checks(g.text, doc_type, sender), "problems": problems, "repaired": repaired,
                "guard_flags": g.flags, "model": self.llm.name, "raw": raw}
         state["log"].append({"draft": doc_type, "guard_flags": g.flags, "blanks": blanks, "problems": problems})
