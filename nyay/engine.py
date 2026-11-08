@@ -247,13 +247,20 @@ class NyaySaathi:
         # 4. code: verify + enforce
         g = check(out.get("reply", ""), kb)
         reply = g.text
+        # the client is the ACCUSED side (a husband named in a dowry FIR): a victim-safety block addressed to "her" is
+        # not for them; their urgent-lawyer card still applies
+        accused = str((out.get("judgments") or {}).get("client_side") if isinstance(out.get("judgments"), dict) else "") \
+            in ("respondent", "accused")
         missed = [f["message"] for f in active if f.get("escalate") != "consult"
+                  and not (accused and f.get("escalate") == "safety" and f["id"] == "violence")
                   and (nums := re.findall(r"\b1\d{2,4}\b", f["message"])) and not any(n in reply for n in nums)]
         if missed:
             reply = "⚠️ " + " ".join(missed) + "\n\n" + reply   # model forgot a helpline -> code adds it
         case = out.get("case_file") or state["case"]
         turn_no = 1 + sum(m["role"] == "user" for m in state["history"])
         esc = decide_escalation(out, active, issue, case, turn_no)
+        if accused:
+            esc["safety"] = [x for x in esc["safety"] if x != "violence"]
         a = out.get("assessment") if isinstance(out.get("assessment"), dict) else {}
         def verified(text) -> str:   # side texts get the same guard; anything with unverified law is dropped
             text = str(text or "").strip()
