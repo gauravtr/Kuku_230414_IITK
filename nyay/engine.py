@@ -419,7 +419,9 @@ class NyaySaathi:
         raw = self.llm.chat(system, msgs, temperature=0.7, max_tokens=2048)
         for c in cards:   # coach tips may cite a bare card ID; bracket it so it becomes a numbered, linked source
             raw = re.sub(rf"(?<!\[){re.escape(c['id'])}(?!\])", f"[{c['id']}]", raw)
-        g = check(raw, self.kb)
+        raw = re.sub(r"`+\s*(\[[A-Z]{2,6}-[A-Z0-9]{1,12}\])\s*`+", r"\1", raw)   # "under `[TEN-WEAR]`" -> a source, not code
+        raw = re.sub(r"(COACH\s*\**\s*:\s*\**\s*)(\[[A-Z]{2,6}-[A-Z0-9]{1,12}\])\s*[-–:]\s*([^\n]+)", r"\1\3 \2", raw, flags=re.I)
+        g = check(raw, self.kb)   # "COACH: [TEN-WEAR] - Remind him..." -> "COACH: Remind him... [TEN-WEAR]"
         shown = g.text + (f"\n\n{footer(g)}" if g.flags or g.sources else "")
         practise_history += [{"role": "user", "content": user_text}, {"role": "assistant", "content": shown}]
         return {"reply": shown, "guard_flags": g.flags, "model": self.llm.name, "raw": raw}
