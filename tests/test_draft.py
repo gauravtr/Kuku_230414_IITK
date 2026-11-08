@@ -224,3 +224,35 @@ def test_extortion_message_routes_to_threats_not_salary():
     assert next(iter(kb.classify("My ex sent a WhatsApp: pay 50,000 or I post your private photos. I haven't paid."))) == "threats"
     assert next(iter(kb.classify("My company did not pay my salary for 2 months"))) == "salary"
     assert next(iter(kb.classify("Landlord not returning deposit, says I must pay for painting"))) == "deposit"
+
+
+def test_found_in_live_test_runs():
+    """Found running the long test cases on the live app (8 Nov 2026)."""
+    from nyay.engine import parse_json, reply_from_broken_json
+    # Gemini dropped a quote on a key: one slip must not show the client raw JSON
+    bad = '{\n  "people": {\n    "user": "Employee",\n    other_side": "Technova"\n  },\n  "reply": "ठीक है",\n}'
+    assert parse_json(bad)["people"]["other_side"] == "Technova"
+    assert reply_from_broken_json('{"reply": "Line one\\nline two", "case_file": {oops') == "Line one\nline two"
+    # 'no managerial role' denies the fact pattern of the sales/managerial ruling; 'not paid for 3 months' doesn't
+    fit = lambda t: [j["id"] for j, _ in kb.judgments_fitting("salary", t)]   # noqa: E731
+    assert fit("software tester, no managerial role, PF unpaid") == []
+    assert fit("I was not a manager or supervisor") == []
+    assert "JUD-ADYANTHAYA" in fit("I was a sales manager")
+    assert fit("salary not paid for 3 months") == ["JUD-BIHAR26"]
+
+
+class BrokenThenFixedLLM:
+    name = "fake"
+
+    def __init__(self):
+        self.n = 0
+
+    def chat(self, system, messages, json_mode=False, **k):
+        self.n += 1
+        return "{not json at all" if self.n == 1 else json.dumps({"issue": "deposit", "reply": "Fixed reply.", "case_file": {}})
+
+
+def test_unreadable_reply_is_asked_again_once():
+    llm = BrokenThenFixedLLM()
+    r = NyaySaathi(llm=llm, kb=kb).turn(new_state(), "Landlord kept my deposit")
+    assert llm.n == 2 and r["reply_body"] == "Fixed reply." and not r["parse_error"]
